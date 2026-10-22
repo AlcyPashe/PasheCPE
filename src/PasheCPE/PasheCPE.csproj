@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>PasheCPE</RootNamespace>
+    <PackageId>PasheCPE</PackageId>
+    <Description>Comprobantes y guías electrónicas SUNAT: UBL 2.1, validación local (XSD, XSL SUNAT y reglas 2027), firma, ZIP, envío SOAP a SUNAT u OSE, GRE por API REST, control de respuestas, historial y QR.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Xml" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="QRCoder" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PasheCPE.Tests" />
+  </ItemGroup>
+
+</Project>

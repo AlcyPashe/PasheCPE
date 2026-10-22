@@ -42,3 +42,7 @@ dotnet_naming_style.guion_bajo_camel.required_prefix = _
 # Librería: siempre ConfigureAwait(false) (solo en src\; las pruebas no lo usan)
 [src/**.cs]
 dotnet_diagnostic.CA2007.severity = warning
+
+# Pruebas: nombres Metodo_Escenario_Resultado
+[tests/**.cs]
+dotnet_diagnostic.CA1707.severity = none

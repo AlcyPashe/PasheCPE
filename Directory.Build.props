@@ -22,5 +22,6 @@
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
-  <!-- En los proyectos de src\ se activan: IsPackable, GenerateDocumentationFile, DebugType=embedded y Source Link (Fase 0). -->
+  <!-- Ajustes por carpeta: src\Directory.Build.props (paquetes NuGet, XML-docs, PDB embebido, Source Link)
+       y tests\Directory.Build.props (xUnit v3 con VSTest). Versiones en Directory.Packages.props. -->
 </Project>

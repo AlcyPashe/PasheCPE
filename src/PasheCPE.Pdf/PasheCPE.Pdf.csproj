@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>PasheCPE.Pdf</RootNamespace>
+    <PackageId>PasheCPE.Pdf</PackageId>
+    <Description>Representación impresa A4 de los comprobantes (01, 03, 07, 08) y guías (09, 31) generados con PasheCPE.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PasheCPE\PasheCPE.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="QuestPDF" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PasheCPE.Pdf.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/PasheCPE.Demo/PasheCPE.Demo.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/PasheCPE.Pdf/PasheCPE.Pdf.csproj" />
+    <Project Path="src/PasheCPE/PasheCPE.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PasheCPE.Pdf.Tests/PasheCPE.Pdf.Tests.csproj" />
+    <Project Path="tests/PasheCPE.Tests/PasheCPE.Tests.csproj" />
+  </Folder>
+</Solution>

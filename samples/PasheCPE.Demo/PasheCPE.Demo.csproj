@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Envíos reales a beta/producción: solo los ejecuta el desarrollador, manualmente. Credenciales en user-secrets (Fase 5). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PasheCPE\PasheCPE.csproj" />
+    <ProjectReference Include="..\..\src\PasheCPE.Pdf\PasheCPE.Pdf.csproj" />
+  </ItemGroup>
+
+</Project>

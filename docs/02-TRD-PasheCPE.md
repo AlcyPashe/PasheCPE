@@ -23,7 +23,7 @@
 | Serialización rápida | `Microsoft.XmlSerializer.Generator` | PasheCPE | Microsoft; genera los serializadores en compilación |
 | QR | `QRCoder` | PasheCPE | MIT, utilitario permitido |
 | PDF | `QuestPDF` | PasheCPE.Pdf | Licencia Community (ingresos < USD 1 M) |
-| Pruebas | `xunit.v3`, `Microsoft.NET.Test.Sdk`, `Microsoft.Extensions.TimeProvider.Testing`, `coverlet.collector` | tests | — |
+| Pruebas | `xunit.v3.mtp-off`, `xunit.runner.visualstudio`, `Microsoft.NET.Test.Sdk`, `Microsoft.Extensions.TimeProvider.Testing`, `coverlet.collector` | tests | VSTest; `xunit.v3.mtp-off` es xUnit v3 sin Microsoft Testing Platform (con el SDK 10, `xunit.v3` 4.x no corre bajo VSTest) |
 | Generación de código (solo desarrollo) | `dotnet-xscgen` | herramienta | No se distribuye |
 | Lectura del Excel de SUNAT (solo desarrollo) | `DocumentFormat.OpenXml` | `tools\GeneradorRecursos` | Microsoft; no se distribuye |
 
@@ -43,7 +43,7 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 │   ├── XSD\2.0\ XSD\2.1\                  XSD 28/02/2022
 │   ├── XSL\                               XSL 06/09/2022
 │   ├── VALIDACIONES\                      ReglasValidacion-CPE-2026-08-26.xlsx (reglas, CódigosRetorno, Catálogos,
-│   │                                      Control de Cambios) + reglas GRE (Excel aparte, antes de la Fase 10)
+│   │                                      Control de Cambios) + ReglasValidacion-GRE-2026-09-25.xlsx
 │   ├── CATALOGOS\                         solo catálogos externos que el Excel referencia por enlace
 │   │                                      (p. ej. UNSPSC completo CCNU_MOD_2.xlsm para el Cat. 25)
 │   └── VERSION.md                         origen, fecha y resolución de cada archivo
@@ -124,7 +124,7 @@ Hojas fuera de alcance (no se procesan): Retenciones, Percepciones, Resumen de r
 
 Notas del archivo:
 - Los catálogos 02 (ISO 4217), 03 (UN/ECE Rec. 20), 04 (ISO 3166) y 25 (UNSPSC completo) solo aparecen como **enlace**. Para la validación local basta el formato; si se requiere la lista completa del 25, el desarrollador descarga `CCNU_MOD_2.xlsm` a `recursos\CATALOGOS` (opcional, recurso comprimido y de carga perezosa).
-- El Excel **no incluye la GRE**; sus reglas se publican aparte en la sección GRE del portal y se agregan antes de la Fase 10.
+- El Excel CPE **no incluye la GRE**; sus reglas están en `recursos\VALIDACIONES\ReglasValidacion-GRE-2026-09-25.xlsx` (sección GRE del portal), que se procesa en la Fase 10.
 - Al publicar SUNAT una versión nueva del Excel: reemplazar el archivo, actualizar `VERSION.md`, ejecutar el generador y revisar el diff de los JSON.
 
 ### 3.3 Datos versionados embebidos (sobrescribibles por configuración)
@@ -439,12 +439,12 @@ Endpoints por defecto (`endpoints.json`, sobrescribibles por emisor/canal):
 | SUNAT | Beta | billService | `https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService` |
 | SUNAT | Producción | billService | `https://e-factura.sunat.gob.pe/ol-ti-itcpfegem/billService` |
 | SUNAT | Producción | billConsultService (`getStatusCdr`) | `https://e-factura.sunat.gob.pe/ol-it-wsconscpegem/billConsultService` **[verificar]** |
-| OSE eFact | Producción | billService | `https://ose.efact.pe/ol-ti-itcpe/billService` **[verificar con el eFacturador]** |
-| OSE eFact | Pruebas | billService | tomar del eFacturador **[pendiente]** |
+| OSE | Producción | billService | **[pendiente]** — se define con el sistema de ventas que use OSE |
+| OSE | Pruebas | billService | **[pendiente]** — ídem |
 | GRE | Producción | token | `https://api-seguridad.sunat.gob.pe/v1/clientessol/{client_id}/oauth2/token/` |
 | GRE | Producción | API | `https://api-cpe.sunat.gob.pe/v1/contribuyente/gem/comprobantes` |
 
-Notas: `getStatusCdr` no existe en beta → `ConsultarCdrAsync` en beta devuelve `ErrorServicio` "no soportado en beta". Si el OSE no ofrece `getStatusCdr`, el canal lo declara (`SoportaConsultaCdr = false`) y la reconciliación se hace con `getStatus` o consulta manual.
+Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la configuración los indican. `getStatusCdr` no existe en beta → `ConsultarCdrAsync` en beta devuelve `ErrorServicio` "no soportado en beta". Si el OSE no ofrece `getStatusCdr`, el canal lo declara (`SoportaConsultaCdr = false`) y la reconciliación se hace con `getStatus` o consulta manual.
 
 ## 15. Lectura del CDR
 

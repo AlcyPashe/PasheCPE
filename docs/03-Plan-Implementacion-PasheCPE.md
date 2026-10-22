@@ -30,6 +30,8 @@
 
 **Aceptación:** `dotnet build` y `dotnet test` en verde; `dotnet list package` solo muestra paquetes del TRD §1; el workflow `ci.yml` pasa en GitHub.
 
+**Estado:** completada el 22/10/2026. Pendiente: que `ci.yml` pase en GitHub tras el primer `git push`.
+
 ---
 
 ## Fase 1 — Núcleo: modelos, resultados, datos versionados y almacén
@@ -141,15 +143,15 @@
 
 ---
 
-## Fase 9 — Canal OSE (eFact)
+## Fase 9 — Canal OSE
 
 **Objetivo:** enviar por OSE con el mismo contrato público.
 
-1. **[Desarrollador]** Copiar la configuración del eFacturador de Comercializadora San Juan (endpoints de pruebas y producción, forma de las credenciales) sin claves.
+1. **[Desarrollador]** Endpoints (pruebas y producción) y forma de las credenciales del OSE del sistema de ventas que lo use, sin claves. No se toman de configuraciones de sistemas anteriores; mientras no exista ese sistema, el canal se implementa con endpoints configurables y queda pendiente la prueba real.
 2. `CanalEnvio.Ose` con endpoints, credenciales del OSE y capacidades (`SoportaConsultaCdr`, `SoportaBoletaIndividual`).
 3. Diferencias de faults/respuestas del OSE en `LectorFaultSoap` y `errores-sunat.json` (sección OSE).
 
-**Aceptación:** pruebas con respuestas grabadas del OSE; **(manual)** una factura aceptada en el ambiente de pruebas de eFact, si existe.
+**Aceptación:** pruebas con respuestas grabadas del OSE; **(manual, cuando exista el sistema de ventas con OSE)** una factura aceptada en el ambiente de pruebas del OSE, si existe.
 
 ---
 
@@ -207,6 +209,6 @@
 | Fase 1 | ✅ Excel de reglas de validación 26.08.2026 en `recursos\VALIDACIONES` (incluye catálogos y códigos de retorno). Opcional: UNSPSC completo `CCNU_MOD_2.xlsm` en `recursos\CATALOGOS` |
 | Fase 2 | XML aceptados por SUNAT para dorados |
 | Fase 5 | RUC y usuario beta, certificado de prueba |
-| Fase 9 | Configuración del eFacturador (sin claves) |
-| Fase 10 | Excel de reglas de validación GRE (sección GRE del portal) en `recursos\VALIDACIONES`, credenciales API SUNAT y un traslado real |
+| Fase 9 | Endpoints y forma de las credenciales del OSE del sistema de ventas que lo use (sin claves) — pendiente |
+| Fase 10 | ✅ Excel de reglas de validación GRE `ReglasValidacion-GRE-2026-09-25.xlsx` en `recursos\VALIDACIONES`. Pendientes: credenciales API SUNAT y un traslado real |
 | Fase 13 | PAT de GitHub con `read:packages` en el servidor del cliente |

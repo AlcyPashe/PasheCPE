@@ -193,7 +193,7 @@ Solo hasta el mes: **sin subcarpetas por día**. El periodo es el de la **fecha 
 - Servidores Windows locales con acceso a Internet (a veces intermitente en Loreto).
 - Cada emisor tiene certificado digital vigente, usuario secundario SOL (o credenciales OSE) y credenciales de API SUNAT para GRE.
 - Pruebas de CPE en el ambiente beta de SUNAT; las GRE se prueban en producción con traslados reales (un rechazo en producción no genera documento válido).
-- El desarrollador provee en `recursos\`: XSD, XSL, el Excel oficial de reglas de validación (actualizado al 26.08.2026; incluye catálogos y códigos de retorno), las reglas de validación GRE y, para OSE.
+- El desarrollador provee en `recursos\`: XSD, XSL, el Excel oficial de reglas de validación (actualizado al 26.08.2026; incluye catálogos y códigos de retorno), las reglas de validación GRE (actualizadas al 25.09.2026) y, para OSE, los endpoints y la forma de las credenciales cuando un sistema de ventas use un OSE (mientras tanto, pendiente).
 
 ## 9. Riesgos
 
@@ -212,5 +212,5 @@ Solo hasta el mes: **sin subcarpetas por día**. El periodo es el de la **fecha 
 ## 10. Decisiones pendientes (no bloquean el inicio)
 
 1. Afectación por defecto de las boletas de un emisor `NRUS` (confirmar con contador): por ahora usa la misma regla que el resto (exonerado si Amazonía).
-2. Endpoint beta del OSE eFact y soporte de `getStatusCdr` en eFact: tomar de la configuración del eFacturador.
+2. Endpoints del OSE (pruebas y producción) y soporte de `getStatusCdr`: pendientes hasta contar con un sistema de ventas que use OSE; no se toman de configuraciones de sistemas anteriores.
 3. Si SUNAT publica XSL actualizadas para 2027, reemplazar las de 2022 y retirar las reglas C# duplicadas.

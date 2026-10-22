@@ -8,7 +8,7 @@ No modificar estos archivos; reemplazarlos solo con nuevas versiones oficiales y
 | `XSD/2.0` | UBL 2.0 SUNAT (SummaryDocuments, VoidedDocuments, extensiones) | Actualizado al 28/02/2022 | ídem | 22/10/2026 |
 | `XSL` | Reglas de validación `ValidaExprReg*` | Actualizado al 06/09/2022 | ídem | 22/10/2026 |
 | `VALIDACIONES/ReglasValidacion-CPE-2026-08-26.xlsx` | Reglas de validación CPE: hojas por documento, `General `, `CódigosRetorno`, `Catálogos` (Anexo 8), `Parámetros`, `Control de Cambios` (incluye vigencias 01/01/2027). SHA-256 `cb5e871cfe3b81abea7faf25b156e5d35b21e8c4837979350919926612da73b6` | Actualizado al 26.08.2026 | ídem | 22/10/2026 |
-| `VALIDACIONES` (GRE) | Reglas de validación GRE | **pendiente (antes de la Fase 10)** | sección GRE del portal | — |
+| `VALIDACIONES/ReglasValidacion-GRE-2026-09-25.xlsx` | Reglas de validación GRE (remitente y transportista). SHA-256 `f328721b1c530669598ed907a1e4b47004468375dd872959580bbd8c466fa066` | Actualizado al 25.09.2026 | sección GRE del portal | 22/10/2026 |
 | `CATALOGOS` | Solo catálogos externos enlazados por el Excel (opcional: UNSPSC `CCNU_MOD_2.xlsm`) | — | ídem | — |
 
 ## Notas
