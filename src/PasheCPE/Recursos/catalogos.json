@@ -1,0 +1,4997 @@
+{
+  "fuente": {
+    "archivo": "recursos/VALIDACIONES/ReglasValidacion-CPE-2026-08-26.xlsx",
+    "sha256": "cb5e871cfe3b81abea7faf25b156e5d35b21e8c4837979350919926612da73b6"
+  },
+  "catalogos": {
+    "01": {
+      "nombre": "Código de tipo de documento",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Factura"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Boleta de venta"
+        },
+        {
+          "codigo": "04",
+          "descripcion": "Liquidación de compra"
+        },
+        {
+          "codigo": "05",
+          "descripcion": "Boletos de Transporte Aéreo que emiten las Compañías de Aviación Comercial por el servicio de transporte aéreo regular de pasajeros, emitido de manera manual, mecanizada o por medios electrónicos (BME)"
+        },
+        {
+          "codigo": "06",
+          "descripcion": "Carta de porte aéreo"
+        },
+        {
+          "codigo": "07",
+          "descripcion": "Nota de crédito"
+        },
+        {
+          "codigo": "08",
+          "descripcion": "Nota de débito"
+        },
+        {
+          "codigo": "09",
+          "descripcion": "Guía de remisión remitente"
+        },
+        {
+          "codigo": "11",
+          "descripcion": "Póliza emitida por las Bolsas de Valores"
+        },
+        {
+          "codigo": "12",
+          "descripcion": "Ticket de máquina registradora"
+        },
+        {
+          "codigo": "13",
+          "descripcion": "Documento emitido por bancos, instituciones financieras, crediticias y de seguros que se encuentren bajo el control de la Superintendencia de Banca y Seguros"
+        },
+        {
+          "codigo": "14",
+          "descripcion": "Recibo servicios públicos"
+        },
+        {
+          "codigo": "15",
+          "descripcion": "Boletos emitidos por el servicio de transporte terrestre regular urbano de pasajeros y el ferroviario público de pasajeros prestado en vía férrea local"
+        },
+        {
+          "codigo": "16",
+          "descripcion": "Boleto de viaje emitido por las empresas de transporte público interprovincial de pasajeros"
+        },
+        {
+          "codigo": "18",
+          "descripcion": "Documentos emitidos por las AFP"
+        },
+        {
+          "codigo": "19",
+          "descripcion": "Boleto por atracciones y espectáculos públicos"
+        },
+        {
+          "codigo": "20",
+          "descripcion": "Comprobante de retención"
+        },
+        {
+          "codigo": "21",
+          "descripcion": "Conocimiento de embarque por el servicio de transporte de carga marítima"
+        },
+        {
+          "codigo": "23",
+          "descripcion": "Pólizas de Adjudicación por remate o adjudicación de bienes"
+        },
+        {
+          "codigo": "24",
+          "descripcion": "Certificado de pago de regalías emitidas por PERUPETRO S.A."
+        },
+        {
+          "codigo": "25",
+          "descripcion": "Documento de atribución",
+          "desde": "2027-01-01"
+        },
+        {
+          "codigo": "28",
+          "descripcion": "Etiquetas por el pago de la Tarifa Unificada de Uso de Aeropuerto – TUUA"
+        },
+        {
+          "codigo": "29",
+          "descripcion": "Documentos emitidos por la COFOPRI"
+        },
+        {
+          "codigo": "30",
+          "descripcion": "Documentos emitidos por las empresas que desempeñan el rol adquirente en los sistemas de pago mediante tarjetas de crédito y débito, emitidas por bancos e instituciones financieras o crediticias, domiciliados o no en el país."
+        },
+        {
+          "codigo": "31",
+          "descripcion": "Guía de remisión transportista"
+        },
+        {
+          "codigo": "32",
+          "descripcion": "Documentos emitidos por recaudadoras de la Garantía de Red Principal"
+        },
+        {
+          "codigo": "34",
+          "descripcion": "Documento del Operador"
+        },
+        {
+          "codigo": "35",
+          "descripcion": "Documento del Partícipe"
+        },
+        {
+          "codigo": "36",
+          "descripcion": "Recibo de Distribución de Gas Natural"
+        },
+        {
+          "codigo": "37",
+          "descripcion": "Documentos que emitan los concesionarios del servicio de revisiones técnicas"
+        },
+        {
+          "codigo": "40",
+          "descripcion": "Comprobante de Percepción"
+        },
+        {
+          "codigo": "41",
+          "descripcion": "Comprobante de Percepción – Venta interna ( físico - formato impreso)"
+        },
+        {
+          "codigo": "42",
+          "descripcion": "Documentos emitidos por los adq. en los sistemas de pago por tarj. de crédito emitidas por ellas mismas"
+        },
+        {
+          "codigo": "43",
+          "descripcion": "Boleto de compañías de aviación transporte aéreo no regular"
+        },
+        {
+          "codigo": "45",
+          "descripcion": "Documentos emitidos por centros educativos y culturales, universidades, asociaciones y fundaciones"
+        },
+        {
+          "codigo": "55",
+          "descripcion": "BVME para transporte ferroviario de pasajeros"
+        },
+        {
+          "codigo": "56",
+          "descripcion": "Comprobante de pago SEAE / DAE-SEAE"
+        },
+        {
+          "codigo": "71",
+          "descripcion": "Guía de remisión remitente complementaria"
+        },
+        {
+          "codigo": "72",
+          "descripcion": "Guía de remisión transportista complementaria"
+        },
+        {
+          "codigo": "87",
+          "descripcion": "Nota de crédito especial"
+        },
+        {
+          "codigo": "88",
+          "descripcion": "Nota de débito especial"
+        }
+      ]
+    },
+    "02": {
+      "nombre": "Código de tipo de monedas",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "soloFormato": true,
+      "formato": "^[A-Z]{3}$",
+      "enlace": [
+        "ISO 4217 Alpha Version 2001",
+        "http://www.iso.org/iso/home/standards/currency_codes.htm"
+      ],
+      "items": []
+    },
+    "03": {
+      "nombre": "Código de tipo de unidad de medida comercial",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "soloFormato": true,
+      "formato": "^[A-Z0-9]{1,3}$",
+      "enlace": [
+        "UN/ECE Recommendation 20 Revision 13",
+        "https://www.unece.org/fileadmin/DAM/uncefact/recommendations/rec20/rec20_Rev13e_2017.xls"
+      ],
+      "items": []
+    },
+    "04": {
+      "nombre": "Código de país",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "soloFormato": true,
+      "formato": "^[A-Z]{2}$",
+      "enlace": [
+        "ISO 3166-1",
+        "http://www.chemie.fu-berlin.de/diverse/doc/ISO_3166.html"
+      ],
+      "items": []
+    },
+    "05": {
+      "nombre": "Código de tipos de tributos y otros conceptos",
+      "columnas": [
+        "Código",
+        "Descripción",
+        "Código internacional",
+        "Nombre"
+      ],
+      "items": [
+        {
+          "codigo": "1000",
+          "descripcion": "IGV Impuesto General a las Ventas",
+          "extras": {
+            "Código internacional": "VAT",
+            "Nombre": "IGV"
+          }
+        },
+        {
+          "codigo": "1016",
+          "descripcion": "Impuesto a la Venta Arroz Pilado",
+          "extras": {
+            "Código internacional": "VAT",
+            "Nombre": "IVAP"
+          }
+        },
+        {
+          "codigo": "2000",
+          "descripcion": "ISC Impuesto Selectivo al Consumo",
+          "extras": {
+            "Código internacional": "EXC",
+            "Nombre": "ISC"
+          }
+        },
+        {
+          "codigo": "3000",
+          "descripcion": "Impuesto a la Renta",
+          "extras": {
+            "Código internacional": "TOX",
+            "Nombre": "IR"
+          }
+        },
+        {
+          "codigo": "7152",
+          "descripcion": "Impuesto a la bolsa plastica",
+          "extras": {
+            "Código internacional": "OTH",
+            "Nombre": "ICBPER"
+          }
+        },
+        {
+          "codigo": "9995",
+          "descripcion": "Exportación",
+          "extras": {
+            "Código internacional": "FRE",
+            "Nombre": "EXP"
+          }
+        },
+        {
+          "codigo": "9996",
+          "descripcion": "Gratuito",
+          "extras": {
+            "Código internacional": "FRE",
+            "Nombre": "GRA"
+          }
+        },
+        {
+          "codigo": "9997",
+          "descripcion": "Exonerado",
+          "extras": {
+            "Código internacional": "VAT",
+            "Nombre": "EXO"
+          }
+        },
+        {
+          "codigo": "9998",
+          "descripcion": "Inafecto",
+          "extras": {
+            "Código internacional": "FRE",
+            "Nombre": "INA"
+          }
+        },
+        {
+          "codigo": "9999",
+          "descripcion": "Otros tributos",
+          "extras": {
+            "Código internacional": "OTH",
+            "Nombre": "OTROS"
+          }
+        }
+      ]
+    },
+    "06": {
+      "nombre": "Código de tipo de documento de identidad",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "0",
+          "descripcion": "DOC.TRIB.NO.DOM.SIN.RUC"
+        },
+        {
+          "codigo": "1",
+          "descripcion": "Documento Nacional de Identidad"
+        },
+        {
+          "codigo": "4",
+          "descripcion": "Carnet de extranjería"
+        },
+        {
+          "codigo": "6",
+          "descripcion": "Registro Unico de Contributentes"
+        },
+        {
+          "codigo": "7",
+          "descripcion": "Pasaporte"
+        },
+        {
+          "codigo": "A",
+          "descripcion": "Cédula Diplomática de identidad"
+        },
+        {
+          "codigo": "B",
+          "descripcion": "DOC.IDENT.PAIS.RESIDENCIA-NO.D"
+        },
+        {
+          "codigo": "C",
+          "descripcion": "Tax Identification Number - TIN – Doc Trib PP.NN"
+        },
+        {
+          "codigo": "D",
+          "descripcion": "Identification Number - IN – Doc Trib PP. JJ"
+        },
+        {
+          "codigo": "E",
+          "descripcion": "TAM- Tarjeta Andina de Migración"
+        },
+        {
+          "codigo": "F",
+          "descripcion": "Permiso Temporal de Permanencia - PTP"
+        },
+        {
+          "codigo": "G",
+          "descripcion": "Salvoconducto"
+        },
+        {
+          "codigo": "H",
+          "descripcion": "Carné Permiso Temp.Perman. - CPP"
+        }
+      ]
+    },
+    "07": {
+      "nombre": "Código de tipo de afectación del IGV",
+      "columnas": [
+        "Código",
+        "Descripción",
+        "Codigo de tributo"
+      ],
+      "items": [
+        {
+          "codigo": "10",
+          "descripcion": "Gravado - Operación Onerosa",
+          "extras": {
+            "Codigo de tributo": "1000"
+          }
+        },
+        {
+          "codigo": "11",
+          "descripcion": "Gravado – Retiro por premio",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "12",
+          "descripcion": "Gravado – Retiro por donación",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "13",
+          "descripcion": "Gravado – Retiro",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "14",
+          "descripcion": "Gravado – Retiro por publicidad",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "15",
+          "descripcion": "Gravado – Bonificaciones",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "16",
+          "descripcion": "Gravado – Retiro por entrega a trabajadores",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "17",
+          "descripcion": "Gravado - IVAP",
+          "extras": {
+            "Codigo de tributo": "1016 o 9996"
+          }
+        },
+        {
+          "codigo": "20",
+          "descripcion": "Exonerado - Operación Onerosa",
+          "extras": {
+            "Codigo de tributo": "9997"
+          }
+        },
+        {
+          "codigo": "21",
+          "descripcion": "Exonerado - Transferencia gratuita",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "30",
+          "descripcion": "Inafecto - Operación Onerosa",
+          "extras": {
+            "Codigo de tributo": "9998"
+          }
+        },
+        {
+          "codigo": "31",
+          "descripcion": "Inafecto – Retiro por Bonificación",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "32",
+          "descripcion": "Inafecto – Retiro",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "33",
+          "descripcion": "Inafecto – Retiro por Muestras Médicas",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "34",
+          "descripcion": "Inafecto - Retiro por Convenio Colectivo",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "35",
+          "descripcion": "Inafecto – Retiro por premio",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "36",
+          "descripcion": "Inafecto - Retiro por publicidad",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "37",
+          "descripcion": "Inafecto - Transferencia gratuita",
+          "extras": {
+            "Codigo de tributo": "9996"
+          }
+        },
+        {
+          "codigo": "40",
+          "descripcion": "Exportación de Bienes o Servicios",
+          "extras": {
+            "Codigo de tributo": "9995 o 9996"
+          }
+        }
+      ]
+    },
+    "08": {
+      "nombre": "Código de tipos de sistema de cálculo del ISC",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Sistema al valor (Apéndice IV, lit. A – T.U.O IGV e ISC)"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Aplicación del Monto Fijo ( Sistema específico, bienes en el apéndice III, Apéndice IV, lit. B – T.U.O IGV e ISC)"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Sistema de Precios de Venta al Público (Apéndice IV, lit. C – T.U.O IGV e ISC)"
+        }
+      ]
+    },
+    "09": {
+      "nombre": "Códigos de tipo de nota de crédito electrónica",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Anulación de la operación"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Anulación por error en el RUC"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Corrección por error en la descripción o atención de reclamo respecto de bienes adquiridos o servicios prestados Corrección por error en la descripción y/o código de producto SUNAT"
+        },
+        {
+          "codigo": "04",
+          "descripcion": "Descuento global"
+        },
+        {
+          "codigo": "05",
+          "descripcion": "Descuento por ítem"
+        },
+        {
+          "codigo": "06",
+          "descripcion": "Devolución total"
+        },
+        {
+          "codigo": "07",
+          "descripcion": "Devolución por ítem"
+        },
+        {
+          "codigo": "08",
+          "descripcion": "Bonificación"
+        },
+        {
+          "codigo": "09",
+          "descripcion": "Disminución en el valor"
+        },
+        {
+          "codigo": "10",
+          "descripcion": "Otros Conceptos"
+        },
+        {
+          "codigo": "11",
+          "descripcion": "Ajustes de operaciones de exportación"
+        },
+        {
+          "codigo": "12",
+          "descripcion": "Ajustes afectos al IVAP"
+        },
+        {
+          "codigo": "13",
+          "descripcion": "Corrección o modificación del monto neto pendiente de pago y/o la(s) fechas(s) de vencimiento del pago único o de las cuotas y/o los montos correspondientes a cada cuota, de ser el caso"
+        }
+      ]
+    },
+    "10": {
+      "nombre": "Códigos de tipo de nota de débito electrónica",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Intereses por mora"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Aumento en el valor"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Penalidades/ otros conceptos"
+        },
+        {
+          "codigo": "11",
+          "descripcion": "Ajustes de operaciones de exportación"
+        },
+        {
+          "codigo": "12",
+          "descripcion": "Ajustes afectos al IVAP"
+        },
+        {
+          "codigo": "13",
+          "descripcion": "Penalidades",
+          "desde": "2027-01-01"
+        }
+      ]
+    },
+    "11": {
+      "nombre": "Códigos de tipo de valor de venta (Resumen diario de boletas y notas)",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Gravado"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Exonerado"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Inafecto"
+        },
+        {
+          "codigo": "04",
+          "descripcion": "Exportación"
+        },
+        {
+          "codigo": "05",
+          "descripcion": "Gratuitas",
+          "hasta": "2026-12-31"
+        },
+        {
+          "codigo": "06",
+          "descripcion": "Gratuitas-Gravada",
+          "desde": "2027-01-01"
+        },
+        {
+          "codigo": "07",
+          "descripcion": "Gratuitas-Exoneradas",
+          "desde": "2027-01-01"
+        },
+        {
+          "codigo": "08",
+          "descripcion": "Gratuitas-Inafectas",
+          "desde": "2027-01-01"
+        },
+        {
+          "codigo": "09",
+          "descripcion": "Gratuitas-Exportación",
+          "desde": "2027-01-01"
+        }
+      ]
+    },
+    "12": {
+      "nombre": "Código de documentos relacionados tributarios",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Factura – emitida para corregir error en el RUC"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Factura – emitida por anticipos"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Boleta de Venta – emitida por anticipos"
+        },
+        {
+          "codigo": "04",
+          "descripcion": "Ticket de Salida - ENAPU"
+        },
+        {
+          "codigo": "05",
+          "descripcion": "Código SCOP"
+        },
+        {
+          "codigo": "06",
+          "descripcion": "Factura electrónica remitente"
+        },
+        {
+          "codigo": "07",
+          "descripcion": "Guia de remisión remitente"
+        },
+        {
+          "codigo": "08",
+          "descripcion": "Declaración de salida del depósito franco"
+        },
+        {
+          "codigo": "09",
+          "descripcion": "Declaración simplificada de importación"
+        },
+        {
+          "codigo": "10",
+          "descripcion": "Liquidación de compra - emitida por anticipos"
+        },
+        {
+          "codigo": "99",
+          "descripcion": "Otros"
+        }
+      ]
+    },
+    "13": {
+      "nombre": "Código de ubicación geográfica (UBIGEO)",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "soloFormato": true,
+      "formato": "^\\d{6}$",
+      "enlace": [
+        "Catálogo de ubigeos del INEI",
+        "https://www.datosabiertos.gob.pe/dataset/c%C3%B3digo-de-ubicaci%C3%B3n-geogr%C3%A1fica-en-el-per%C3%BA-instituto-nacional-de-estad%C3%ADstica-e-inform%C3%A1tica"
+      ],
+      "items": []
+    },
+    "14": {
+      "nombre": "Código de otros conceptos tributarios",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "1000",
+          "descripcion": "Total valor de venta - operaciones exportadas"
+        },
+        {
+          "codigo": "1001",
+          "descripcion": "Total valor de venta - operaciones gravadas"
+        },
+        {
+          "codigo": "1002",
+          "descripcion": "Total valor de venta - operaciones inafectas"
+        },
+        {
+          "codigo": "1003",
+          "descripcion": "Total valor de venta - operaciones exoneradas"
+        },
+        {
+          "codigo": "1004",
+          "descripcion": "Total valor de venta – Operaciones gratuitas"
+        },
+        {
+          "codigo": "1005",
+          "descripcion": "Sub total de venta"
+        },
+        {
+          "codigo": "2001",
+          "descripcion": "Percepciones"
+        },
+        {
+          "codigo": "2002",
+          "descripcion": "Retenciones"
+        },
+        {
+          "codigo": "2003",
+          "descripcion": "Detracciones"
+        },
+        {
+          "codigo": "2004",
+          "descripcion": "Bonificaciones"
+        },
+        {
+          "codigo": "2005",
+          "descripcion": "Total descuentos"
+        },
+        {
+          "codigo": "3001",
+          "descripcion": "FISE (Ley 29852) Fondo Inclusión Social Energético"
+        }
+      ]
+    },
+    "15": {
+      "nombre": "Códigos de elementos adicionales en la factura y boleta electrónica",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "1000",
+          "descripcion": "Monto en Letras"
+        },
+        {
+          "codigo": "1002",
+          "descripcion": "Leyenda \"TRANSFERENCIA GRATUITA DE UN BIEN Y/O SERVICIO PRESTADO GRATUITAMENTE\""
+        },
+        {
+          "codigo": "2000",
+          "descripcion": "Leyenda “COMPROBANTE DE PERCEPCIÓN”"
+        },
+        {
+          "codigo": "2001",
+          "descripcion": "Leyenda “BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN SELVAPARA SER CONSUMIDOS EN LA MISMA\""
+        },
+        {
+          "codigo": "2002",
+          "descripcion": "Leyenda “SERVICIOS PRESTADOS EN LA AMAZONÍA REGIÓN SELVA PARA SER CONSUMIDOS EN LA MISMA”"
+        },
+        {
+          "codigo": "2003",
+          "descripcion": "Leyenda “CONTRATOS DE CONSTRUCCIÓN EJECUTADOS EN LA AMAZONÍA REGIÓN SELVA”"
+        },
+        {
+          "codigo": "2004",
+          "descripcion": "Leyenda “Agencia de Viaje - Paquete turístico”"
+        },
+        {
+          "codigo": "2005",
+          "descripcion": "Leyenda “Venta realizada por emisor itinerante”"
+        },
+        {
+          "codigo": "2006",
+          "descripcion": "Leyenda: Operación sujeta a detracción"
+        },
+        {
+          "codigo": "2007",
+          "descripcion": "Leyenda: Operación sujeta a IVAP"
+        },
+        {
+          "codigo": "2010",
+          "descripcion": "Restitución Simplificado de Derechos Arancelarios"
+        },
+        {
+          "codigo": "3000",
+          "descripcion": "Detracciones: CODIGO DE BB Y SS SUJETOS A DETRACCION"
+        },
+        {
+          "codigo": "3001",
+          "descripcion": "Detracciones: NUMERO DE CTA EN EL BN"
+        },
+        {
+          "codigo": "3002",
+          "descripcion": "Detracciones: Recursos Hidrobiológicos-Nombre y matrícula de la embarcación"
+        },
+        {
+          "codigo": "3003",
+          "descripcion": "Detracciones: Recursos Hidrobiológicos-Tipo y cantidad de especie vendida"
+        },
+        {
+          "codigo": "3004",
+          "descripcion": "Detracciones: Recursos Hidrobiológicos -Lugar de descarga"
+        },
+        {
+          "codigo": "3005",
+          "descripcion": "Detracciones: Recursos Hidrobiológicos -Fecha de descarga"
+        },
+        {
+          "codigo": "3006",
+          "descripcion": "Detracciones: Transporte Bienes vía terrestre – Numero Registro MTC"
+        },
+        {
+          "codigo": "3007",
+          "descripcion": "Detracciones: Transporte Bienes vía terrestre – configuración vehicular"
+        },
+        {
+          "codigo": "3008",
+          "descripcion": "Detracciones: Transporte Bienes vía terrestre – punto de origen"
+        },
+        {
+          "codigo": "3009",
+          "descripcion": "Detracciones: Transporte Bienes vía terrestre – punto destino"
+        },
+        {
+          "codigo": "3010",
+          "descripcion": "Detracciones: Transporte Bienes vía terrestre – valor referencial preliminar"
+        },
+        {
+          "codigo": "4000",
+          "descripcion": "Beneficio hospedajes: Código País de emisión del pasaporte"
+        },
+        {
+          "codigo": "4001",
+          "descripcion": "Beneficio hospedajes: Código País de residencia del sujeto no domiciliado"
+        },
+        {
+          "codigo": "4002",
+          "descripcion": "Beneficio Hospedajes: Fecha de ingreso al país"
+        },
+        {
+          "codigo": "4003",
+          "descripcion": "Beneficio Hospedajes: Fecha de ingreso al establecimiento"
+        },
+        {
+          "codigo": "4004",
+          "descripcion": "Beneficio Hospedajes: Fecha de salida del establecimiento"
+        },
+        {
+          "codigo": "4005",
+          "descripcion": "Beneficio Hospedajes: Número de días de permanencia"
+        },
+        {
+          "codigo": "4006",
+          "descripcion": "Beneficio Hospedajes: Fecha de consumo"
+        },
+        {
+          "codigo": "4007",
+          "descripcion": "Beneficio Hospedajes: Paquete turístico - Nombres y Apellidos del Huésped"
+        },
+        {
+          "codigo": "4008",
+          "descripcion": "Beneficio Hospedajes: Paquete turístico – Tipo documento identidad del huésped"
+        },
+        {
+          "codigo": "4009",
+          "descripcion": "Beneficio Hospedajes: Paquete turístico – Numero de documento identidad de huésped"
+        },
+        {
+          "codigo": "5000",
+          "descripcion": "Proveedores Estado: Número de Expediente"
+        },
+        {
+          "codigo": "5001",
+          "descripcion": "Proveedores Estado : Código de unidad ejecutora"
+        },
+        {
+          "codigo": "5002",
+          "descripcion": "Proveedores Estado : N° de proceso de selección"
+        },
+        {
+          "codigo": "5003",
+          "descripcion": "Proveedores Estado : N° de contrato"
+        },
+        {
+          "codigo": "6000",
+          "descripcion": "Comercialización de Oro : Código Unico Concesión Minera"
+        },
+        {
+          "codigo": "6001",
+          "descripcion": "Comercialización de Oro : N° declaración compromiso"
+        },
+        {
+          "codigo": "6002",
+          "descripcion": "Comercialización de Oro : N° Reg. Especial .Comerci. Oro"
+        },
+        {
+          "codigo": "6003",
+          "descripcion": "Comercialización de Oro : N° Resolución que autoriza Planta de Beneficio"
+        },
+        {
+          "codigo": "6004",
+          "descripcion": "Comercialización de Oro : Ley Mineral (% concent. oro)"
+        },
+        {
+          "codigo": "6005",
+          "descripcion": "Comercialización de Oro : Naturaleza del mineral"
+        },
+        {
+          "codigo": "6006",
+          "descripcion": "Comercialización de Oro : Nombre del derecho minero"
+        },
+        {
+          "codigo": "7000",
+          "descripcion": "Primera venta de mercancia identificable entre usuarios de la zona comercial"
+        },
+        {
+          "codigo": "7001",
+          "descripcion": "Venta exonerada del IGV-ISC-IPM. Prohibida la venta fuera de la zona comercial de Tacna"
+        }
+      ]
+    },
+    "16": {
+      "nombre": "Código de tipo de precio de venta unitario",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Precio unitario (incluye el IGV)"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Valor referencial unitario en operaciones no onerosas (Gratuitas)"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Tarifas reguladas"
+        }
+      ]
+    },
+    "17": {
+      "nombre": "Código de tipo de operación",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Venta lnterna"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Exportación de bienes"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "No Domiciliados"
+        },
+        {
+          "codigo": "04",
+          "descripcion": "Venta Interna – Anticipos"
+        },
+        {
+          "codigo": "05",
+          "descripcion": "Venta Itinerante"
+        },
+        {
+          "codigo": "06",
+          "descripcion": "Factura Guía"
+        },
+        {
+          "codigo": "07",
+          "descripcion": "Venta Arroz Pilado"
+        },
+        {
+          "codigo": "08",
+          "descripcion": "Factura - Comprobante de Percepción"
+        },
+        {
+          "codigo": "10",
+          "descripcion": "Factura - Guía remitente"
+        },
+        {
+          "codigo": "11",
+          "descripcion": "Factura - Guía transportista"
+        },
+        {
+          "codigo": "12",
+          "descripcion": "Boleta de venta – Comprobante de Percepción."
+        },
+        {
+          "codigo": "13",
+          "descripcion": "Gasto Deducible Persona Natural"
+        },
+        {
+          "codigo": "14",
+          "descripcion": "Exportación de servicios – prestación de servicios de hospedaje No Dom"
+        },
+        {
+          "codigo": "15",
+          "descripcion": "Exportación de servicios – Transporte de navieras"
+        },
+        {
+          "codigo": "16",
+          "descripcion": "Exportación de servicios – servicios a naves y aeronaves de bandera extranjera"
+        },
+        {
+          "codigo": "17",
+          "descripcion": "Exportación de servicios – RES"
+        },
+        {
+          "codigo": "18",
+          "descripcion": "Exportación de servicios - Servicios que conformen un Paquete Turístico"
+        },
+        {
+          "codigo": "19",
+          "descripcion": "Exportación de servicios – Servicios complementarios al transporte de carga"
+        },
+        {
+          "codigo": "20",
+          "descripcion": "Exportación de servicios – Suministro de energía eléctrica a favor de sujetos domiciliados en ZED"
+        },
+        {
+          "codigo": "21",
+          "descripcion": "Exportación de servicios – Prestación servicios realizados parcialmente en el extranjero"
+        }
+      ]
+    },
+    "18": {
+      "nombre": "Código de modalidad de transporte",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Transporte público"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Transporte privado"
+        }
+      ]
+    },
+    "19": {
+      "nombre": "Código de estado del ítem (resumen diario)",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "1",
+          "descripcion": "Adicionar"
+        },
+        {
+          "codigo": "2",
+          "descripcion": "Modificar"
+        },
+        {
+          "codigo": "3",
+          "descripcion": "Anulado"
+        }
+      ]
+    },
+    "20": {
+      "nombre": "Código de motivo de traslado",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Venta"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Compra"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Venta con entrega a terceros"
+        },
+        {
+          "codigo": "04",
+          "descripcion": "Traslado entre establecimientos de la misma empresa"
+        },
+        {
+          "codigo": "05",
+          "descripcion": "Consignación"
+        },
+        {
+          "codigo": "06",
+          "descripcion": "Devolución"
+        },
+        {
+          "codigo": "07",
+          "descripcion": "Recojo de bienes transformados"
+        },
+        {
+          "codigo": "08",
+          "descripcion": "Importación"
+        },
+        {
+          "codigo": "09",
+          "descripcion": "Exportación"
+        },
+        {
+          "codigo": "13",
+          "descripcion": "Otros"
+        },
+        {
+          "codigo": "14",
+          "descripcion": "Venta sujeta a confirmación del comprador"
+        },
+        {
+          "codigo": "17",
+          "descripcion": "Traslado de bienes para transformación"
+        },
+        {
+          "codigo": "18",
+          "descripcion": "Traslado emisor itinerante CP"
+        }
+      ]
+    },
+    "21": {
+      "nombre": "Código de documentos relacionados (sólo guía de remisión electrónica)",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Numeración DAM"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Número de orden de entrega"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Número SCOP"
+        },
+        {
+          "codigo": "04",
+          "descripcion": "Número de manifiesto de carga"
+        },
+        {
+          "codigo": "05",
+          "descripcion": "Número de constancia de detracción"
+        },
+        {
+          "codigo": "06",
+          "descripcion": "Otros"
+        }
+      ]
+    },
+    "22": {
+      "nombre": "Código de regimen de percepciones",
+      "columnas": [
+        "Código",
+        "Descripción",
+        "Porcentaje %"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Percepción Venta Interna",
+          "extras": {
+            "Porcentaje %": "2"
+          }
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Percepción a la adquisición de combustible",
+          "extras": {
+            "Porcentaje %": "1"
+          }
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Percepción realizada al agente de percepción con tasa especial",
+          "extras": {
+            "Porcentaje %": "0.5"
+          }
+        }
+      ]
+    },
+    "23": {
+      "nombre": "Código de regimen de retenciones",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Tasa 3%"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Tasa 6%"
+        }
+      ]
+    },
+    "24": {
+      "nombre": "Código de tarifa de servicios públicos",
+      "columnas": [
+        "Código de tarifa",
+        "Código",
+        "Servicio aplicable"
+      ],
+      "items": [
+        {
+          "codigo": "L001",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "AT2"
+          }
+        },
+        {
+          "codigo": "L002",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "MT2"
+          }
+        },
+        {
+          "codigo": "L003",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "MT3"
+          }
+        },
+        {
+          "codigo": "L004",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "MT4"
+          }
+        },
+        {
+          "codigo": "L005",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT2"
+          }
+        },
+        {
+          "codigo": "L006",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT3"
+          }
+        },
+        {
+          "codigo": "L007",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT4"
+          }
+        },
+        {
+          "codigo": "L008",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT5A"
+          }
+        },
+        {
+          "codigo": "L009",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT5B"
+          }
+        },
+        {
+          "codigo": "L010",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT6"
+          }
+        },
+        {
+          "codigo": "L011",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT5C-AP"
+          }
+        },
+        {
+          "codigo": "L012",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT5D"
+          }
+        },
+        {
+          "codigo": "L013",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT5E"
+          }
+        },
+        {
+          "codigo": "L014",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT7"
+          }
+        },
+        {
+          "codigo": "L015",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT8"
+          }
+        },
+        {
+          "codigo": "L016",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "BT5C"
+          }
+        },
+        {
+          "codigo": "L017",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "MT2L"
+          }
+        },
+        {
+          "codigo": "L018",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "MT2L_1 a MT2L21"
+          }
+        },
+        {
+          "codigo": "L019",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "MT2A a MT2Z"
+          }
+        },
+        {
+          "codigo": "L020",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "AT1"
+          }
+        },
+        {
+          "codigo": "L021",
+          "descripcion": "LUZ",
+          "extras": {
+            "Código": "MT1"
+          }
+        },
+        {
+          "codigo": "A011",
+          "descripcion": "AGUA",
+          "extras": {
+            "Código": "COMERCIAL"
+          }
+        },
+        {
+          "codigo": "A012",
+          "descripcion": "AGUA",
+          "extras": {
+            "Código": "INDUSTRIAL"
+          }
+        },
+        {
+          "codigo": "A013",
+          "descripcion": "AGUA",
+          "extras": {
+            "Código": "ESTATAL"
+          }
+        },
+        {
+          "codigo": "A014",
+          "descripcion": "AGUA",
+          "extras": {
+            "Código": "DOMÉSTICO"
+          }
+        },
+        {
+          "codigo": "A015",
+          "descripcion": "AGUA",
+          "extras": {
+            "Código": "SOCIAL"
+          }
+        },
+        {
+          "codigo": "A016",
+          "descripcion": "AGUA",
+          "extras": {
+            "Código": "MULTIFAMILIAR INDIVIDUALIZADO"
+          }
+        },
+        {
+          "codigo": "A017",
+          "descripcion": "AGUA",
+          "extras": {
+            "Código": "MULTIFAMILIAR NO INDIVIDUALIZADO"
+          }
+        },
+        {
+          "codigo": "G001",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT – A1"
+          }
+        },
+        {
+          "codigo": "G002",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT – A2"
+          }
+        },
+        {
+          "codigo": "G003",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT – B"
+          }
+        },
+        {
+          "codigo": "G004",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - C"
+          }
+        },
+        {
+          "codigo": "G005",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT – D"
+          }
+        },
+        {
+          "codigo": "G006",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT – E"
+          }
+        },
+        {
+          "codigo": "G007",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT – GE"
+          }
+        },
+        {
+          "codigo": "G008",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT – IP"
+          }
+        },
+        {
+          "codigo": "G009",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT – GNV"
+          }
+        },
+        {
+          "codigo": "G010",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - A"
+          }
+        },
+        {
+          "codigo": "G011",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - B1"
+          }
+        },
+        {
+          "codigo": "G012",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - B2"
+          }
+        },
+        {
+          "codigo": "G013",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - PESCA"
+          }
+        },
+        {
+          "codigo": "G014",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - TIPO I"
+          }
+        },
+        {
+          "codigo": "G015",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - TIPO II-A"
+          }
+        },
+        {
+          "codigo": "G016",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - TIPO II-B"
+          }
+        },
+        {
+          "codigo": "G017",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - TIPO III"
+          }
+        },
+        {
+          "codigo": "G018",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - TIPO IV"
+          }
+        },
+        {
+          "codigo": "G019",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - TIPO V"
+          }
+        },
+        {
+          "codigo": "G020",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - TIPO VI"
+          }
+        },
+        {
+          "codigo": "G021",
+          "descripcion": "GAS",
+          "extras": {
+            "Código": "CAT - TIPO VII"
+          }
+        }
+      ]
+    },
+    "25": {
+      "nombre": "Código de producto SUNAT",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "soloFormato": true,
+      "formato": "^\\d{8}$",
+      "enlace": [
+        "United Nations Standard Products and Services Code - Código de productos y servicios estándar de las Naciones Unidas - UNSPSC v14_0801",
+        "https://cpe.sunat.gob.pe/sites/default/files/inline-files/CCNU_MOD_2.xlsm"
+      ],
+      "items": []
+    },
+    "25.1": {
+      "nombre": "Código de producto SUNAT",
+      "columnas": [
+        "N.°",
+        "Código de producto SUNAT",
+        "Descripción producto SUNAT",
+        "Partidas arancelarias referenciales para identificar los bienes"
+      ],
+      "hasta": "2026-07-31",
+      "items": [
+        {
+          "codigo": "11101616",
+          "descripcion": "Mineral de oro",
+          "extras": {
+            "N.°": "1",
+            "Partidas arancelarias referenciales para identificar los bienes": "2616.90.10.00"
+          }
+        },
+        {
+          "codigo": "11101801",
+          "descripcion": "Oro",
+          "extras": {
+            "N.°": "2",
+            "Partidas arancelarias referenciales para identificar los bienes": "2843.30.00.00, 2843.90.00.00, 7108.11.00.00, 7108.12.00.00, 7108.13.00.00, 7108.20.00.00 y 7112.91.00.00"
+          }
+        },
+        {
+          "codigo": "12131500",
+          "descripcion": "Explosivos",
+          "extras": {
+            "N.°": "3",
+            "Partidas arancelarias referenciales para identificar los bienes": "3601.00.00.00 y 2904.20.20.00"
+          }
+        },
+        {
+          "codigo": "12131501",
+          "descripcion": "Dinamita",
+          "extras": {
+            "N.°": "4",
+            "Partidas arancelarias referenciales para identificar los bienes": "3602.00.11.00"
+          }
+        },
+        {
+          "codigo": "12131502",
+          "descripcion": "Cartuchos explosivos",
+          "extras": {
+            "N.°": "5",
+            "Partidas arancelarias referenciales para identificar los bienes": "3602.00.90.00"
+          }
+        },
+        {
+          "codigo": "12131503",
+          "descripcion": "Explosivos propelentes",
+          "extras": {
+            "N.°": "6"
+          }
+        },
+        {
+          "codigo": "12131504",
+          "descripcion": "Cargas explosivas",
+          "extras": {
+            "N.°": "7"
+          }
+        },
+        {
+          "codigo": "12131505",
+          "descripcion": "Explosivos plásticos",
+          "extras": {
+            "N.°": "8"
+          }
+        },
+        {
+          "codigo": "12131506",
+          "descripcion": "Explosivos aluminizados",
+          "extras": {
+            "N.°": "9"
+          }
+        },
+        {
+          "codigo": "12131508",
+          "descripcion": "Explosivos de polvo de nitroglicerina",
+          "extras": {
+            "N.°": "10"
+          }
+        },
+        {
+          "codigo": "12131509",
+          "descripcion": "Nitrato de amonio y fuel oil",
+          "extras": {
+            "N.°": "11",
+            "Partidas arancelarias referenciales para identificar los bienes": "3602.00.20.10"
+          }
+        },
+        {
+          "codigo": "12131507",
+          "descripcion": "Explosivos de nitrato de amonio",
+          "extras": {
+            "N.°": "12",
+            "Partidas arancelarias referenciales para identificar los bienes": "3602.00.20.90"
+          }
+        },
+        {
+          "codigo": "12141726",
+          "descripcion": "Mercurio Hg",
+          "extras": {
+            "N.°": "13",
+            "Partidas arancelarias referenciales para identificar los bienes": "2805.40.00.00"
+          }
+        },
+        {
+          "codigo": "12352117",
+          "descripcion": "Cianuros o isocianuros",
+          "extras": {
+            "N.°": "14",
+            "Partidas arancelarias referenciales para identificar los bienes": "2837.11.10.00 y 2811.12.00.00"
+          }
+        },
+        {
+          "codigo": "15100000",
+          "descripcion": "Otros combustibles",
+          "extras": {
+            "N.°": "15"
+          }
+        },
+        {
+          "codigo": "15101505",
+          "descripcion": "Combustible diésel",
+          "extras": {
+            "N.°": "16"
+          }
+        },
+        {
+          "codigo": "15101506",
+          "descripcion": "Gasolina",
+          "extras": {
+            "N.°": "17"
+          }
+        },
+        {
+          "codigo": "20101504",
+          "descripcion": "Cortadores de roca",
+          "extras": {
+            "N.°": "18",
+            "Partidas arancelarias referenciales para identificar los bienes": "8430.39.00.00"
+          }
+        },
+        {
+          "codigo": "20101600",
+          "descripcion": "Cribas y equipos de alimentación",
+          "extras": {
+            "N.°": "19",
+            "Partidas arancelarias referenciales para identificar los bienes": "8474.10.20.00 y 8474.10.90.00"
+          }
+        },
+        {
+          "codigo": "20111601",
+          "descripcion": "Maquinaria de sondeo o de perforación",
+          "extras": {
+            "N.°": "20",
+            "Partidas arancelarias referenciales para identificar los bienes": "8430.41.00.00 y 8430.49.00.00"
+          }
+        },
+        {
+          "codigo": "20111607",
+          "descripcion": "Maquinaria para hacer túneles",
+          "extras": {
+            "N.°": "21",
+            "Partidas arancelarias referenciales para identificar los bienes": "8430.31.00.00"
+          }
+        },
+        {
+          "codigo": "22101501",
+          "descripcion": "Cargadores frontales",
+          "extras": {
+            "N.°": "22",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.51.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101502",
+          "descripcion": "Niveladoras",
+          "extras": {
+            "N.°": "23",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.20.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101505",
+          "descripcion": "Aplanadoras",
+          "extras": {
+            "N.°": "24",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.40.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101509",
+          "descripcion": "Retroexcavadoras",
+          "extras": {
+            "N.°": "25",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.59.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101511",
+          "descripcion": "Compactadores",
+          "extras": {
+            "N.°": "26",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.40.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101513",
+          "descripcion": "Dragalíneas",
+          "extras": {
+            "N.°": "27",
+            "Partidas arancelarias referenciales para identificar los bienes": "8905.10.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101514",
+          "descripcion": "Dragas",
+          "extras": {
+            "N.°": "28",
+            "Partidas arancelarias referenciales para identificar los bienes": "8905.10.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101516",
+          "descripcion": "Excavadoras de fosos",
+          "extras": {
+            "N.°": "29",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.52.00.00 y 8429.59.00.00"
+          }
+        },
+        {
+          "codigo": "22101518",
+          "descripcion": "Raspadores elevadores",
+          "extras": {
+            "N.°": "30",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.30.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101519",
+          "descripcion": "Máquina giratoria con cazoleta de rastrillos abiertas",
+          "extras": {
+            "N.°": "31",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.30.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101520",
+          "descripcion": "Máquina giratoria con rastrillos elevadores",
+          "extras": {
+            "N.°": "32",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.30.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101521",
+          "descripcion": "Rastrilladora arrastrada",
+          "extras": {
+            "N.°": "33",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.30.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101522",
+          "descripcion": "Buldóceres de orugas",
+          "extras": {
+            "N.°": "34",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.11.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101523",
+          "descripcion": "Buldóceres de ruedas",
+          "extras": {
+            "N.°": "35",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.19.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101524",
+          "descripcion": "Excavadoras móviles",
+          "extras": {
+            "N.°": "36",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.52.00.00 y 8429.59.00.00"
+          }
+        },
+        {
+          "codigo": "22101525",
+          "descripcion": "Excavadoras de ruedas",
+          "extras": {
+            "N.°": "37",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.52.00.00 y 8429.59.00.00"
+          }
+        },
+        {
+          "codigo": "22101526",
+          "descripcion": "Excavadoras de orugas",
+          "extras": {
+            "N.°": "38",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.52.00.00 y 8429.59.00.00"
+          }
+        },
+        {
+          "codigo": "22101528",
+          "descripcion": "Cargadores de ruedas",
+          "extras": {
+            "N.°": "39",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.51.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101529",
+          "descripcion": "Cargadores sobre patines con dirección",
+          "extras": {
+            "N.°": "40",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.51.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101530",
+          "descripcion": "Raspadores abiertos",
+          "extras": {
+            "N.°": "41",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.30.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101532",
+          "descripcion": "Cargadores de orugas",
+          "extras": {
+            "N.°": "42",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.51.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101534",
+          "descripcion": "Excavadoras de campaña",
+          "extras": {
+            "N.°": "43",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.52.00.00 y 8429.59.00.00"
+          }
+        },
+        {
+          "codigo": "22101602",
+          "descripcion": "Equipo de apisonamiento",
+          "extras": {
+            "N.°": "44",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.40.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "22101701",
+          "descripcion": "Palas excavadoras",
+          "extras": {
+            "N.°": "45",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.52.00.00 y 8429.59.00.00"
+          }
+        },
+        {
+          "codigo": "22101702",
+          "descripcion": "Palas mecánicas para el movimiento de tierra o sus piezas o accesorios",
+          "extras": {
+            "N.°": "46",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.52.00.00 y 8429.59.00.00"
+          }
+        },
+        {
+          "codigo": "22101713",
+          "descripcion": "Brazo de retroexcavadora o secciones del brazo",
+          "extras": {
+            "N.°": "47",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.52.00.00 y 8429.59.00.00"
+          }
+        },
+        {
+          "codigo": "22101714",
+          "descripcion": "Kits de reparación o piezas de apisonadora",
+          "extras": {
+            "N.°": "48",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.40.00.00"
+          }
+        },
+        {
+          "codigo": "25181709",
+          "descripcion": "Pala cargadora",
+          "extras": {
+            "N.°": "49",
+            "Partidas arancelarias referenciales para identificar los bienes": "8429.51.00.00 y 8429.52.00.00"
+          }
+        },
+        {
+          "codigo": "26111600",
+          "descripcion": "Generadores de potencia",
+          "extras": {
+            "N.°": "50",
+            "Partidas arancelarias referenciales para identificar los bienes": "8502.11.10.00, 8502.11.90.00, 8502.12.10.00, 8502.12.90.00, 8502.13.10.00, 8502.13.90.00, 8502.20.10.00, 8502.20.90.00, 8502.39.10.00 y 8502.39.90.00"
+          }
+        },
+        {
+          "codigo": "26111603",
+          "descripcion": "Generadores eólicos",
+          "extras": {
+            "N.°": "51",
+            "Partidas arancelarias referenciales para identificar los bienes": "8502.31.00.00"
+          }
+        },
+        {
+          "codigo": "39121013",
+          "descripcion": "Convertidores rotativos eléctricos",
+          "extras": {
+            "N.°": "52",
+            "Partidas arancelarias referenciales para identificar los bienes": "8502.40.00.00"
+          }
+        },
+        {
+          "codigo": "40151530",
+          "descripcion": "Bombas de dragado",
+          "extras": {
+            "N.°": "53",
+            "Partidas arancelarias referenciales para identificar los bienes": "8905.10.00.00"
+          }
+        },
+        {
+          "codigo": "12352104",
+          "descripcion": "Alcoholes o sus sustitutos",
+          "extras": {
+            "N.°": "54",
+            "Partidas arancelarias referenciales para identificar los bienes": "2207.10.00.00, 2207.20.00.10, 2207.20.00.90 y 2208.90.10.00"
+          }
+        },
+        {
+          "codigo": "50161509",
+          "descripcion": "Azúcares naturales o productos endulzantes",
+          "extras": {
+            "N.°": "55",
+            "Partidas arancelarias referenciales para identificar los bienes": "1701.13.00.00, 1701.14.00.00, 1701.91.00.00, 1701.99.90.00, 1703.10.00.00"
+          }
+        },
+        {
+          "codigo": "50221101",
+          "descripcion": "Grano de cereal",
+          "extras": {
+            "N.°": "56",
+            "Partidas arancelarias referenciales para identificar los bienes": "1006.20.00.00, 1006.30.00.00, 1006.40.00.00 y 2302.20.00.00"
+          }
+        },
+        {
+          "codigo": "71101710",
+          "descripcion": "Servicio de alquiler o leasing de maquinaria y equipo para minería",
+          "extras": {
+            "N.°": "57"
+          }
+        },
+        {
+          "codigo": "72141701",
+          "descripcion": "Servicio de alquiler o leasing de maquinaria para construcción",
+          "extras": {
+            "N.°": "58"
+          }
+        },
+        {
+          "codigo": "72141702",
+          "descripcion": "Servicio de alquiler o leasing de equipo para construcción",
+          "extras": {
+            "N.°": "59"
+          }
+        },
+        {
+          "codigo": "73121509",
+          "descripcion": "Servicios de purificación de metales",
+          "extras": {
+            "N.°": "60"
+          }
+        },
+        {
+          "codigo": "73121613",
+          "descripcion": "Servicios de fundición de metales",
+          "extras": {
+            "N.°": "61"
+          }
+        },
+        {
+          "codigo": "73121500",
+          "descripcion": "Procesos de fundición y refinación y formado de metales",
+          "extras": {
+            "N.°": "62"
+          }
+        }
+      ]
+    },
+    "25.2": {
+      "nombre": "Código de producto SUNAT",
+      "columnas": [
+        "Código de Producto SUNAT",
+        "Bien sujeto a detracción"
+      ],
+      "hasta": "2026-07-31",
+      "items": [
+        {
+          "codigo": "10171503",
+          "descripcion": "Harina, polvo y \"pellets\" de pescado, crustáceos, moluscos y demás invertebrados acuáticos"
+        },
+        {
+          "codigo": "11101600",
+          "descripcion": "Minerales metálicos no auríferos"
+        },
+        {
+          "codigo": "11101714",
+          "descripcion": "Plomo"
+        },
+        {
+          "codigo": "11111600",
+          "descripcion": "Piedra"
+        },
+        {
+          "codigo": "11111700",
+          "descripcion": "Arena"
+        },
+        {
+          "codigo": "11121600",
+          "descripcion": "Madera"
+        },
+        {
+          "codigo": "11140000",
+          "descripcion": "Chatarra y materiales de desecho"
+        },
+        {
+          "codigo": "50111500",
+          "descripcion": "Carnes y despojos comestibles"
+        },
+        {
+          "codigo": "50120000",
+          "descripcion": "Recursos hidrobiológicos"
+        },
+        {
+          "codigo": "50151600",
+          "descripcion": "Aceite de pescado"
+        },
+        {
+          "codigo": "50161509",
+          "descripcion": "Caña de Azúcar"
+        },
+        {
+          "codigo": "50171500",
+          "descripcion": "Páprika"
+        },
+        {
+          "codigo": "50203205",
+          "descripcion": "Lecha cruda entera"
+        },
+        {
+          "codigo": "50403200",
+          "descripcion": "Maíz amarillo"
+        },
+        {
+          "codigo": "11111111",
+          "descripcion": "Bienes gravados con el IGV por renuncia a la exoneración"
+        }
+      ]
+    },
+    "25.3": {
+      "nombre": "Código de producto SUNAT",
+      "columnas": [
+        "Código de Producto SUNAT",
+        "Bien sujeto a percepción"
+      ],
+      "hasta": "2026-07-31",
+      "items": [
+        {
+          "codigo": "12142104",
+          "descripcion": "Dióxido de carbono"
+        },
+        {
+          "codigo": "13111039",
+          "descripcion": "Poli (tereftalato de etileno) sin adición de dióxido de titanio, en formas primarias"
+        },
+        {
+          "codigo": "13102020",
+          "descripcion": "Envases o prefomas, de poli (tereftalato de etileno) (PET)"
+        },
+        {
+          "codigo": "15101502",
+          "descripcion": "Kerosene"
+        },
+        {
+          "codigo": "15101504",
+          "descripcion": "Combustible para Aviación"
+        },
+        {
+          "codigo": "15101509",
+          "descripcion": "Combustible de uso marino (bunker)"
+        },
+        {
+          "codigo": "15111510",
+          "descripcion": "Gas licuado de petróleo"
+        },
+        {
+          "codigo": "24122000",
+          "descripcion": "Bombonas, botellas, frascos, bocales, tarros, envases tubulares, ampollas y demás recipientes para el transporte o envasado, de vidrio; bocales para conservas, de vidrio; tapones, tapas y demás dispositivos de cierre, de vidrio."
+        },
+        {
+          "codigo": "24122004",
+          "descripcion": "Tapones, tapas, cápsulas y demás dispositivos de cierre"
+        },
+        {
+          "codigo": "24122004",
+          "descripcion": "Tapones y tapas, cápsulas para botellas, tapones roscados, sobretapas, precintos y demás accesorios para envases, de metal Común."
+        },
+        {
+          "codigo": "50202201",
+          "descripcion": "Cerveza de malta"
+        },
+        {
+          "codigo": "50202300",
+          "descripcion": "Agua, incluida el agua mineral, natural o artificial y demás bebidas no alcohólicas"
+        },
+        {
+          "codigo": "50221002",
+          "descripcion": "Harina de trigo o de morcajo (tranquillón)"
+        },
+        {
+          "codigo": "50221110",
+          "descripcion": "Trigo y morcajo (tranquillón)."
+        }
+      ]
+    },
+    "26": {
+      "nombre": "Tipo de préstamo (créditos hipotecarios)",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "0",
+          "descripcion": "Sin información"
+        },
+        {
+          "codigo": "1",
+          "descripcion": "Si es construcción /adquisición"
+        },
+        {
+          "codigo": "2",
+          "descripcion": "Si es para refacción, remodelación, ampliación, mejoramiento o subdivisión de vivienda propia."
+        }
+      ]
+    },
+    "27": {
+      "nombre": "Indicador de primera vivienda",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "0",
+          "descripcion": "Sin indicador"
+        },
+        {
+          "codigo": "1",
+          "descripcion": "Calificado para crédito Mi Vivienda / Techo Propio"
+        },
+        {
+          "codigo": "2",
+          "descripcion": "Libre disposición de la AFP"
+        },
+        {
+          "codigo": "3",
+          "descripcion": "Calificado como primera vivienda de acuerdo a la información proporcionada por el cliente (para créditos otorgados a partir del 01.01.2013)"
+        }
+      ]
+    },
+    "51": {
+      "nombre": "Código de tipo de operación",
+      "columnas": [
+        "Código",
+        "Descripción",
+        "Tipo de Comprobante asociado"
+      ],
+      "items": [
+        {
+          "codigo": "0101",
+          "descripcion": "Venta interna no sujeta a Detracción o Percepción",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "0112",
+          "descripcion": "Venta Interna - Sustenta Gastos Deducibles Persona Natural",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura"
+          }
+        },
+        {
+          "codigo": "0113",
+          "descripcion": "Venta Interna-NRUS",
+          "extras": {
+            "Tipo de Comprobante asociado": "Boleta"
+          }
+        },
+        {
+          "codigo": "0200",
+          "descripcion": "Exportación de Bienes",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "0201",
+          "descripcion": "Exportación de Servicios – Prestación servicios realizados íntegramente en el país",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "0202",
+          "descripcion": "Exportación de Servicios – Prestación de servicios de hospedaje No Domiciliado",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura"
+          }
+        },
+        {
+          "codigo": "0203",
+          "descripcion": "Exportación de Servicios – Transporte de navieras",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "0204",
+          "descripcion": "Exportación de Servicios – Servicios a naves y aeronaves de bandera extranjera",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "0205",
+          "descripcion": "Exportación de Servicios - Servicios que conformen un Paquete Turístico",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura"
+          }
+        },
+        {
+          "codigo": "0206",
+          "descripcion": "Exportación de Servicios – Servicios complementarios al transporte de carga",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "0207",
+          "descripcion": "Exportación de Servicios – Suministro de energía eléctrica a favor de sujetos domiciliados en ZED",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "0208",
+          "descripcion": "Exportación de Servicios – Prestación servicios realizados parcialmente en el extranjero",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "0301",
+          "descripcion": "Operaciones con Carta de porte aéreo (emitidas en el ámbito nacional)",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "0302",
+          "descripcion": "Operaciones de Transporte ferroviario de pasajeros",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "0401",
+          "descripcion": "Ventas no domiciliados que no califican como exportación",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "0501",
+          "descripcion": "Compra interna",
+          "extras": {
+            "Tipo de Comprobante asociado": "Liquidación de compra"
+          }
+        },
+        {
+          "codigo": "0502",
+          "descripcion": "Anticipos",
+          "extras": {
+            "Tipo de Comprobante asociado": "Liquidación de compra"
+          }
+        },
+        {
+          "codigo": "0503",
+          "descripcion": "Compra de oro",
+          "extras": {
+            "Tipo de Comprobante asociado": "Liquidación de compra"
+          }
+        },
+        {
+          "codigo": "1001",
+          "descripcion": "Operación Sujeta a Detracción",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "1002",
+          "descripcion": "Operación Sujeta a Detracción- Recursos Hidrobiológicos",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "1003",
+          "descripcion": "Operación Sujeta a Detracción- Servicios de Transporte Pasajeros",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "1004",
+          "descripcion": "Operación Sujeta a Detracción- Servicios de Transporte Carga",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "2001",
+          "descripcion": "Operación Sujeta a Percepción",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "2002",
+          "descripcion": "Operación sujeta a Retención de Renta de segunda categoría",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura"
+          }
+        },
+        {
+          "codigo": "2100",
+          "descripcion": "Créditos a empresas",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "2101",
+          "descripcion": "Créditos de consumo revolvente",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "2102",
+          "descripcion": "Créditos de consumo no revolvente",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "2103",
+          "descripcion": "Otras operaciones no gravadas - Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "2104",
+          "descripcion": "Otras operaciones no gravadas - Empresas del sistema de seguros",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura, Boletas"
+          }
+        },
+        {
+          "codigo": "2105",
+          "descripcion": "Comprobante emitido por AFP",
+          "extras": {
+            "Tipo de Comprobante asociado": "Boleta"
+          }
+        },
+        {
+          "codigo": "2106",
+          "descripcion": "Venta Nacional a Turistas - Tax Free",
+          "extras": {
+            "Tipo de Comprobante asociado": "Factura"
+          }
+        }
+      ]
+    },
+    "52": {
+      "nombre": "Códigos de leyendas",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "1000",
+          "descripcion": "Monto en Letras"
+        },
+        {
+          "codigo": "1002",
+          "descripcion": "Leyenda \"TRANSFERENCIA GRATUITA DE UN BIEN Y/O SERVICIO PRESTADO GRATUITAMENTE\""
+        },
+        {
+          "codigo": "2000",
+          "descripcion": "Leyenda “COMPROBANTE DE PERCEPCIÓN”"
+        },
+        {
+          "codigo": "2001",
+          "descripcion": "Leyenda “BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN SELVA PARA SER CONSUMIDOS EN LA MISMA\""
+        },
+        {
+          "codigo": "2002",
+          "descripcion": "Leyenda “SERVICIOS PRESTADOS EN LA AMAZONÍA REGIÓN SELVA PARA SER CONSUMIDOS EN LA MISMA”"
+        },
+        {
+          "codigo": "2003",
+          "descripcion": "Leyenda “CONTRATOS DE CONSTRUCCIÓN EJECUTADOS EN LA AMAZONÍA REGIÓN SELVA”"
+        },
+        {
+          "codigo": "2004",
+          "descripcion": "Leyenda “Agencia de Viaje - Paquete turístico”"
+        },
+        {
+          "codigo": "2005",
+          "descripcion": "Leyenda “Venta realizada por emisor itinerante”"
+        },
+        {
+          "codigo": "2006",
+          "descripcion": "Leyenda \"Operación sujeta a detracción\""
+        },
+        {
+          "codigo": "2007",
+          "descripcion": "Leyenda \"Operación sujeta al IVAP\""
+        },
+        {
+          "codigo": "2008",
+          "descripcion": "Leyenda: “VENTA EXONERADA DEL IGV-ISC-IPM. PROHIBIDA LA VENTA FUERA DE LA ZONA COMERCIAL DE TACNA”"
+        },
+        {
+          "codigo": "2009",
+          "descripcion": "Leyenda: “PRIMERA VENTA DE MERCANCÍA IDENTIFICABLE ENTRE USUARIOS DE LA ZONA COMERCIAL”"
+        },
+        {
+          "codigo": "2010",
+          "descripcion": "Restitucion Simplificado de Derechos Arancelarios"
+        },
+        {
+          "codigo": "2011",
+          "descripcion": "Leyenda “EXPORTACION DE SERVICIOS - DECRETO LEGISLATIVO Nº 919”"
+        },
+        {
+          "codigo": "2012",
+          "descripcion": "Observaciones relacionadas con el traslado de mercaderías"
+        }
+      ]
+    },
+    "53": {
+      "nombre": "Códigos de cargos, descuentos y otras deducciones",
+      "columnas": [
+        "Código",
+        "Descripción",
+        "Nível"
+      ],
+      "items": [
+        {
+          "codigo": "00",
+          "descripcion": "Descuentos que afectan la base imponible del IGV/IVAP",
+          "extras": {
+            "Nível": "Item"
+          }
+        },
+        {
+          "codigo": "01",
+          "descripcion": "Descuentos que no afectan la base imponible del IGV/IVAP",
+          "extras": {
+            "Nível": "Item"
+          }
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Descuentos globales que afectan la base imponible del IGV/IVAP",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Descuentos globales que no afectan la base imponible del IGV/IVAP",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "04",
+          "descripcion": "Descuentos globales por anticipos gravados que afectan la base imponible del IGV/IVAP",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "05",
+          "descripcion": "Descuentos globales por anticipos exonerados",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "06",
+          "descripcion": "Descuentos globales por anticipos inafectos",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "07",
+          "descripcion": "Factor de compensación - Decreto de urgencia N. 010-2004",
+          "extras": {
+            "Nível": "Item"
+          }
+        },
+        {
+          "codigo": "20",
+          "descripcion": "Anticipo de ISC",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "45",
+          "descripcion": "FISE",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "46",
+          "descripcion": "Recargo al consumo y/o propinas",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "47",
+          "descripcion": "Cargos que afectan la base imponible del IGV/IVAP",
+          "extras": {
+            "Nível": "Item"
+          }
+        },
+        {
+          "codigo": "48",
+          "descripcion": "Cargos que no afectan la base imponible del IGV/IVAP",
+          "extras": {
+            "Nível": "Item"
+          }
+        },
+        {
+          "codigo": "49",
+          "descripcion": "Cargos globales que afectan la base imponible del IGV/IVAP",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "50",
+          "descripcion": "Cargos globales que no afectan la base imponible del IGV/IVAP",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "51",
+          "descripcion": "Percepción venta interna",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "52",
+          "descripcion": "Percepción a la adquisición de combustible",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "53",
+          "descripcion": "Percepción realizada al agente de percepción con tasa especial",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "54",
+          "descripcion": "Factor de aportación - Decreto de urgencia N. 010-2004",
+          "extras": {
+            "Nível": "Item"
+          }
+        },
+        {
+          "codigo": "61",
+          "descripcion": "Retención de renta por anticipos",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "62",
+          "descripcion": "Retención del IGV",
+          "extras": {
+            "Nível": "Global"
+          }
+        },
+        {
+          "codigo": "63",
+          "descripcion": "Rentención de renta de segunda categoría",
+          "extras": {
+            "Nível": "Global"
+          }
+        }
+      ]
+    },
+    "54": {
+      "nombre": "Códigos de bienes y servicios sujetos a detracciones",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "001",
+          "descripcion": "Azúcar y melaza de caña"
+        },
+        {
+          "codigo": "002",
+          "descripcion": "Arroz"
+        },
+        {
+          "codigo": "003",
+          "descripcion": "Alcohol etílico"
+        },
+        {
+          "codigo": "004",
+          "descripcion": "Recursos hidrobiológicos"
+        },
+        {
+          "codigo": "005",
+          "descripcion": "Maíz amarillo duro"
+        },
+        {
+          "codigo": "007",
+          "descripcion": "Caña de azúcar"
+        },
+        {
+          "codigo": "008",
+          "descripcion": "Madera"
+        },
+        {
+          "codigo": "009",
+          "descripcion": "Arena y piedra."
+        },
+        {
+          "codigo": "010",
+          "descripcion": "Residuos, subproductos, desechos, recortes y desperdicios"
+        },
+        {
+          "codigo": "011",
+          "descripcion": "Bienes gravados con el IGV, o renuncia a la exoneración"
+        },
+        {
+          "codigo": "012",
+          "descripcion": "Intermediación laboral y tercerización"
+        },
+        {
+          "codigo": "013",
+          "descripcion": "Animales vivos"
+        },
+        {
+          "codigo": "014",
+          "descripcion": "Carnes y despojos comestibles"
+        },
+        {
+          "codigo": "015",
+          "descripcion": "Abonos, cueros y pieles de origen animal"
+        },
+        {
+          "codigo": "016",
+          "descripcion": "Aceite de pescado"
+        },
+        {
+          "codigo": "017",
+          "descripcion": "Harina, polvo y “pellets” de pescado, crustáceos, moluscos y demás invertebrados acuáticos"
+        },
+        {
+          "codigo": "019",
+          "descripcion": "Arrendamiento de bienes muebles"
+        },
+        {
+          "codigo": "020",
+          "descripcion": "Mantenimiento y reparación de bienes muebles"
+        },
+        {
+          "codigo": "021",
+          "descripcion": "Movimiento de carga"
+        },
+        {
+          "codigo": "022",
+          "descripcion": "Otros servicios empresariales"
+        },
+        {
+          "codigo": "023",
+          "descripcion": "Leche"
+        },
+        {
+          "codigo": "024",
+          "descripcion": "Comisión mercantil"
+        },
+        {
+          "codigo": "025",
+          "descripcion": "Fabricación de bienes por encargo"
+        },
+        {
+          "codigo": "026",
+          "descripcion": "Servicio de transporte de personas"
+        },
+        {
+          "codigo": "027",
+          "descripcion": "Servicio de transporte de carga"
+        },
+        {
+          "codigo": "028",
+          "descripcion": "Transporte de pasajeros"
+        },
+        {
+          "codigo": "030",
+          "descripcion": "Contratos de construcción"
+        },
+        {
+          "codigo": "031",
+          "descripcion": "Oro gravado con el IGV"
+        },
+        {
+          "codigo": "032",
+          "descripcion": "Paprika y otros frutos de los generos capsicum o pimienta"
+        },
+        {
+          "codigo": "034",
+          "descripcion": "Minerales metálicos no auríferos"
+        },
+        {
+          "codigo": "035",
+          "descripcion": "Bienes exonerados del IGV"
+        },
+        {
+          "codigo": "036",
+          "descripcion": "Oro y demás minerales metálicos exonerados del IGV"
+        },
+        {
+          "codigo": "037",
+          "descripcion": "Demás servicios gravados con el IGV"
+        },
+        {
+          "codigo": "038",
+          "descripcion": "Espectáculos públicos gravados con el IGV"
+        },
+        {
+          "codigo": "039",
+          "descripcion": "Minerales no metálicos"
+        },
+        {
+          "codigo": "040",
+          "descripcion": "Bien inmueble gravado con IGV"
+        },
+        {
+          "codigo": "041",
+          "descripcion": "Plomo"
+        },
+        {
+          "codigo": "042",
+          "descripcion": "Ladrillos de construcción, bovedillas, cubrevigas y artículos similares, de cerámica"
+        },
+        {
+          "codigo": "043",
+          "descripcion": "Estructuras metálicas para la construcción"
+        },
+        {
+          "codigo": "044",
+          "descripcion": "Servicio de beneficio de minerales metálicos gravado con el IGV"
+        },
+        {
+          "codigo": "045",
+          "descripcion": "Minerales de oro y sus concentrados gravados con el IGV"
+        },
+        {
+          "codigo": "046",
+          "descripcion": "Cobre gravado con el IGV"
+        },
+        {
+          "codigo": "047",
+          "descripcion": "Plata gravada con el IGV"
+        },
+        {
+          "codigo": "099",
+          "descripcion": "Ley 30737"
+        }
+      ]
+    },
+    "55": {
+      "nombre": "Código de identificación del concepto tributario",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "3001",
+          "descripcion": "Detracciones: Recursos Hidrobiológicos-Matrícula de la embarcación"
+        },
+        {
+          "codigo": "3002",
+          "descripcion": "Detracciones: Recursos Hidrobiológicos-Nombre de la embarcación"
+        },
+        {
+          "codigo": "3003",
+          "descripcion": "Detracciones: Recursos Hidrobiológicos-Tipo de especie vendida"
+        },
+        {
+          "codigo": "3004",
+          "descripcion": "Detracciones: Recursos Hidrobiológicos-Lugar de descarga"
+        },
+        {
+          "codigo": "3005",
+          "descripcion": "Detracciones: Recursos Hidrobiológicos-Fecha de descarga"
+        },
+        {
+          "codigo": "3006",
+          "descripcion": "Detracciones: Recursos Hidrobiológicos-Cantidad de especie vendida"
+        },
+        {
+          "codigo": "3050",
+          "descripcion": "Transportre Terreste - Número de asiento"
+        },
+        {
+          "codigo": "3051",
+          "descripcion": "Transporte Terrestre - Información de manifiesto de pasajeros"
+        },
+        {
+          "codigo": "3052",
+          "descripcion": "Transporte Terrestre - Número de documento de identidad del pasajero"
+        },
+        {
+          "codigo": "3053",
+          "descripcion": "Transporte Terrestre - Tipo de documento de identidad del pasajero"
+        },
+        {
+          "codigo": "3054",
+          "descripcion": "Transporte Terrestre - Nombres y apellidos del pasajero"
+        },
+        {
+          "codigo": "3055",
+          "descripcion": "Transporte Terrestre - Ciudad o lugar de destino - Ubigeo"
+        },
+        {
+          "codigo": "3056",
+          "descripcion": "Transporte Terrestre - Ciudad o lugar de destino - Dirección detallada"
+        },
+        {
+          "codigo": "3057",
+          "descripcion": "Transporte Terrestre - Ciudad o lugar de origen - Ubigeo"
+        },
+        {
+          "codigo": "3058",
+          "descripcion": "Transporte Terrestre - Ciudad o lugar de origen - Dirección detallada"
+        },
+        {
+          "codigo": "3059",
+          "descripcion": "Transporte Terrestre - Fecha de inicio programado"
+        },
+        {
+          "codigo": "3060",
+          "descripcion": "Transporte Terrestre - Hora de inicio programado"
+        },
+        {
+          "codigo": "4000",
+          "descripcion": "Beneficio Hospedajes-Paquete turístico: Código de país de emisión del pasaporte"
+        },
+        {
+          "codigo": "4001",
+          "descripcion": "Beneficio Hospedajes: Código de país de residencia del sujeto no domiciliado"
+        },
+        {
+          "codigo": "4002",
+          "descripcion": "Beneficio Hospedajes: Fecha de ingreso al país"
+        },
+        {
+          "codigo": "4003",
+          "descripcion": "Beneficio Hospedajes: Fecha de Ingreso al Establecimiento"
+        },
+        {
+          "codigo": "4004",
+          "descripcion": "Beneficio Hospedajes: Fecha de Salida del Establecimiento"
+        },
+        {
+          "codigo": "4005",
+          "descripcion": "Beneficio Hospedajes: Número de Días de Permanencia"
+        },
+        {
+          "codigo": "4006",
+          "descripcion": "Beneficio Hospedajes: Fecha de Consumo"
+        },
+        {
+          "codigo": "4007",
+          "descripcion": "Beneficio Hospedajes-Paquete turístico: Nombres y apellidos del huesped"
+        },
+        {
+          "codigo": "4008",
+          "descripcion": "Beneficio Hospedajes-Paquete turístico: Tipo de documento de identidad del huesped"
+        },
+        {
+          "codigo": "4009",
+          "descripcion": "Beneficio Hospedajes-Paquete turístico: Número de documento de identidad del huesped"
+        },
+        {
+          "codigo": "4030",
+          "descripcion": "Carta Porte Aéreo: Lugar de origen - Código de ubigeo"
+        },
+        {
+          "codigo": "4031",
+          "descripcion": "Carta Porte Aéreo: Lugar de origen - Dirección detallada"
+        },
+        {
+          "codigo": "4032",
+          "descripcion": "Carta Porte Aéreo: Lugar de destino - Código de ubigeo"
+        },
+        {
+          "codigo": "4033",
+          "descripcion": "Carta Porte Aéreo: Lugar de destino - Dirección detallada"
+        },
+        {
+          "codigo": "4040",
+          "descripcion": "BVME transporte ferroviario: Pasajero - Apellidos y Nombres"
+        },
+        {
+          "codigo": "4041",
+          "descripcion": "BVME transporte ferroviario: Pasajero - Tipo de documento de identidad"
+        },
+        {
+          "codigo": "4042",
+          "descripcion": "BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de origen - Código de ubigeo"
+        },
+        {
+          "codigo": "4043",
+          "descripcion": "BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de origen - Dirección detallada"
+        },
+        {
+          "codigo": "4044",
+          "descripcion": "BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de destino - Código de ubigeo"
+        },
+        {
+          "codigo": "4045",
+          "descripcion": "BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de destino - Dirección detallada"
+        },
+        {
+          "codigo": "4046",
+          "descripcion": "BVME transporte ferroviario: Servicio transporte:Número de asiento"
+        },
+        {
+          "codigo": "4047",
+          "descripcion": "BVME transporte ferroviario: Servicio transporte: Hora programada de inicio de viaje"
+        },
+        {
+          "codigo": "4048",
+          "descripcion": "BVME transporte ferroviario: Servicio transporte: Fecha programada de inicio de viaje"
+        },
+        {
+          "codigo": "4049",
+          "descripcion": "BVME transporte ferroviario: Pasajero - Número de documento de identidad"
+        },
+        {
+          "codigo": "4060",
+          "descripcion": "Regalía Petrolera: Decreto Supremo de aprobación del contrato"
+        },
+        {
+          "codigo": "4061",
+          "descripcion": "Regalía Petrolera: Area de contrato (Lote)"
+        },
+        {
+          "codigo": "4062",
+          "descripcion": "Regalía Petrolera: Periodo de pago - Fecha de inicio"
+        },
+        {
+          "codigo": "4063",
+          "descripcion": "Regalía Petrolera: Periodo de pago - Fecha de fin"
+        },
+        {
+          "codigo": "4064",
+          "descripcion": "Regalía Petrolera: Fecha de Pago"
+        },
+        {
+          "codigo": "5000",
+          "descripcion": "Proveedores Estado: Número de Expediente"
+        },
+        {
+          "codigo": "5001",
+          "descripcion": "Proveedores Estado: Código de Unidad Ejecutora"
+        },
+        {
+          "codigo": "5002",
+          "descripcion": "Proveedores Estado: N° de Proceso de Selección"
+        },
+        {
+          "codigo": "5003",
+          "descripcion": "Proveedores Estado: N° de Contrato"
+        },
+        {
+          "codigo": "5010",
+          "descripcion": "Numero de Placa"
+        },
+        {
+          "codigo": "5011",
+          "descripcion": "Categoria"
+        },
+        {
+          "codigo": "5012",
+          "descripcion": "Marca"
+        },
+        {
+          "codigo": "5013",
+          "descripcion": "Modelo"
+        },
+        {
+          "codigo": "5014",
+          "descripcion": "Color"
+        },
+        {
+          "codigo": "5015",
+          "descripcion": "Motor"
+        },
+        {
+          "codigo": "5016",
+          "descripcion": "Combustible"
+        },
+        {
+          "codigo": "5017",
+          "descripcion": "Form. Rodante"
+        },
+        {
+          "codigo": "5018",
+          "descripcion": "VIN"
+        },
+        {
+          "codigo": "5019",
+          "descripcion": "Serie/Chasis"
+        },
+        {
+          "codigo": "5020",
+          "descripcion": "Año fabricacion"
+        },
+        {
+          "codigo": "5021",
+          "descripcion": "Año modelo"
+        },
+        {
+          "codigo": "5022",
+          "descripcion": "Version"
+        },
+        {
+          "codigo": "5023",
+          "descripcion": "Ejes"
+        },
+        {
+          "codigo": "5024",
+          "descripcion": "Asientos"
+        },
+        {
+          "codigo": "5025",
+          "descripcion": "Pasajeros"
+        },
+        {
+          "codigo": "5026",
+          "descripcion": "Ruedas"
+        },
+        {
+          "codigo": "5027",
+          "descripcion": "Carroceria"
+        },
+        {
+          "codigo": "5028",
+          "descripcion": "Potencia"
+        },
+        {
+          "codigo": "5029",
+          "descripcion": "Cilindros"
+        },
+        {
+          "codigo": "5030",
+          "descripcion": "Ciliindrada"
+        },
+        {
+          "codigo": "5031",
+          "descripcion": "Peso Bruto"
+        },
+        {
+          "codigo": "5032",
+          "descripcion": "Peso Neto"
+        },
+        {
+          "codigo": "5033",
+          "descripcion": "Carga Util"
+        },
+        {
+          "codigo": "5034",
+          "descripcion": "Longitud"
+        },
+        {
+          "codigo": "5035",
+          "descripcion": "Altura"
+        },
+        {
+          "codigo": "5036",
+          "descripcion": "Ancho"
+        },
+        {
+          "codigo": "5060",
+          "descripcion": "Gas Natural - Lectura Anterior"
+        },
+        {
+          "codigo": "5061",
+          "descripcion": "Gas Natural - Lectura Actual"
+        },
+        {
+          "codigo": "5062",
+          "descripcion": "Gas Natural - Volumen consumido a Condiciones de lectura"
+        },
+        {
+          "codigo": "5063",
+          "descripcion": "Gas Natural - Factor de correccion del volumen"
+        },
+        {
+          "codigo": "5064",
+          "descripcion": "Gas Natural - Volumen a condiciones Estandares"
+        },
+        {
+          "codigo": "5065",
+          "descripcion": "Gas Natural - Volumen facturado"
+        },
+        {
+          "codigo": "5066",
+          "descripcion": "Gas Natural - Poder Calorifico Superior Promedio del Gas"
+        },
+        {
+          "codigo": "6000",
+          "descripcion": "Comercialización de Oro: Código Unico Concesión Minera"
+        },
+        {
+          "codigo": "6001",
+          "descripcion": "Comercialización de Oro: N° declaración compromiso"
+        },
+        {
+          "codigo": "6002",
+          "descripcion": "Comercialización de Oro: N° Reg. Especial .Comerci. Oro"
+        },
+        {
+          "codigo": "6003",
+          "descripcion": "Comercialización de Oro: N° Resolución que autoriza Planta de Beneficio"
+        },
+        {
+          "codigo": "6004",
+          "descripcion": "Comercialización de Oro: Ley Mineral (% concent. oro)"
+        },
+        {
+          "codigo": "6005",
+          "descripcion": "Comercialización de Oro : Naturaleza del mineral"
+        },
+        {
+          "codigo": "6006",
+          "descripcion": "Comercialización de Oro : Nombre del derecho minero"
+        },
+        {
+          "codigo": "7000",
+          "descripcion": "Gastos Art. 37 Renta: Número de Placa"
+        },
+        {
+          "codigo": "7001",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Tipo de préstamo"
+        },
+        {
+          "codigo": "7002",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Indicador de Primera Vivienda"
+        },
+        {
+          "codigo": "7003",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Partida Registral"
+        },
+        {
+          "codigo": "7004",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Número de contrato"
+        },
+        {
+          "codigo": "7005",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Fecha de otorgamiento del crédito"
+        },
+        {
+          "codigo": "7006",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Dirección del predio - Código de ubigeo"
+        },
+        {
+          "codigo": "7007",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Dirección del predio - Dirección completa"
+        },
+        {
+          "codigo": "7008",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Dirección del predio - Urbanización"
+        },
+        {
+          "codigo": "7009",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Dirección del predio - Provincia"
+        },
+        {
+          "codigo": "7010",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Dirección del predio - Distrito"
+        },
+        {
+          "codigo": "7011",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Dirección del predio - Departamento"
+        },
+        {
+          "codigo": "7012",
+          "descripcion": "Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público: Monto del crédito otorgado (capital)"
+        },
+        {
+          "codigo": "7013",
+          "descripcion": "Empresas del sistema de seguro: Número de póliza"
+        },
+        {
+          "codigo": "7014",
+          "descripcion": "Empresas del sistema de seguro: Fecha de inicio/término de vigencia de cobertura"
+        },
+        {
+          "codigo": "7015",
+          "descripcion": "Empresas del sistema de seguro: Tipo de seguro"
+        },
+        {
+          "codigo": "7016",
+          "descripcion": "Empresas del sistema de seguro: Suma asegurada / alcance de cobertura o monto"
+        },
+        {
+          "codigo": "7017",
+          "descripcion": "AFP: CUSPP"
+        },
+        {
+          "codigo": "7018",
+          "descripcion": "AFP: Periodo"
+        },
+        {
+          "codigo": "7019",
+          "descripcion": "AFP: Monto del interes moratorio"
+        },
+        {
+          "codigo": "7020",
+          "descripcion": "Partida arancelaria"
+        },
+        {
+          "codigo": "7021",
+          "descripcion": "Numero de declaracion aduanera (DAM)"
+        },
+        {
+          "codigo": "7022",
+          "descripcion": "Indicador de bien normalizado"
+        },
+        {
+          "codigo": "7023",
+          "descripcion": "Numero de serie en la DAM o DS"
+        }
+      ]
+    },
+    "56": {
+      "nombre": "Código de tipo de servicio público",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "1",
+          "descripcion": "Energía eléctrica"
+        },
+        {
+          "codigo": "2",
+          "descripcion": "Agua"
+        },
+        {
+          "codigo": "3",
+          "descripcion": "Cable"
+        },
+        {
+          "codigo": "4",
+          "descripcion": "Internet"
+        },
+        {
+          "codigo": "5",
+          "descripcion": "Otros servicios regulados por OSIPTEL"
+        },
+        {
+          "codigo": "6",
+          "descripcion": "Gas natural"
+        },
+        {
+          "codigo": "7",
+          "descripcion": "Telefonía"
+        }
+      ]
+    },
+    "57": {
+      "nombre": "Código de tipo de servicio públicos - telecomunicaciones",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "1",
+          "descripcion": "Servicios Portadores"
+        },
+        {
+          "codigo": "2",
+          "descripcion": "Teleservicios o Servicios Finales"
+        },
+        {
+          "codigo": "3",
+          "descripcion": "Servicios de Difusión"
+        },
+        {
+          "codigo": "4",
+          "descripcion": "Servicios de valor añadido"
+        }
+      ]
+    },
+    "58": {
+      "nombre": "Código de tipo de medidor (recibo de luz)",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "1",
+          "descripcion": "Trifásico"
+        },
+        {
+          "codigo": "2",
+          "descripcion": "Monofásico"
+        }
+      ]
+    },
+    "59": {
+      "nombre": "Medios de Pago",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "001",
+          "descripcion": "Depósito en cuenta"
+        },
+        {
+          "codigo": "002",
+          "descripcion": "Giro"
+        },
+        {
+          "codigo": "003",
+          "descripcion": "Transferencia de fondos"
+        },
+        {
+          "codigo": "004",
+          "descripcion": "Orden de pago"
+        },
+        {
+          "codigo": "005",
+          "descripcion": "Tarjeta de débito"
+        },
+        {
+          "codigo": "006",
+          "descripcion": "Tarjeta de crédito emitida en el país por una empresa del sistema financiero"
+        },
+        {
+          "codigo": "007",
+          "descripcion": "Cheques con la cláusula de \"NO NEGOCIABLE\", \"INTRANSFERIBLES\", \"NO A LA ORDEN\" u otra equivalente, a que se refiere el inciso g) del artículo 5° de la ley"
+        },
+        {
+          "codigo": "008",
+          "descripcion": "Efectivo, por operaciones en las que no existe obligación de utilizar medio de pago"
+        },
+        {
+          "codigo": "009",
+          "descripcion": "Efectivo, en los demás casos"
+        },
+        {
+          "codigo": "010",
+          "descripcion": "Medios de pago usados en comercio exterior"
+        },
+        {
+          "codigo": "011",
+          "descripcion": "Documentos emitidos por las EDPYMES y las cooperativas de ahorro y crédito no autorizadas a captar depósitos del público"
+        },
+        {
+          "codigo": "012",
+          "descripcion": "Tarjeta de crédito emitida en el país o en el exterior por una empresa no perteneciente al sistema financiero, cuyo objeto principal sea la emisión y administración de tarjetas de crédito"
+        },
+        {
+          "codigo": "013",
+          "descripcion": "Tarjetas de crédito emitidas en el exterior por empresas bancarias o financieras no domiciliadas"
+        },
+        {
+          "codigo": "101",
+          "descripcion": "Transferencias – Comercio exterior"
+        },
+        {
+          "codigo": "102",
+          "descripcion": "Cheques bancarios - Comercio exterior"
+        },
+        {
+          "codigo": "103",
+          "descripcion": "Orden de pago simple - Comercio exterior"
+        },
+        {
+          "codigo": "104",
+          "descripcion": "Orden de pago documentario - Comercio exterior"
+        },
+        {
+          "codigo": "105",
+          "descripcion": "Remesa simple - Comercio exterior"
+        },
+        {
+          "codigo": "106",
+          "descripcion": "Remesa documentaria - Comercio exterior"
+        },
+        {
+          "codigo": "107",
+          "descripcion": "Carta de crédito simple - Comercio exterior"
+        },
+        {
+          "codigo": "108",
+          "descripcion": "Carta de crédito documentario - Comercio exterior"
+        },
+        {
+          "codigo": "999",
+          "descripcion": "Otros medios de pago"
+        }
+      ]
+    },
+    "60": {
+      "nombre": "Código de tipo de dirección",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Punto de venta"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Producción"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Extracción"
+        },
+        {
+          "codigo": "04",
+          "descripcion": "Explotación"
+        },
+        {
+          "codigo": "05",
+          "descripcion": "Otros"
+        }
+      ]
+    },
+    "61": {
+      "nombre": "Documentos relacionados al transporte de mercancías",
+      "columnas": [
+        "Código",
+        "Nombre",
+        "GRE Aplicable"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Factura",
+          "extras": {
+            "GRE Aplicable": "remitente, transportista"
+          }
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Boleta de Venta",
+          "extras": {
+            "GRE Aplicable": "remitente, transportista"
+          }
+        },
+        {
+          "codigo": "04",
+          "descripcion": "Liquidación de Compra",
+          "extras": {
+            "GRE Aplicable": "remitente, transportista"
+          }
+        },
+        {
+          "codigo": "09",
+          "descripcion": "Guía de Remisión Remitente",
+          "extras": {
+            "GRE Aplicable": "remitente, transportista"
+          }
+        },
+        {
+          "codigo": "12",
+          "descripcion": "Ticket o cinta emitido por máquina registradora",
+          "extras": {
+            "GRE Aplicable": "remitente, transportista"
+          }
+        },
+        {
+          "codigo": "31",
+          "descripcion": "Guía de Remisión Transportista",
+          "extras": {
+            "GRE Aplicable": "solo transportista"
+          }
+        },
+        {
+          "codigo": "48",
+          "descripcion": "Comprobante de Operaciones – Ley N° 29972",
+          "extras": {
+            "GRE Aplicable": "remitente, transportista"
+          }
+        },
+        {
+          "codigo": "49",
+          "descripcion": "Constancia de Depósito - IVAP (Ley 28211)",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "50",
+          "descripcion": "Declaración Aduanera de Mercancías",
+          "extras": {
+            "GRE Aplicable": "remitente, transportista"
+          }
+        },
+        {
+          "codigo": "52",
+          "descripcion": "Declaración Simplificada (DS)",
+          "extras": {
+            "GRE Aplicable": "remitente, transportista"
+          }
+        },
+        {
+          "codigo": "65",
+          "descripcion": "Autorización de Circulación para transportar MATPEL – Callao",
+          "extras": {
+            "GRE Aplicable": "solo transportista"
+          }
+        },
+        {
+          "codigo": "66",
+          "descripcion": "Autorización de Circulación para transporte de carga y mercancías en Lima Metropolitana",
+          "extras": {
+            "GRE Aplicable": "solo transportista"
+          }
+        },
+        {
+          "codigo": "67",
+          "descripcion": "Permiso de Operación Especial para el servicio de transporte de MATPEL - MTC",
+          "extras": {
+            "GRE Aplicable": "solo transportista"
+          }
+        },
+        {
+          "codigo": "68",
+          "descripcion": "Habilitación Sanitaria de Transporte Terrestre de Productos Pesqueros y Acuícolas",
+          "extras": {
+            "GRE Aplicable": "solo transportista"
+          }
+        },
+        {
+          "codigo": "69",
+          "descripcion": "Permiso / Autorización de operación de transporte de mercancías",
+          "extras": {
+            "GRE Aplicable": "solo transportista"
+          }
+        },
+        {
+          "codigo": "71",
+          "descripcion": "Resolución de Adjudicación de bienes – SUNAT",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "72",
+          "descripcion": "Resolución de Comiso de bienes – SUNAT",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "73",
+          "descripcion": "Guía de Transporte Forestal o de Fauna - SERFOR",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "74",
+          "descripcion": "Guía de Tránsito – SUCAMEC",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "75",
+          "descripcion": "Autorización para operar como empresa de Saneamiento Ambiental – MINSA -",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "76",
+          "descripcion": "Autorización para manejo y recojo de residuos sólidos peligrosos y no peligrosos",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "77",
+          "descripcion": "Certificado fitosanitario la movilización de plantas, productos vegetales, y otros artículos reglamentados",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "78",
+          "descripcion": "Registro Único de Usuarios y Transportistas de Alcohol Etílico",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "80",
+          "descripcion": "Constancia de Depósito – Detracción",
+          "extras": {
+            "GRE Aplicable": "remitente, transportista"
+          }
+        },
+        {
+          "codigo": "81",
+          "descripcion": "Código de autorización emitida por el SCOP",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "82",
+          "descripcion": "Declaración jurada de mudanza",
+          "extras": {
+            "GRE Aplicable": "solo transportista"
+          }
+        }
+      ]
+    },
+    "62": {
+      "nombre": "Bienes normalizados",
+      "columnas": [
+        "Partida arancelaria",
+        "Descripción",
+        "Código de producto SUNAT"
+      ],
+      "items": [
+        {
+          "codigo": "1701130000",
+          "descripcion": "Azúcar de caña",
+          "extras": {
+            "Código de producto SUNAT": "50161509"
+          }
+        },
+        {
+          "codigo": "1701140000",
+          "descripcion": "Los demás azúcares de caña",
+          "extras": {
+            "Código de producto SUNAT": "50161509"
+          }
+        },
+        {
+          "codigo": "1701910000",
+          "descripcion": "Con adición de aromatizante o colorante",
+          "extras": {
+            "Código de producto SUNAT": "50161509"
+          }
+        },
+        {
+          "codigo": "1701999000",
+          "descripcion": "Los demás",
+          "extras": {
+            "Código de producto SUNAT": "50161509"
+          }
+        },
+        {
+          "codigo": "1703100000",
+          "descripcion": "Melaza de caña",
+          "extras": {
+            "Código de producto SUNAT": "50161509"
+          }
+        },
+        {
+          "codigo": "2207100000",
+          "descripcion": "Alcohol etílico sin desnaturalizar con grado alcohólico volumétrico superior o igual al 80 % vol",
+          "extras": {
+            "Código de producto SUNAT": "12352104"
+          }
+        },
+        {
+          "codigo": "2207200010",
+          "descripcion": "Alcohol carburante",
+          "extras": {
+            "Código de producto SUNAT": "12352104"
+          }
+        },
+        {
+          "codigo": "2207200090",
+          "descripcion": "Los demás",
+          "extras": {
+            "Código de producto SUNAT": "12352104"
+          }
+        },
+        {
+          "codigo": "2208901000",
+          "descripcion": "Alcohol etílico sin desnaturalizar con grado alcohólico volumétrico inferior al 80% vol",
+          "extras": {
+            "Código de producto SUNAT": "12352104"
+          }
+        },
+        {
+          "codigo": "1006200000",
+          "descripcion": "Arroz descascarillado (arroz cargo o arroz pardo)",
+          "extras": {
+            "Código de producto SUNAT": "50221101"
+          }
+        },
+        {
+          "codigo": "1006300000",
+          "descripcion": "Arroz semiblanqueado o blanqueado, incluso pulido o glaseado",
+          "extras": {
+            "Código de producto SUNAT": "50221101"
+          }
+        },
+        {
+          "codigo": "1006400000",
+          "descripcion": "Arroz partido",
+          "extras": {
+            "Código de producto SUNAT": "50221101"
+          }
+        },
+        {
+          "codigo": "2302200000",
+          "descripcion": "No vigente",
+          "extras": {
+            "Código de producto SUNAT": "50221101"
+          }
+        },
+        {
+          "codigo": "2601110000",
+          "descripcion": "Sin aglomerar",
+          "extras": {
+            "Código de producto SUNAT": "11101601"
+          }
+        },
+        {
+          "codigo": "2601120000",
+          "descripcion": "Aglomerados",
+          "extras": {
+            "Código de producto SUNAT": "11101601"
+          }
+        },
+        {
+          "codigo": "2601200000",
+          "descripcion": "Piritas de hierro tostadas (cenizas de piritas)",
+          "extras": {
+            "Código de producto SUNAT": "11101601"
+          }
+        },
+        {
+          "codigo": "2602000000",
+          "descripcion": "Minerales de manganeso y sus concentrados, incluidos los minerales de manganeso ferruginosos y sus concentrados con un contenido de manganeso superior o igual al 20 % en peso, sobre producto seco.",
+          "extras": {
+            "Código de producto SUNAT": "11101611"
+          }
+        },
+        {
+          "codigo": "2603000000",
+          "descripcion": "Minerales de cobre y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101604"
+          }
+        },
+        {
+          "codigo": "2604000000",
+          "descripcion": "Minerales de níquel y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101606"
+          }
+        },
+        {
+          "codigo": "2605000000",
+          "descripcion": "Minerales de cobalto y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101615"
+          }
+        },
+        {
+          "codigo": "2606000000",
+          "descripcion": "Minerales de aluminio y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101605"
+          }
+        },
+        {
+          "codigo": "2607000000",
+          "descripcion": "Minerales de plomo y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101608"
+          }
+        },
+        {
+          "codigo": "2608000010",
+          "descripcion": "Concentrado de cinc de baja ley",
+          "extras": {
+            "Código de producto SUNAT": "11101609"
+          }
+        },
+        {
+          "codigo": "2608000090",
+          "descripcion": "Los demás",
+          "extras": {
+            "Código de producto SUNAT": "11101609"
+          }
+        },
+        {
+          "codigo": "2609000000",
+          "descripcion": "Minerales de estaño y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101610"
+          }
+        },
+        {
+          "codigo": "2610000000",
+          "descripcion": "Minerales de cromo y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101612"
+          }
+        },
+        {
+          "codigo": "2611000000",
+          "descripcion": "Minerales de volframio (tungsteno) y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101613"
+          }
+        },
+        {
+          "codigo": "2612100000",
+          "descripcion": "Minerales de uranio y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101603"
+          }
+        },
+        {
+          "codigo": "2612200000",
+          "descripcion": "Minerales de torio y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101620"
+          }
+        },
+        {
+          "codigo": "2613100000",
+          "descripcion": "Tostados",
+          "extras": {
+            "Código de producto SUNAT": "11101614"
+          }
+        },
+        {
+          "codigo": "2613900000",
+          "descripcion": "Los demás",
+          "extras": {
+            "Código de producto SUNAT": "11101614"
+          }
+        },
+        {
+          "codigo": "2614000000",
+          "descripcion": "Minerales de titanio y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101602"
+          }
+        },
+        {
+          "codigo": "2615100000",
+          "descripcion": "Minerales de circonio y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101623"
+          }
+        },
+        {
+          "codigo": "2615900000",
+          "descripcion": "Los demás",
+          "extras": {
+            "Código de producto SUNAT": "11101600"
+          }
+        },
+        {
+          "codigo": "2616100000",
+          "descripcion": "Minerales de plata y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101607"
+          }
+        },
+        {
+          "codigo": "2616901000",
+          "descripcion": "Minerales de oro y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101616"
+          }
+        },
+        {
+          "codigo": "2616909000",
+          "descripcion": "Los demás",
+          "extras": {
+            "Código de producto SUNAT": "11101600"
+          }
+        },
+        {
+          "codigo": "2617100000",
+          "descripcion": "Minerales de antimonio y sus concentrados",
+          "extras": {
+            "Código de producto SUNAT": "11101622"
+          }
+        },
+        {
+          "codigo": "2617900000",
+          "descripcion": "Los demás",
+          "extras": {
+            "Código de producto SUNAT": "11101600"
+          }
+        },
+        {
+          "codigo": "2618000000",
+          "descripcion": "Escorias granuladas (arena de escorias) de la siderurgia",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2619000000",
+          "descripcion": "Escorias (excepto las granuladas), batiduras y demás desperdicios de la siderurgia",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2620110000",
+          "descripcion": "Matas de galvanización",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2620190000",
+          "descripcion": "Los demás",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2620210000",
+          "descripcion": "Lodos de gasolina con plomo y lodos de compuestos antidetonantes con plomo",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2620290000",
+          "descripcion": "Los demás",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2620300000",
+          "descripcion": "Que contengan principalmente cobre",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2620400000",
+          "descripcion": "Que contengan principalmente aluminio",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2620600000",
+          "descripcion": "Que contengan arsénico, mercurio, talio o sus mezclas, de los tipos utilizados para la extracción de arsénico o de estos metales o para la elaboración de sus compuestos químicos",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2620910000",
+          "descripcion": "Que contengan antimonio, berilio, cadmio, cromo, o sus mezclas",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2620990000",
+          "descripcion": "Los demás",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2621100000",
+          "descripcion": "Cenizas y residuos procedentes de la incineración de desechos municipales",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        },
+        {
+          "codigo": "2621900000",
+          "descripcion": "Las demás",
+          "extras": {
+            "Código de producto SUNAT": "11101701"
+          }
+        }
+      ]
+    },
+    "63": {
+      "nombre": "Puertos del Perú",
+      "columnas": [
+        "Código",
+        "Nombre",
+        "Ubigeo"
+      ],
+      "items": [
+        {
+          "codigo": "PUB",
+          "descripcion": "Bayóvar",
+          "extras": {
+            "Ubigeo": "200801"
+          }
+        },
+        {
+          "codigo": "CLL",
+          "descripcion": "Callao",
+          "extras": {
+            "Ubigeo": "070101"
+          }
+        },
+        {
+          "codigo": "CON",
+          "descripcion": "Conchán",
+          "extras": {
+            "Ubigeo": "150119"
+          }
+        },
+        {
+          "codigo": "CHY",
+          "descripcion": "Chancay",
+          "extras": {
+            "Ubigeo": "150605"
+          }
+        },
+        {
+          "codigo": "CHM",
+          "descripcion": "Chimbote",
+          "extras": {
+            "Ubigeo": "021801"
+          }
+        },
+        {
+          "codigo": "EEN",
+          "descripcion": "Eten",
+          "extras": {
+            "Ubigeo": "140113"
+          }
+        },
+        {
+          "codigo": "HCO",
+          "descripcion": "Huacho",
+          "extras": {
+            "Ubigeo": "150801"
+          }
+        },
+        {
+          "codigo": "HUY",
+          "descripcion": "Huarmey",
+          "extras": {
+            "Ubigeo": "021101"
+          }
+        },
+        {
+          "codigo": "ILQ",
+          "descripcion": "Ilo",
+          "extras": {
+            "Ubigeo": "180301"
+          }
+        },
+        {
+          "codigo": "IQT",
+          "descripcion": "Iquitos",
+          "extras": {
+            "Ubigeo": "160101"
+          }
+        },
+        {
+          "codigo": "MRI",
+          "descripcion": "Matarani",
+          "extras": {
+            "Ubigeo": "040701"
+          }
+        },
+        {
+          "codigo": "PAI",
+          "descripcion": "Paita",
+          "extras": {
+            "Ubigeo": "200501"
+          }
+        },
+        {
+          "codigo": "PIO",
+          "descripcion": "Pisco",
+          "extras": {
+            "Ubigeo": "110505"
+          }
+        },
+        {
+          "codigo": "PCL",
+          "descripcion": "Pucallpa",
+          "extras": {
+            "Ubigeo": "250101"
+          }
+        },
+        {
+          "codigo": "PUN",
+          "descripcion": "Puno",
+          "extras": {
+            "Ubigeo": "210101"
+          }
+        },
+        {
+          "codigo": "SVY",
+          "descripcion": "Salaverry",
+          "extras": {
+            "Ubigeo": "130109"
+          }
+        },
+        {
+          "codigo": "SNX",
+          "descripcion": "San Nicolas",
+          "extras": {
+            "Ubigeo": "110304"
+          }
+        },
+        {
+          "codigo": "SUP",
+          "descripcion": "Supe",
+          "extras": {
+            "Ubigeo": "150204"
+          }
+        },
+        {
+          "codigo": "TYL",
+          "descripcion": "Talara",
+          "extras": {
+            "Ubigeo": "200701"
+          }
+        },
+        {
+          "codigo": "YMS",
+          "descripcion": "Yurimaguas",
+          "extras": {
+            "Ubigeo": "160201"
+          }
+        },
+        {
+          "codigo": "ZOR",
+          "descripcion": "Zorritos",
+          "extras": {
+            "Ubigeo": "240103"
+          }
+        }
+      ]
+    },
+    "64": {
+      "nombre": "Aeropuertos del Perú",
+      "columnas": [
+        "Código",
+        "Nombre",
+        "Ubigeo"
+      ],
+      "items": [
+        {
+          "codigo": "AQP",
+          "descripcion": "Rodríguez Ballón",
+          "extras": {
+            "Ubigeo": "040104"
+          }
+        },
+        {
+          "codigo": "ANS",
+          "descripcion": "Andahuaylas",
+          "extras": {
+            "Ubigeo": "030201"
+          }
+        },
+        {
+          "codigo": "ATA",
+          "descripcion": "Comandante FAP Germán Arias Graciani",
+          "extras": {
+            "Ubigeo": "020604"
+          }
+        },
+        {
+          "codigo": "AYP",
+          "descripcion": "Coronel FAP Alfredo Mendívil Duarte",
+          "extras": {
+            "Ubigeo": "050113"
+          }
+        },
+        {
+          "codigo": "CJA",
+          "descripcion": "Mayor Gral. FAP Armando Revoredo Iglesias",
+          "extras": {
+            "Ubigeo": "060108"
+          }
+        },
+        {
+          "codigo": "CHM",
+          "descripcion": "Tnte. FAP Jaime De Montruil M.",
+          "extras": {
+            "Ubigeo": "021809"
+          }
+        },
+        {
+          "codigo": "CUZ",
+          "descripcion": "Alejandro Velazco Astete",
+          "extras": {
+            "Ubigeo": "080108"
+          }
+        },
+        {
+          "codigo": "CHH",
+          "descripcion": "Chachapoyas",
+          "extras": {
+            "Ubigeo": "010101"
+          }
+        },
+        {
+          "codigo": "CIX",
+          "descripcion": "Capitán FAP José Quiñones G.",
+          "extras": {
+            "Ubigeo": "140101"
+          }
+        },
+        {
+          "codigo": "HUU",
+          "descripcion": "Alférez FAP David Figueroa Fernandini",
+          "extras": {
+            "Ubigeo": "100101"
+          }
+        },
+        {
+          "codigo": "ILO",
+          "descripcion": "Ilo",
+          "extras": {
+            "Ubigeo": "180301"
+          }
+        },
+        {
+          "codigo": "IQT",
+          "descripcion": "Coronel FAP Francisco Secada Vignetta",
+          "extras": {
+            "Ubigeo": "160101"
+          }
+        },
+        {
+          "codigo": "JAE",
+          "descripcion": "Jaén - Shumba",
+          "extras": {
+            "Ubigeo": "060802"
+          }
+        },
+        {
+          "codigo": "JJI",
+          "descripcion": "Juanjuí",
+          "extras": {
+            "Ubigeo": "220601"
+          }
+        },
+        {
+          "codigo": "JUL",
+          "descripcion": "Manco Cápac",
+          "extras": {
+            "Ubigeo": "211101"
+          }
+        },
+        {
+          "codigo": "JAU",
+          "descripcion": "Francisco Carlé",
+          "extras": {
+            "Ubigeo": "120430"
+          }
+        },
+        {
+          "codigo": "LIM",
+          "descripcion": "Internacional Jorge Chávez",
+          "extras": {
+            "Ubigeo": "070101"
+          }
+        },
+        {
+          "codigo": "MBP",
+          "descripcion": "Moyobamba",
+          "extras": {
+            "Ubigeo": "220101"
+          }
+        },
+        {
+          "codigo": "PIO",
+          "descripcion": "Capitán FAP Renán Elías Olivera",
+          "extras": {
+            "Ubigeo": "110506"
+          }
+        },
+        {
+          "codigo": "PIU",
+          "descripcion": "Capitán FAP Carlos Concha Iberico",
+          "extras": {
+            "Ubigeo": "200104"
+          }
+        },
+        {
+          "codigo": "PCL",
+          "descripcion": "Capitán FAP David Abensur Rengifo",
+          "extras": {
+            "Ubigeo": "250105"
+          }
+        },
+        {
+          "codigo": "PEM",
+          "descripcion": "Padre Aldamiz",
+          "extras": {
+            "Ubigeo": "170101"
+          }
+        },
+        {
+          "codigo": "RIJ",
+          "descripcion": "Juan Simons Vela - Rioja",
+          "extras": {
+            "Ubigeo": "220801"
+          }
+        },
+        {
+          "codigo": "TCQ",
+          "descripcion": "Coronel FAP Carlos Ciriani Santa Rosa",
+          "extras": {
+            "Ubigeo": "230101"
+          }
+        },
+        {
+          "codigo": "TYL",
+          "descripcion": "Capitán FAP Montes Arias",
+          "extras": {
+            "Ubigeo": "200701"
+          }
+        },
+        {
+          "codigo": "TPP",
+          "descripcion": "Cadete FAP Guillermo del Castillo Paredes",
+          "extras": {
+            "Ubigeo": "220901"
+          }
+        },
+        {
+          "codigo": "TIG",
+          "descripcion": "Tingo María",
+          "extras": {
+            "Ubigeo": "100601"
+          }
+        },
+        {
+          "codigo": "TRU",
+          "descripcion": "Capitán FAP Carlos Martínez Pinillos",
+          "extras": {
+            "Ubigeo": "130104"
+          }
+        },
+        {
+          "codigo": "TBP",
+          "descripcion": "Capitán FAP Pedro Canga Rodríguez",
+          "extras": {
+            "Ubigeo": "240101"
+          }
+        },
+        {
+          "codigo": "ATG",
+          "descripcion": "Atalaya - Tnte. Gral. Gerardo Pérez Pinedo",
+          "extras": {
+            "Ubigeo": "250201"
+          }
+        },
+        {
+          "codigo": "YMS",
+          "descripcion": "Moisés Benzaquen Rengifo",
+          "extras": {
+            "Ubigeo": "160201"
+          }
+        }
+      ]
+    },
+    "65": {
+      "nombre": "Código de unidades de medida (para uso solo para la GRE en DAM o DS)",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "126",
+          "descripcion": "DOCENA POR 10**6"
+        },
+        {
+          "codigo": "12U",
+          "descripcion": "DOCENA"
+        },
+        {
+          "codigo": "2U",
+          "descripcion": "PAR"
+        },
+        {
+          "codigo": "2U6",
+          "descripcion": "PAR POR 10**6"
+        },
+        {
+          "codigo": "AM",
+          "descripcion": "AMPOLLA"
+        },
+        {
+          "codigo": "BAL",
+          "descripcion": "BALDE"
+        },
+        {
+          "codigo": "BID",
+          "descripcion": "BIDONES"
+        },
+        {
+          "codigo": "BLS",
+          "descripcion": "BOLSA"
+        },
+        {
+          "codigo": "BOB",
+          "descripcion": "BOBINAS"
+        },
+        {
+          "codigo": "BOT",
+          "descripcion": "BOTELLAS"
+        },
+        {
+          "codigo": "BRR",
+          "descripcion": "BARRILES"
+        },
+        {
+          "codigo": "CAJ",
+          "descripcion": "CAJA"
+        },
+        {
+          "codigo": "CIL",
+          "descripcion": "CILINDRO"
+        },
+        {
+          "codigo": "CM",
+          "descripcion": "CENTIMETRO LINEAL"
+        },
+        {
+          "codigo": "CM2",
+          "descripcion": "CENTIMETRO CUADRADO"
+        },
+        {
+          "codigo": "CM3",
+          "descripcion": "CENTIMETRO CUBICO"
+        },
+        {
+          "codigo": "CON",
+          "descripcion": "CONOS"
+        },
+        {
+          "codigo": "CRT",
+          "descripcion": "CARTONES"
+        },
+        {
+          "codigo": "FDO",
+          "descripcion": "FARDO"
+        },
+        {
+          "codigo": "FRC",
+          "descripcion": "FRASCOS"
+        },
+        {
+          "codigo": "GAL",
+          "descripcion": "US GALON (3,7843 L)"
+        },
+        {
+          "codigo": "GLE",
+          "descripcion": "GALON INGLES (4,545956L)"
+        },
+        {
+          "codigo": "GR",
+          "descripcion": "GRAMO"
+        },
+        {
+          "codigo": "GRU",
+          "descripcion": "GRUESA"
+        },
+        {
+          "codigo": "HL",
+          "descripcion": "HECTOLITRO"
+        },
+        {
+          "codigo": "HOJ",
+          "descripcion": "HOJA"
+        },
+        {
+          "codigo": "JGS",
+          "descripcion": "JUEGO"
+        },
+        {
+          "codigo": "KG",
+          "descripcion": "KILOGRAMO"
+        },
+        {
+          "codigo": "KG3",
+          "descripcion": "KILOGRAMO POR 10**3 (TM)"
+        },
+        {
+          "codigo": "KG6",
+          "descripcion": "KILOGRAMO POR 10**6"
+        },
+        {
+          "codigo": "KGA",
+          "descripcion": "KILOGRAMO INGREDIENTE ACTIVO"
+        },
+        {
+          "codigo": "KI",
+          "descripcion": "QUILATE"
+        },
+        {
+          "codigo": "KI6",
+          "descripcion": "QUILATE 10**6"
+        },
+        {
+          "codigo": "KIT",
+          "descripcion": "KIT"
+        },
+        {
+          "codigo": "KL6",
+          "descripcion": "KILOS X 10 EXP - 6 (MG)"
+        },
+        {
+          "codigo": "KL9",
+          "descripcion": "KILOS X 10 EXP -9"
+        },
+        {
+          "codigo": "KM",
+          "descripcion": "KILOMETRO"
+        },
+        {
+          "codigo": "KW3",
+          "descripcion": "KILOVATIO HORA POR 10**3 (1000KWH)"
+        },
+        {
+          "codigo": "KW6",
+          "descripcion": "KILOVATIO HORA POR 10**6"
+        },
+        {
+          "codigo": "KWH",
+          "descripcion": "KILOVATIO HORA"
+        },
+        {
+          "codigo": "L",
+          "descripcion": "LITRO"
+        },
+        {
+          "codigo": "L 6",
+          "descripcion": "LITRO POR 10**6"
+        },
+        {
+          "codigo": "LAT",
+          "descripcion": "LATAS"
+        },
+        {
+          "codigo": "LB",
+          "descripcion": "LIBRAS"
+        },
+        {
+          "codigo": "M",
+          "descripcion": "METRO"
+        },
+        {
+          "codigo": "M 6",
+          "descripcion": "METRO POR 10**6"
+        },
+        {
+          "codigo": "M2",
+          "descripcion": "METRO CUADRADO"
+        },
+        {
+          "codigo": "M26",
+          "descripcion": "METRO CUADRADO POR 10**6"
+        },
+        {
+          "codigo": "M3",
+          "descripcion": "METRO CUBICO"
+        },
+        {
+          "codigo": "M36",
+          "descripcion": "METRO CUBICO POR 10**6"
+        },
+        {
+          "codigo": "MGA",
+          "descripcion": "MILIGRAMO ACTIVO"
+        },
+        {
+          "codigo": "MGR",
+          "descripcion": "MILIGRAMOS"
+        },
+        {
+          "codigo": "ML",
+          "descripcion": "MILILITRO"
+        },
+        {
+          "codigo": "MLL",
+          "descripcion": "MILLARES"
+        },
+        {
+          "codigo": "MM",
+          "descripcion": "MILIMETRO"
+        },
+        {
+          "codigo": "MM2",
+          "descripcion": "MILIMETRO CUADRADO"
+        },
+        {
+          "codigo": "MM3",
+          "descripcion": "MILIMETRO CUBICO"
+        },
+        {
+          "codigo": "MU",
+          "descripcion": "MUESTRAS"
+        },
+        {
+          "codigo": "MWH",
+          "descripcion": "MEGAWATT HORA"
+        },
+        {
+          "codigo": "OZ",
+          "descripcion": "ONZAS"
+        },
+        {
+          "codigo": "PAI",
+          "descripcion": "PAILAS"
+        },
+        {
+          "codigo": "PAL",
+          "descripcion": "PALETAS"
+        },
+        {
+          "codigo": "PAQ",
+          "descripcion": "PAQUETE"
+        },
+        {
+          "codigo": "PL",
+          "descripcion": "PLACAS"
+        },
+        {
+          "codigo": "PLC",
+          "descripcion": "PLANCHAS"
+        },
+        {
+          "codigo": "PLG",
+          "descripcion": "PLIEGO"
+        },
+        {
+          "codigo": "PS",
+          "descripcion": "PIES"
+        },
+        {
+          "codigo": "PS2",
+          "descripcion": "PIES CUADRADOS"
+        },
+        {
+          "codigo": "PS3",
+          "descripcion": "PIES CUBICOS"
+        },
+        {
+          "codigo": "PST",
+          "descripcion": "PIES TABLARES(MADERA)"
+        },
+        {
+          "codigo": "PUL",
+          "descripcion": "PULGADAS"
+        },
+        {
+          "codigo": "PZA",
+          "descripcion": "PIEZAS"
+        },
+        {
+          "codigo": "QQ",
+          "descripcion": "QUINTAL METRICO (100 KG)"
+        },
+        {
+          "codigo": "QUT",
+          "descripcion": "QUINTAL USA (100 LB)"
+        },
+        {
+          "codigo": "RAM",
+          "descripcion": "RAMOS"
+        },
+        {
+          "codigo": "RES",
+          "descripcion": "RESMA"
+        },
+        {
+          "codigo": "ROL",
+          "descripcion": "ROLLOS"
+        },
+        {
+          "codigo": "SAC",
+          "descripcion": "SACO"
+        },
+        {
+          "codigo": "SET",
+          "descripcion": "SET"
+        },
+        {
+          "codigo": "TAM",
+          "descripcion": "TAMBOR"
+        },
+        {
+          "codigo": "TC",
+          "descripcion": "TONELADA CORTA"
+        },
+        {
+          "codigo": "TCS",
+          "descripcion": "TONELADA CORTA SECA"
+        },
+        {
+          "codigo": "TIR",
+          "descripcion": "TIRAS"
+        },
+        {
+          "codigo": "TL",
+          "descripcion": "TONELADA LARGA"
+        },
+        {
+          "codigo": "TLS",
+          "descripcion": "TONELADA LARGA SECA"
+        },
+        {
+          "codigo": "TM",
+          "descripcion": "TONELADAS"
+        },
+        {
+          "codigo": "TM3",
+          "descripcion": "TONELADA CUBICA"
+        },
+        {
+          "codigo": "TMS",
+          "descripcion": "TONELADA METRICA SECA"
+        },
+        {
+          "codigo": "TUB",
+          "descripcion": "TUBOS"
+        },
+        {
+          "codigo": "U",
+          "descripcion": "UNIDAD"
+        },
+        {
+          "codigo": "U 3",
+          "descripcion": "UNIDAD POR 10**3"
+        },
+        {
+          "codigo": "U 6",
+          "descripcion": "UNIDAD PO 10**6"
+        },
+        {
+          "codigo": "U2",
+          "descripcion": "CIENTO DE UNIDADES"
+        },
+        {
+          "codigo": "U3",
+          "descripcion": "MILES DE UNIDADES"
+        },
+        {
+          "codigo": "U6",
+          "descripcion": "MILLON DE UNIDADES"
+        },
+        {
+          "codigo": "YD",
+          "descripcion": "YARDA"
+        },
+        {
+          "codigo": "YD2",
+          "descripcion": "YARDA CUADRADA"
+        }
+      ]
+    }
+  }
+}

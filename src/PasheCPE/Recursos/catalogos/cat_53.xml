@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="53" nombre="Códigos de cargos, descuentos y otras deducciones">
+  <c id="00" nivel="Item">Descuentos que afectan la base imponible del IGV/IVAP</c>
+  <c id="01" nivel="Item">Descuentos que no afectan la base imponible del IGV/IVAP</c>
+  <c id="02" nivel="Global">Descuentos globales que afectan la base imponible del IGV/IVAP</c>
+  <c id="03" nivel="Global">Descuentos globales que no afectan la base imponible del IGV/IVAP</c>
+  <c id="04" nivel="Global">Descuentos globales por anticipos gravados que afectan la base imponible del IGV/IVAP</c>
+  <c id="05" nivel="Global">Descuentos globales por anticipos exonerados</c>
+  <c id="06" nivel="Global">Descuentos globales por anticipos inafectos</c>
+  <c id="07" nivel="Item">Factor de compensación - Decreto de urgencia N. 010-2004</c>
+  <c id="20" nivel="Global">Anticipo de ISC</c>
+  <c id="45" nivel="Global">FISE</c>
+  <c id="46" nivel="Global">Recargo al consumo y/o propinas</c>
+  <c id="47" nivel="Item">Cargos que afectan la base imponible del IGV/IVAP</c>
+  <c id="48" nivel="Item">Cargos que no afectan la base imponible del IGV/IVAP</c>
+  <c id="49" nivel="Global">Cargos globales que afectan la base imponible del IGV/IVAP</c>
+  <c id="50" nivel="Global">Cargos globales que no afectan la base imponible del IGV/IVAP</c>
+  <c id="51" nivel="Global">Percepción venta interna</c>
+  <c id="52" nivel="Global">Percepción a la adquisición de combustible</c>
+  <c id="53" nivel="Global">Percepción realizada al agente de percepción con tasa especial</c>
+  <c id="54" nivel="Item">Factor de aportación - Decreto de urgencia N. 010-2004</c>
+  <c id="61" nivel="Global">Retención de renta por anticipos</c>
+  <c id="62" nivel="Global">Retención del IGV</c>
+  <c id="63" nivel="Global">Rentención de renta de segunda categoría</c>
+</l>

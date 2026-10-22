@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="62" nombre="Bienes normalizados">
+  <c id="1701130000" codigo-de-producto-sunat="50161509">Azúcar de caña</c>
+  <c id="1701140000" codigo-de-producto-sunat="50161509">Los demás azúcares de caña</c>
+  <c id="1701910000" codigo-de-producto-sunat="50161509">Con adición de aromatizante o colorante</c>
+  <c id="1701999000" codigo-de-producto-sunat="50161509">Los demás</c>
+  <c id="1703100000" codigo-de-producto-sunat="50161509">Melaza de caña</c>
+  <c id="2207100000" codigo-de-producto-sunat="12352104">Alcohol etílico sin desnaturalizar con grado alcohólico volumétrico superior o igual al 80 % vol</c>
+  <c id="2207200010" codigo-de-producto-sunat="12352104">Alcohol carburante</c>
+  <c id="2207200090" codigo-de-producto-sunat="12352104">Los demás</c>
+  <c id="2208901000" codigo-de-producto-sunat="12352104">Alcohol etílico sin desnaturalizar con grado alcohólico volumétrico inferior al 80% vol</c>
+  <c id="1006200000" codigo-de-producto-sunat="50221101">Arroz descascarillado (arroz cargo o arroz pardo)</c>
+  <c id="1006300000" codigo-de-producto-sunat="50221101">Arroz semiblanqueado o blanqueado, incluso pulido o glaseado</c>
+  <c id="1006400000" codigo-de-producto-sunat="50221101">Arroz partido</c>
+  <c id="2302200000" codigo-de-producto-sunat="50221101">No vigente</c>
+  <c id="2601110000" codigo-de-producto-sunat="11101601">Sin aglomerar</c>
+  <c id="2601120000" codigo-de-producto-sunat="11101601">Aglomerados</c>
+  <c id="2601200000" codigo-de-producto-sunat="11101601">Piritas de hierro tostadas (cenizas de piritas)</c>
+  <c id="2602000000" codigo-de-producto-sunat="11101611">Minerales de manganeso y sus concentrados, incluidos los minerales de manganeso ferruginosos y sus concentrados con un contenido de manganeso superior o igual al 20 % en peso, sobre producto seco.</c>
+  <c id="2603000000" codigo-de-producto-sunat="11101604">Minerales de cobre y sus concentrados</c>
+  <c id="2604000000" codigo-de-producto-sunat="11101606">Minerales de níquel y sus concentrados</c>
+  <c id="2605000000" codigo-de-producto-sunat="11101615">Minerales de cobalto y sus concentrados</c>
+  <c id="2606000000" codigo-de-producto-sunat="11101605">Minerales de aluminio y sus concentrados</c>
+  <c id="2607000000" codigo-de-producto-sunat="11101608">Minerales de plomo y sus concentrados</c>
+  <c id="2608000010" codigo-de-producto-sunat="11101609">Concentrado de cinc de baja ley</c>
+  <c id="2608000090" codigo-de-producto-sunat="11101609">Los demás</c>
+  <c id="2609000000" codigo-de-producto-sunat="11101610">Minerales de estaño y sus concentrados</c>
+  <c id="2610000000" codigo-de-producto-sunat="11101612">Minerales de cromo y sus concentrados</c>
+  <c id="2611000000" codigo-de-producto-sunat="11101613">Minerales de volframio (tungsteno) y sus concentrados</c>
+  <c id="2612100000" codigo-de-producto-sunat="11101603">Minerales de uranio y sus concentrados</c>
+  <c id="2612200000" codigo-de-producto-sunat="11101620">Minerales de torio y sus concentrados</c>
+  <c id="2613100000" codigo-de-producto-sunat="11101614">Tostados</c>
+  <c id="2613900000" codigo-de-producto-sunat="11101614">Los demás</c>
+  <c id="2614000000" codigo-de-producto-sunat="11101602">Minerales de titanio y sus concentrados</c>
+  <c id="2615100000" codigo-de-producto-sunat="11101623">Minerales de circonio y sus concentrados</c>
+  <c id="2615900000" codigo-de-producto-sunat="11101600">Los demás</c>
+  <c id="2616100000" codigo-de-producto-sunat="11101607">Minerales de plata y sus concentrados</c>
+  <c id="2616901000" codigo-de-producto-sunat="11101616">Minerales de oro y sus concentrados</c>
+  <c id="2616909000" codigo-de-producto-sunat="11101600">Los demás</c>
+  <c id="2617100000" codigo-de-producto-sunat="11101622">Minerales de antimonio y sus concentrados</c>
+  <c id="2617900000" codigo-de-producto-sunat="11101600">Los demás</c>
+  <c id="2618000000" codigo-de-producto-sunat="11101701">Escorias granuladas (arena de escorias) de la siderurgia</c>
+  <c id="2619000000" codigo-de-producto-sunat="11101701">Escorias (excepto las granuladas), batiduras y demás desperdicios de la siderurgia</c>
+  <c id="2620110000" codigo-de-producto-sunat="11101701">Matas de galvanización</c>
+  <c id="2620190000" codigo-de-producto-sunat="11101701">Los demás</c>
+  <c id="2620210000" codigo-de-producto-sunat="11101701">Lodos de gasolina con plomo y lodos de compuestos antidetonantes con plomo</c>
+  <c id="2620290000" codigo-de-producto-sunat="11101701">Los demás</c>
+  <c id="2620300000" codigo-de-producto-sunat="11101701">Que contengan principalmente cobre</c>
+  <c id="2620400000" codigo-de-producto-sunat="11101701">Que contengan principalmente aluminio</c>
+  <c id="2620600000" codigo-de-producto-sunat="11101701">Que contengan arsénico, mercurio, talio o sus mezclas, de los tipos utilizados para la extracción de arsénico o de estos metales o para la elaboración de sus compuestos químicos</c>
+  <c id="2620910000" codigo-de-producto-sunat="11101701">Que contengan antimonio, berilio, cadmio, cromo, o sus mezclas</c>
+  <c id="2620990000" codigo-de-producto-sunat="11101701">Los demás</c>
+  <c id="2621100000" codigo-de-producto-sunat="11101701">Cenizas y residuos procedentes de la incineración de desechos municipales</c>
+  <c id="2621900000" codigo-de-producto-sunat="11101701">Las demás</c>
+</l>

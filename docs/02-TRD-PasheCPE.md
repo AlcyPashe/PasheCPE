@@ -19,6 +19,7 @@
 |---|---|---|---|
 | Firma XML-DSig | `System.Security.Cryptography.Xml` | PasheCPE | Microsoft |
 | DI, opciones, logging | `Microsoft.Extensions.DependencyInjection.Abstractions`, `Microsoft.Extensions.Options`, `Microsoft.Extensions.Options.ConfigurationExtensions`, `Microsoft.Extensions.Logging.Abstractions`, `Microsoft.Extensions.Http` | PasheCPE | Microsoft |
+| Contenedor para `PasheCpe.Crear` (sin DI) | `Microsoft.Extensions.DependencyInjection` | PasheCPE | Microsoft; ya llegaba como transitiva de `Microsoft.Extensions.Http` |
 | Resiliencia HTTP | `Microsoft.Extensions.Http.Resilience` | PasheCPE | Microsoft; solo operaciones idempotentes |
 | Serialización rápida | `Microsoft.XmlSerializer.Generator` | PasheCPE | Microsoft; genera los serializadores en compilación |
 | QR | `QRCoder` | PasheCPE | MIT, utilitario permitido |
@@ -50,6 +51,8 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 ├── tools\
 │   ├── generar-ubl.ps1                    XSD → clases de referencia (tools\ubl-referencia\, no compila)
 │   ├── GeneradorRecursos\                 consola C#: Excel SUNAT → JSON embebidos + XML de catálogos para las XSL
+│   │   └── Datos\                         datos curados: vigencias y formatos de catálogos, errores transitorios,
+│   │                                      nombres estables de las constantes
 │   └── github-workflows\                  workflows a mover a .github\workflows\ en la Fase 0
 ├── src\
 │   ├── PasheCPE\                          paquete principal
@@ -57,7 +60,9 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 │   │   │                     ComunicacionBajaCpe, GuiaRemisionCpe, ClienteCpe, DireccionCpe, ReferenciaCpe…
 │   │   ├── Resultados\       ResultadoGeneracion, ResultadoEnvio, ResultadoEmision, EstadoCpe, ErrorCpe,
 │   │   │                     ObservacionCpe, RutasCpe, IntentoEnvio, HistorialCpe, EstadoConectividad
-│   │   ├── Catalogos\        catálogos SUNAT (generados) + TablaTasas + TablaPlazos + CatalogoErrores
+│   │   ├── Catalogos\        CodigosSunat.g.cs (constantes generadas) + CatalogosSunat + TablaTasas + TablaPlazos +
+│   │   │                     CatalogoErrores + CatalogoEndpoints
+│   │   ├── Tiempo\           ZonaLima, RelojCpe (TimeProvider → hora de Lima)
 │   │   ├── Tributos\         CalculadoraTributaria, ReglasRegimen, NumeroALetras, Redondeo
 │   │   ├── Ubl\Comunes\      cbc/cac/ext/sac (perfil SUNAT)
 │   │   ├── Ubl\Documentos\   Invoice, CreditNote, DebitNote, SummaryDocuments, VoidedDocuments,
@@ -88,6 +93,7 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 ├── tests\
 │   ├── PasheCPE.Tests\                    unitarias (sin red)
 │   ├── PasheCPE.Pdf.Tests\
+│   ├── GeneradorRecursos.Tests\           idempotencia del generador y recursos al día con el Excel
 │   └── Datos\                             XML dorados, CDR reales, respuestas SOAP/REST grabadas
 ├── samples\
 │   └── PasheCPE.Demo\                     consola para envíos reales a beta/producción (manual)
@@ -113,10 +119,10 @@ Fuente: `recursos\VALIDACIONES\ReglasValidacion-CPE-2026-08-26.xlsx` (publicado 
 
 | Hoja(s) del Excel | Salida | Uso |
 |---|---|---|
-| `Catálogos` (bloques verticales `No.` / `Catálogo` / `Código`–`Descripción`, catálogos 01–65 y 25.1–25.3) | `catalogos.json` + `catalogos\cat_XX.xml` | Clases de catálogo en C# y plantilla `findElementInCatalog` de las XSL |
+| `Catálogos` (45 bloques verticales `No.` / `Catálogo` / encabezados, catálogos 01–27, 25.1–25.3 y 51–65) | `catalogos.json` + `catalogos\cat_XX.xml` + `Catalogos\CodigosSunat.g.cs` | Validación de códigos por fecha (`CatalogosSunat`), constantes públicas y plantilla `findElementInCatalog` de las XSL |
 | `CódigosRetorno` (≈2 077 códigos) | `errores-sunat.json` | Descripción oficial; `tipo` y `transitorio` se completan con la hoja `General ` y una lista manual revisada |
 | `General ` (errores de servicio/sobre: 0100, 0109, 0111, 0151…) | `errores-sunat.json` (tipo `servicio`) | Clasificación de faults (TRD §5.1) |
-| `Factura2_0`, `Boleta2_0`, `NotaCredito2_0`, `NotaDebito2_0`, `Resumen Diario1_1`, `Comunicación de Baja1_0` | `reglas-cpe.json` (N.°, dato, tag UBL, condición, tipo ERROR/OBSERV, código) | Matriz de reglas: fuente de las pruebas de validación y de las reglas C# que las XSL 2022 no cubren |
+| `Factura2_0`, `Boleta2_0`, `NotaCredito2_0`, `NotaDebito2_0`, `Resumen Diario1_1`, `Comunicación de Baja1_0` | `reglas-cpe.json` (N.°, dato, tag UBL, condición, tipo `error`/`observacion`, código; «OBSERV ERROR» → `tipo: error` + `tipoAnterior: observacion`) | Matriz de reglas: fuente de las pruebas de validación y de las reglas C# que las XSL 2022 no cubren |
 | `Control de Cambios` | `reglas-cpe.json` (campo `vigencia`) | Identifica las reglas con vigencia 01/01/2027 (R.S. 000048-2026) |
 | `Parámetros` (004 Plazo máximo de envío) | contraste con `plazos.json` | Verificación de plazos |
 
@@ -126,6 +132,13 @@ Notas del archivo:
 - Los catálogos 02 (ISO 4217), 03 (UN/ECE Rec. 20), 04 (ISO 3166) y 25 (UNSPSC completo) solo aparecen como **enlace**. Para la validación local basta el formato; si se requiere la lista completa del 25, el desarrollador descarga `CCNU_MOD_2.xlsm` a `recursos\CATALOGOS` (opcional, recurso comprimido y de carga perezosa).
 - El Excel CPE **no incluye la GRE**; sus reglas están en `recursos\VALIDACIONES\ReglasValidacion-GRE-2026-09-25.xlsx` (sección GRE del portal), que se procesa en la Fase 10.
 - Al publicar SUNAT una versión nueva del Excel: reemplazar el archivo, actualizar `VERSION.md`, ejecutar el generador y revisar el diff de los JSON.
+- **Datos curados** (`tools\GeneradorRecursos\Datos\`, cada entrada cita su fila de `Control de Cambios`): lo que el Excel solo describe en texto libre.
+  - `vigencias-catalogos.json`: desde/hasta de códigos o catálogos completos (Cat. 01 código 25, Cat. 10 código 13, Cat. 11 códigos 05–09, Cat. 25.1–25.3 retirados).
+  - `formatos-catalogos.json`: expresión regular de los catálogos publicados solo como enlace (02, 03, 04, 13, 25).
+  - `errores-transitorios.json`: faults que indican una falla temporal (`transitorio = true`).
+  - `nombres-constantes.json`: nombre de cada constante de `CodigosSunat.g.cs`. Los códigos nuevos reciben un nombre derivado de la descripción, que queda fijo aunque SUNAT cambie el texto (así no se rompe el contrato público).
+- Las fechas de `Control de Cambios` llegan como serial de Excel o texto; si una celda trae dos fechas (vigencia postergada) vale la última.
+- `GeneradorRecursos.Tests` falla si los recursos del repositorio no coinciden con lo que genera el Excel vigente.
 
 ### 3.3 Datos versionados embebidos (sobrescribibles por configuración)
 
@@ -191,10 +204,12 @@ public sealed record EmisorCpe
 - `NotaCpe`: datos de `ComprobanteCpe` + tipo (07/08), motivo (Cat.09/10), sustento, **un** documento modificado (tipo, serie, número).
 - `ResumenDiarioCpe`: fecha de referencia + líneas (boleta/nota, estado 1 adicionar / 2 modificar / 3 anular, cliente con razón social, totales por afectación con gratuitas desagregadas en gravadas/exoneradas/inafectas, IGV de gratuitas y tasa del IGV — campos 2027). La librería asigna correlativos y divide en lotes de 500.
 - `ComunicacionBajaCpe`: fecha de referencia + documentos (tipo, serie, número, motivo).
-- `GuiaRemisionCpe` (09/31): remitente/transportista, destinatario, motivo (Cat.20) y descripción, modalidad (Cat.18: 01 público / 02 privado), fecha de inicio de traslado, peso bruto y unidad, bultos, partida y llegada (ubigeo, dirección, código de establecimiento), vehículos (placa, autorización), conductores (documento, nombres, licencia), transportista (RUC, razón social, MTC), indicador M1/L, documentos relacionados (Cat.61), bienes (código, descripción, unidad, cantidad, bien normalizado Cat.62).
+- `GuiaRemisionCpe` (09/31) — **se define en la Fase 10** a partir del Excel GRE; campos previstos: remitente/transportista, destinatario, motivo (Cat.20) y descripción, modalidad (Cat.18: 01 público / 02 privado), fecha de inicio de traslado, peso bruto y unidad, bultos, partida y llegada (ubigeo, dirección, código de establecimiento), vehículos (placa, autorización), conductores (documento, nombres, licencia), transportista (RUC, razón social, MTC), indicador M1/L, documentos relacionados (Cat.61), bienes (código, descripción, unidad, cantidad, bien normalizado Cat.62).
 - `ReferenciaCpe`: `(Ruc, TipoDocumento, Serie, Numero, Fecha)` o `(Ruc, Tipo RC/RA, Fecha, Correlativo)`; resuelve nombre de archivo y periodo.
 
-Todos son `record` inmutables, serializables con `System.Text.Json` mediante el contexto público generado `PasheCpeJson` (`JsonSerializerContext`), que incluye modelos, resultados e historial.
+Todos son `record` inmutables, serializables con `System.Text.Json` mediante el contexto público generado `PasheCpeJson` (`JsonSerializerContext`), que incluye modelos, resultados e historial. `EmisorCpe` queda fuera del contexto porque contiene credenciales; sus claves llevan `[JsonIgnore]` y el `ToString()` de los records de credenciales las enmascara.
+
+Los códigos de catálogo son `string` (p. ej. `Afectacion = "20"`), con constantes generadas desde el Excel (`AfectacionIgv.ExoneradoOneroso`, `TipoOperacion.VentaInterna`, `MotivoNotaDebito.Penalidades`…). `CatalogosSunat.Validar` rechaza los códigos inexistentes o no vigentes a la fecha de emisión e indica el número de catálogo (`ErrorCpe.Catalogo`); los mensajes de la validación local son datos en `errores-locales.json` (códigos `PCPE-xxxx`).
 
 ## 5. Resultados y estados
 
@@ -518,16 +533,25 @@ Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la con
   "AvisoVencimientoCertificadoDias": 30,
   "PrecalentarAlIniciar": true,
   "GenerarPdfAutomaticamente": false,
-  "Endpoints": { }                          // sobrescrituras opcionales por canal/ambiente
+  "Endpoints": [                            // opcional para SUNAT; obligatorio para OSE
+    { "Canal": "OSE:efact", "Ambiente": "Produccion", "Servicio": "Comprobantes", "Url": "https://…/billService" }
+  ],
+  "Tasas": { "Igv": [], "MypeRestaurantesHoteles": [], "Icbper": [] },  // cada lista informada reemplaza a la de tasas.json
+  "Plazos": []                              // si se informa, reemplaza plazos.json
 }
 ```
 
 ```csharp
 builder.Services.AddPasheCpe(builder.Configuration.GetSection("PasheCPE"));  // valida opciones al iniciar (ValidateOnStart)
 builder.Services.AddPasheCpePdf();
-// Sin DI:
-var cpe = PasheCpe.Crear(new OpcionesPasheCpe { RutaBase = @"D:\CPE", Ambiente = Ambiente.Beta });
+
+// Sin DI: arma internamente el mismo ServiceCollection que AddPasheCpe y lo encapsula.
+using var pashe = PasheCpe.Crear(new OpcionesPasheCpe { RutaBase = @"D:\CPE", Ambiente = Ambiente.Beta }, loggerFactory);
+var r = await pashe.Cpe.EmitirAsync(emisor, factura, ct);   // pashe.Gre, pashe.Historial, pashe.Conectividad
+// Dispose libera el proveedor de servicios y los HttpClient.
 ```
+
+`PasheCpe.Crear` valida las opciones de inmediato (`OptionsValidationException`). Cada servicio aparece en `PasheCpe` en la fase que lo implementa (Fase 1: `Historial`), sin stubs. Un endpoint con `"verificado": false` en `endpoints.json` (p. ej. `billConsultService`) se advierte en el log la primera vez que se usa.
 
 ## 24. Pruebas
 

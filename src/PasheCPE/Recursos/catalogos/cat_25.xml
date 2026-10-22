@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="25" nombre="Código de producto SUNAT" soloFormato="true" formato="^\d{8}$" />

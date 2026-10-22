@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="61" nombre="Documentos relacionados al transporte de mercancías">
+  <c id="01" gre-aplicable="remitente, transportista">Factura</c>
+  <c id="03" gre-aplicable="remitente, transportista">Boleta de Venta</c>
+  <c id="04" gre-aplicable="remitente, transportista">Liquidación de Compra</c>
+  <c id="09" gre-aplicable="remitente, transportista">Guía de Remisión Remitente</c>
+  <c id="12" gre-aplicable="remitente, transportista">Ticket o cinta emitido por máquina registradora</c>
+  <c id="31" gre-aplicable="solo transportista">Guía de Remisión Transportista</c>
+  <c id="48" gre-aplicable="remitente, transportista">Comprobante de Operaciones – Ley N° 29972</c>
+  <c id="49" gre-aplicable="solo remitente">Constancia de Depósito - IVAP (Ley 28211)</c>
+  <c id="50" gre-aplicable="remitente, transportista">Declaración Aduanera de Mercancías</c>
+  <c id="52" gre-aplicable="remitente, transportista">Declaración Simplificada (DS)</c>
+  <c id="65" gre-aplicable="solo transportista">Autorización de Circulación para transportar MATPEL – Callao</c>
+  <c id="66" gre-aplicable="solo transportista">Autorización de Circulación para transporte de carga y mercancías en Lima Metropolitana</c>
+  <c id="67" gre-aplicable="solo transportista">Permiso de Operación Especial para el servicio de transporte de MATPEL - MTC</c>
+  <c id="68" gre-aplicable="solo transportista">Habilitación Sanitaria de Transporte Terrestre de Productos Pesqueros y Acuícolas</c>
+  <c id="69" gre-aplicable="solo transportista">Permiso / Autorización de operación de transporte de mercancías</c>
+  <c id="71" gre-aplicable="solo remitente">Resolución de Adjudicación de bienes – SUNAT</c>
+  <c id="72" gre-aplicable="solo remitente">Resolución de Comiso de bienes – SUNAT</c>
+  <c id="73" gre-aplicable="solo remitente">Guía de Transporte Forestal o de Fauna - SERFOR</c>
+  <c id="74" gre-aplicable="solo remitente">Guía de Tránsito – SUCAMEC</c>
+  <c id="75" gre-aplicable="solo remitente">Autorización para operar como empresa de Saneamiento Ambiental – MINSA -</c>
+  <c id="76" gre-aplicable="solo remitente">Autorización para manejo y recojo de residuos sólidos peligrosos y no peligrosos</c>
+  <c id="77" gre-aplicable="solo remitente">Certificado fitosanitario la movilización de plantas, productos vegetales, y otros artículos reglamentados</c>
+  <c id="78" gre-aplicable="solo remitente">Registro Único de Usuarios y Transportistas de Alcohol Etílico</c>
+  <c id="80" gre-aplicable="remitente, transportista">Constancia de Depósito – Detracción</c>
+  <c id="81" gre-aplicable="solo remitente">Código de autorización emitida por el SCOP</c>
+  <c id="82" gre-aplicable="solo transportista">Declaración jurada de mudanza</c>
+</l>

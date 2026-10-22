@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="22" nombre="Código de regimen de percepciones">
+  <c id="01" porcentaje="2">Percepción Venta Interna</c>
+  <c id="02" porcentaje="1">Percepción a la adquisición de combustible</c>
+  <c id="03" porcentaje="0.5">Percepción realizada al agente de percepción con tasa especial</c>
+</l>

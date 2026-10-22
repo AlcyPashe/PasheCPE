@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="58" nombre="Código de tipo de medidor (recibo de luz)">
+  <c id="1">Trifásico</c>
+  <c id="2">Monofásico</c>
+</l>

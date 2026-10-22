@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="07" nombre="Código de tipo de afectación del IGV">
+  <c id="10" codigo-de-tributo="1000">Gravado - Operación Onerosa</c>
+  <c id="11" codigo-de-tributo="9996">Gravado – Retiro por premio</c>
+  <c id="12" codigo-de-tributo="9996">Gravado – Retiro por donación</c>
+  <c id="13" codigo-de-tributo="9996">Gravado – Retiro</c>
+  <c id="14" codigo-de-tributo="9996">Gravado – Retiro por publicidad</c>
+  <c id="15" codigo-de-tributo="9996">Gravado – Bonificaciones</c>
+  <c id="16" codigo-de-tributo="9996">Gravado – Retiro por entrega a trabajadores</c>
+  <c id="17" codigo-de-tributo="1016 o 9996">Gravado - IVAP</c>
+  <c id="20" codigo-de-tributo="9997">Exonerado - Operación Onerosa</c>
+  <c id="21" codigo-de-tributo="9996">Exonerado - Transferencia gratuita</c>
+  <c id="30" codigo-de-tributo="9998">Inafecto - Operación Onerosa</c>
+  <c id="31" codigo-de-tributo="9996">Inafecto – Retiro por Bonificación</c>
+  <c id="32" codigo-de-tributo="9996">Inafecto – Retiro</c>
+  <c id="33" codigo-de-tributo="9996">Inafecto – Retiro por Muestras Médicas</c>
+  <c id="34" codigo-de-tributo="9996">Inafecto - Retiro por Convenio Colectivo</c>
+  <c id="35" codigo-de-tributo="9996">Inafecto – Retiro por premio</c>
+  <c id="36" codigo-de-tributo="9996">Inafecto - Retiro por publicidad</c>
+  <c id="37" codigo-de-tributo="9996">Inafecto - Transferencia gratuita</c>
+  <c id="40" codigo-de-tributo="9995 o 9996">Exportación de Bienes o Servicios</c>
+</l>

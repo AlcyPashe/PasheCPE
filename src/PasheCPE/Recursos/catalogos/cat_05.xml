@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="05" nombre="Código de tipos de tributos y otros conceptos">
+  <c id="1000" codigo-internacional="VAT" nombre="IGV">IGV Impuesto General a las Ventas</c>
+  <c id="1016" codigo-internacional="VAT" nombre="IVAP">Impuesto a la Venta Arroz Pilado</c>
+  <c id="2000" codigo-internacional="EXC" nombre="ISC">ISC Impuesto Selectivo al Consumo</c>
+  <c id="3000" codigo-internacional="TOX" nombre="IR">Impuesto a la Renta</c>
+  <c id="7152" codigo-internacional="OTH" nombre="ICBPER">Impuesto a la bolsa plastica</c>
+  <c id="9995" codigo-internacional="FRE" nombre="EXP">Exportación</c>
+  <c id="9996" codigo-internacional="FRE" nombre="GRA">Gratuito</c>
+  <c id="9997" codigo-internacional="VAT" nombre="EXO">Exonerado</c>
+  <c id="9998" codigo-internacional="FRE" nombre="INA">Inafecto</c>
+  <c id="9999" codigo-internacional="OTH" nombre="OTROS">Otros tributos</c>
+</l>

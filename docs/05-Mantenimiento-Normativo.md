@@ -8,7 +8,8 @@ Cómo absorber cambios de SUNAT sin tocar los sistemas de ventas.
 |---|---|---|
 | Tasa (IGV/IPM, MYPE, ICBPER) | `src/PasheCPE/Recursos/tasas.json` | parche |
 | Plazo de envío | `plazos.json` | parche |
-| Nueva versión del Excel de reglas (códigos, catálogos, reglas) | `recursos/VALIDACIONES` → `dotnet run --project tools/GeneradorRecursos` → revisar diff de `errores-sunat.json`, `catalogos.json`, `reglas-cpe.json` | parche o menor |
+| Nueva versión del Excel de reglas (códigos, catálogos, reglas) | `recursos/VALIDACIONES` → `dotnet run --project tools/GeneradorRecursos` → revisar diff de `errores-sunat.json`, `catalogos.json`, `reglas-cpe.json`, `CodigosSunat.g.cs` y `nombres-constantes.json` (constantes nuevas o retiradas) | parche o menor (mayor si se retira una constante) |
+| Vigencia de un código de catálogo o nuevo fault transitorio | `tools/GeneradorRecursos/Datos/vigencias-catalogos.json` o `errores-transitorios.json` (citar la fila de `Control de Cambios`) → ejecutar el generador | parche |
 | Endpoint | `endpoints.json` | parche |
 | Regla de validación | `recursos/XSL` (si SUNAT publica) o `Validacion/Reglas2027` + `reglas-2027.json` | menor |
 | Campo XML nuevo | `recursos/XSD` → `tools/generar-ubl.ps1` → perfil `Ubl/` + mapeador + modelo | menor (mayor si rompe el contrato) |

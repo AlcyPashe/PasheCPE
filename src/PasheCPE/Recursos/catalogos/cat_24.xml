@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="24" nombre="Código de tarifa de servicios públicos">
+  <c id="L001" codigo="AT2">LUZ</c>
+  <c id="L002" codigo="MT2">LUZ</c>
+  <c id="L003" codigo="MT3">LUZ</c>
+  <c id="L004" codigo="MT4">LUZ</c>
+  <c id="L005" codigo="BT2">LUZ</c>
+  <c id="L006" codigo="BT3">LUZ</c>
+  <c id="L007" codigo="BT4">LUZ</c>
+  <c id="L008" codigo="BT5A">LUZ</c>
+  <c id="L009" codigo="BT5B">LUZ</c>
+  <c id="L010" codigo="BT6">LUZ</c>
+  <c id="L011" codigo="BT5C-AP">LUZ</c>
+  <c id="L012" codigo="BT5D">LUZ</c>
+  <c id="L013" codigo="BT5E">LUZ</c>
+  <c id="L014" codigo="BT7">LUZ</c>
+  <c id="L015" codigo="BT8">LUZ</c>
+  <c id="L016" codigo="BT5C">LUZ</c>
+  <c id="L017" codigo="MT2L">LUZ</c>
+  <c id="L018" codigo="MT2L_1 a MT2L21">LUZ</c>
+  <c id="L019" codigo="MT2A a MT2Z">LUZ</c>
+  <c id="L020" codigo="AT1">LUZ</c>
+  <c id="L021" codigo="MT1">LUZ</c>
+  <c id="A011" codigo="COMERCIAL">AGUA</c>
+  <c id="A012" codigo="INDUSTRIAL">AGUA</c>
+  <c id="A013" codigo="ESTATAL">AGUA</c>
+  <c id="A014" codigo="DOMÉSTICO">AGUA</c>
+  <c id="A015" codigo="SOCIAL">AGUA</c>
+  <c id="A016" codigo="MULTIFAMILIAR INDIVIDUALIZADO">AGUA</c>
+  <c id="A017" codigo="MULTIFAMILIAR NO INDIVIDUALIZADO">AGUA</c>
+  <c id="G001" codigo="CAT – A1">GAS</c>
+  <c id="G002" codigo="CAT – A2">GAS</c>
+  <c id="G003" codigo="CAT – B">GAS</c>
+  <c id="G004" codigo="CAT - C">GAS</c>
+  <c id="G005" codigo="CAT – D">GAS</c>
+  <c id="G006" codigo="CAT – E">GAS</c>
+  <c id="G007" codigo="CAT – GE">GAS</c>
+  <c id="G008" codigo="CAT – IP">GAS</c>
+  <c id="G009" codigo="CAT – GNV">GAS</c>
+  <c id="G010" codigo="CAT - A">GAS</c>
+  <c id="G011" codigo="CAT - B1">GAS</c>
+  <c id="G012" codigo="CAT - B2">GAS</c>
+  <c id="G013" codigo="CAT - PESCA">GAS</c>
+  <c id="G014" codigo="CAT - TIPO I">GAS</c>
+  <c id="G015" codigo="CAT - TIPO II-A">GAS</c>
+  <c id="G016" codigo="CAT - TIPO II-B">GAS</c>
+  <c id="G017" codigo="CAT - TIPO III">GAS</c>
+  <c id="G018" codigo="CAT - TIPO IV">GAS</c>
+  <c id="G019" codigo="CAT - TIPO V">GAS</c>
+  <c id="G020" codigo="CAT - TIPO VI">GAS</c>
+  <c id="G021" codigo="CAT - TIPO VII">GAS</c>
+</l>

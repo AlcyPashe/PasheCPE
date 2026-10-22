@@ -1,0 +1,10 @@
+{
+  "errores": [
+    { "codigo": "PCPE-1001", "descripcion": "El código '{0}' no existe en el catálogo N.° {1} ({2})." },
+    { "codigo": "PCPE-1002", "descripcion": "El código '{0}' del catálogo N.° {1} ({2}) no está vigente al {3}." },
+    { "codigo": "PCPE-1003", "descripcion": "El valor '{0}' no cumple el formato del catálogo N.° {1} ({2})." },
+    { "codigo": "PCPE-1004", "descripcion": "Falta el código del catálogo N.° {0} ({1})." },
+    { "codigo": "PCPE-1101", "descripcion": "Un emisor del Nuevo RUS solo puede emitir boletas de venta, sus notas de crédito y débito, resúmenes diarios y guías de remisión; no el tipo de documento {0}." },
+    { "codigo": "PCPE-1102", "descripcion": "No hay tasa especial MYPE para restaurantes y hoteles vigente al {0}; se aplica la tasa general del IGV ({1} %)." }
+  ]
+}

@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="04" nombre="Código de país" soloFormato="true" formato="^[A-Z]{2}$" />

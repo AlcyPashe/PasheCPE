@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="03" nombre="Código de tipo de unidad de medida comercial" soloFormato="true" formato="^[A-Z0-9]{1,3}$" />

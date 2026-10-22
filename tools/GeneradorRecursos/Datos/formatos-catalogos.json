@@ -1,0 +1,29 @@
+{
+  "formatos": [
+    {
+      "catalogo": "02",
+      "formato": "^[A-Z]{3}$",
+      "fuente": "ISO 4217 (el Excel solo publica el enlace)"
+    },
+    {
+      "catalogo": "03",
+      "formato": "^[A-Z0-9]{1,3}$",
+      "fuente": "UN/ECE Rec. 20 (el Excel solo publica el enlace)"
+    },
+    {
+      "catalogo": "04",
+      "formato": "^[A-Z]{2}$",
+      "fuente": "ISO 3166-1 alfa-2 (el Excel solo publica el enlace)"
+    },
+    {
+      "catalogo": "13",
+      "formato": "^\\d{6}$",
+      "fuente": "Ubigeo INEI (el Excel solo publica el enlace)"
+    },
+    {
+      "catalogo": "25",
+      "formato": "^\\d{8}$",
+      "fuente": "UNSPSC de 8 dígitos (el Excel solo publica el enlace; lista completa opcional en recursos/CATALOGOS)"
+    }
+  ]
+}

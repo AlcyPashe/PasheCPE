@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="02" nombre="Código de tipo de monedas" soloFormato="true" formato="^[A-Z]{3}$" />

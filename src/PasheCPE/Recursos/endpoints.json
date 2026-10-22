@@ -1,0 +1,39 @@
+{
+  "endpoints": [
+    {
+      "canal": "SUNAT",
+      "ambiente": "Beta",
+      "servicio": "Comprobantes",
+      "url": "https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService",
+      "verificado": true
+    },
+    {
+      "canal": "SUNAT",
+      "ambiente": "Produccion",
+      "servicio": "Comprobantes",
+      "url": "https://e-factura.sunat.gob.pe/ol-ti-itcpfegem/billService",
+      "verificado": true
+    },
+    {
+      "canal": "SUNAT",
+      "ambiente": "Produccion",
+      "servicio": "ConsultaCdr",
+      "url": "https://e-factura.sunat.gob.pe/ol-it-wsconscpegem/billConsultService",
+      "verificado": false
+    },
+    {
+      "canal": "SUNAT",
+      "ambiente": "Produccion",
+      "servicio": "GreToken",
+      "url": "https://api-seguridad.sunat.gob.pe/v1/clientessol/{client_id}/oauth2/token/",
+      "verificado": true
+    },
+    {
+      "canal": "SUNAT",
+      "ambiente": "Produccion",
+      "servicio": "GreApi",
+      "url": "https://api-cpe.sunat.gob.pe/v1/contribuyente/gem/comprobantes",
+      "verificado": true
+    }
+  ]
+}

@@ -17,6 +17,11 @@ recursos/** -text
 # Datos de prueba (XML firmados, CDR, respuestas grabadas): byte a byte
 tests/Datos/** -text
 
+# Recursos generados y datos curados del generador: siempre LF (las pruebas comparan byte a byte)
+src/PasheCPE/Recursos/** text eol=lf
+src/PasheCPE/Catalogos/*.g.cs text eol=lf
+tools/GeneradorRecursos/Datos/** text eol=lf
+
 # Binarios
 *.pfx binary
 *.p12 binary

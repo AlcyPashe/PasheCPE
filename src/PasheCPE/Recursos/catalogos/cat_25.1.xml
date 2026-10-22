@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="25.1" nombre="Código de producto SUNAT" hasta="2026-07-31">
+  <c id="11101616" n="1" partidas-arancelarias-referenciales-para-identificar-los-bienes="2616.90.10.00">Mineral de oro</c>
+  <c id="11101801" n="2" partidas-arancelarias-referenciales-para-identificar-los-bienes="2843.30.00.00, 2843.90.00.00, 7108.11.00.00, 7108.12.00.00, 7108.13.00.00, 7108.20.00.00 y 7112.91.00.00">Oro</c>
+  <c id="12131500" n="3" partidas-arancelarias-referenciales-para-identificar-los-bienes="3601.00.00.00 y 2904.20.20.00">Explosivos</c>
+  <c id="12131501" n="4" partidas-arancelarias-referenciales-para-identificar-los-bienes="3602.00.11.00">Dinamita</c>
+  <c id="12131502" n="5" partidas-arancelarias-referenciales-para-identificar-los-bienes="3602.00.90.00">Cartuchos explosivos</c>
+  <c id="12131503" n="6">Explosivos propelentes</c>
+  <c id="12131504" n="7">Cargas explosivas</c>
+  <c id="12131505" n="8">Explosivos plásticos</c>
+  <c id="12131506" n="9">Explosivos aluminizados</c>
+  <c id="12131508" n="10">Explosivos de polvo de nitroglicerina</c>
+  <c id="12131509" n="11" partidas-arancelarias-referenciales-para-identificar-los-bienes="3602.00.20.10">Nitrato de amonio y fuel oil</c>
+  <c id="12131507" n="12" partidas-arancelarias-referenciales-para-identificar-los-bienes="3602.00.20.90">Explosivos de nitrato de amonio</c>
+  <c id="12141726" n="13" partidas-arancelarias-referenciales-para-identificar-los-bienes="2805.40.00.00">Mercurio Hg</c>
+  <c id="12352117" n="14" partidas-arancelarias-referenciales-para-identificar-los-bienes="2837.11.10.00 y 2811.12.00.00">Cianuros o isocianuros</c>
+  <c id="15100000" n="15">Otros combustibles</c>
+  <c id="15101505" n="16">Combustible diésel</c>
+  <c id="15101506" n="17">Gasolina</c>
+  <c id="20101504" n="18" partidas-arancelarias-referenciales-para-identificar-los-bienes="8430.39.00.00">Cortadores de roca</c>
+  <c id="20101600" n="19" partidas-arancelarias-referenciales-para-identificar-los-bienes="8474.10.20.00 y 8474.10.90.00">Cribas y equipos de alimentación</c>
+  <c id="20111601" n="20" partidas-arancelarias-referenciales-para-identificar-los-bienes="8430.41.00.00 y 8430.49.00.00">Maquinaria de sondeo o de perforación</c>
+  <c id="20111607" n="21" partidas-arancelarias-referenciales-para-identificar-los-bienes="8430.31.00.00">Maquinaria para hacer túneles</c>
+  <c id="22101501" n="22" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.51.00.00 y 8429.52.00.00">Cargadores frontales</c>
+  <c id="22101502" n="23" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.20.00.00 y 8429.52.00.00">Niveladoras</c>
+  <c id="22101505" n="24" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.40.00.00 y 8429.52.00.00">Aplanadoras</c>
+  <c id="22101509" n="25" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.59.00.00 y 8429.52.00.00">Retroexcavadoras</c>
+  <c id="22101511" n="26" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.40.00.00 y 8429.52.00.00">Compactadores</c>
+  <c id="22101513" n="27" partidas-arancelarias-referenciales-para-identificar-los-bienes="8905.10.00.00 y 8429.52.00.00">Dragalíneas</c>
+  <c id="22101514" n="28" partidas-arancelarias-referenciales-para-identificar-los-bienes="8905.10.00.00 y 8429.52.00.00">Dragas</c>
+  <c id="22101516" n="29" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.52.00.00 y 8429.59.00.00">Excavadoras de fosos</c>
+  <c id="22101518" n="30" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.30.00.00 y 8429.52.00.00">Raspadores elevadores</c>
+  <c id="22101519" n="31" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.30.00.00 y 8429.52.00.00">Máquina giratoria con cazoleta de rastrillos abiertas</c>
+  <c id="22101520" n="32" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.30.00.00 y 8429.52.00.00">Máquina giratoria con rastrillos elevadores</c>
+  <c id="22101521" n="33" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.30.00.00 y 8429.52.00.00">Rastrilladora arrastrada</c>
+  <c id="22101522" n="34" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.11.00.00 y 8429.52.00.00">Buldóceres de orugas</c>
+  <c id="22101523" n="35" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.19.00.00 y 8429.52.00.00">Buldóceres de ruedas</c>
+  <c id="22101524" n="36" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.52.00.00 y 8429.59.00.00">Excavadoras móviles</c>
+  <c id="22101525" n="37" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.52.00.00 y 8429.59.00.00">Excavadoras de ruedas</c>
+  <c id="22101526" n="38" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.52.00.00 y 8429.59.00.00">Excavadoras de orugas</c>
+  <c id="22101528" n="39" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.51.00.00 y 8429.52.00.00">Cargadores de ruedas</c>
+  <c id="22101529" n="40" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.51.00.00 y 8429.52.00.00">Cargadores sobre patines con dirección</c>
+  <c id="22101530" n="41" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.30.00.00 y 8429.52.00.00">Raspadores abiertos</c>
+  <c id="22101532" n="42" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.51.00.00 y 8429.52.00.00">Cargadores de orugas</c>
+  <c id="22101534" n="43" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.52.00.00 y 8429.59.00.00">Excavadoras de campaña</c>
+  <c id="22101602" n="44" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.40.00.00 y 8429.52.00.00">Equipo de apisonamiento</c>
+  <c id="22101701" n="45" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.52.00.00 y 8429.59.00.00">Palas excavadoras</c>
+  <c id="22101702" n="46" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.52.00.00 y 8429.59.00.00">Palas mecánicas para el movimiento de tierra o sus piezas o accesorios</c>
+  <c id="22101713" n="47" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.52.00.00 y 8429.59.00.00">Brazo de retroexcavadora o secciones del brazo</c>
+  <c id="22101714" n="48" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.40.00.00">Kits de reparación o piezas de apisonadora</c>
+  <c id="25181709" n="49" partidas-arancelarias-referenciales-para-identificar-los-bienes="8429.51.00.00 y 8429.52.00.00">Pala cargadora</c>
+  <c id="26111600" n="50" partidas-arancelarias-referenciales-para-identificar-los-bienes="8502.11.10.00, 8502.11.90.00, 8502.12.10.00, 8502.12.90.00, 8502.13.10.00, 8502.13.90.00, 8502.20.10.00, 8502.20.90.00, 8502.39.10.00 y 8502.39.90.00">Generadores de potencia</c>
+  <c id="26111603" n="51" partidas-arancelarias-referenciales-para-identificar-los-bienes="8502.31.00.00">Generadores eólicos</c>
+  <c id="39121013" n="52" partidas-arancelarias-referenciales-para-identificar-los-bienes="8502.40.00.00">Convertidores rotativos eléctricos</c>
+  <c id="40151530" n="53" partidas-arancelarias-referenciales-para-identificar-los-bienes="8905.10.00.00">Bombas de dragado</c>
+  <c id="12352104" n="54" partidas-arancelarias-referenciales-para-identificar-los-bienes="2207.10.00.00, 2207.20.00.10, 2207.20.00.90 y 2208.90.10.00">Alcoholes o sus sustitutos</c>
+  <c id="50161509" n="55" partidas-arancelarias-referenciales-para-identificar-los-bienes="1701.13.00.00, 1701.14.00.00, 1701.91.00.00, 1701.99.90.00, 1703.10.00.00">Azúcares naturales o productos endulzantes</c>
+  <c id="50221101" n="56" partidas-arancelarias-referenciales-para-identificar-los-bienes="1006.20.00.00, 1006.30.00.00, 1006.40.00.00 y 2302.20.00.00">Grano de cereal</c>
+  <c id="71101710" n="57">Servicio de alquiler o leasing de maquinaria y equipo para minería</c>
+  <c id="72141701" n="58">Servicio de alquiler o leasing de maquinaria para construcción</c>
+  <c id="72141702" n="59">Servicio de alquiler o leasing de equipo para construcción</c>
+  <c id="73121509" n="60">Servicios de purificación de metales</c>
+  <c id="73121613" n="61">Servicios de fundición de metales</c>
+  <c id="73121500" n="62">Procesos de fundición y refinación y formado de metales</c>
+</l>

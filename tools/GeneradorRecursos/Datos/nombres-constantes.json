@@ -1,0 +1,1118 @@
+{
+  "clases": [
+    {
+      "catalogo": "01",
+      "clase": "TipoDocumentoSunat",
+      "constantes": [
+        {
+          "codigo": "01",
+          "nombre": "Factura"
+        },
+        {
+          "codigo": "03",
+          "nombre": "BoletaDeVenta"
+        },
+        {
+          "codigo": "04",
+          "nombre": "LiquidacionDeCompra"
+        },
+        {
+          "codigo": "05",
+          "nombre": "BoletosDeTransporteAereoQueEmiten"
+        },
+        {
+          "codigo": "06",
+          "nombre": "CartaDePorteAereo"
+        },
+        {
+          "codigo": "07",
+          "nombre": "NotaDeCredito"
+        },
+        {
+          "codigo": "08",
+          "nombre": "NotaDeDebito"
+        },
+        {
+          "codigo": "09",
+          "nombre": "GuiaDeRemisionRemitente"
+        },
+        {
+          "codigo": "11",
+          "nombre": "PolizaEmitidaPorLasBolsasDe"
+        },
+        {
+          "codigo": "12",
+          "nombre": "TicketDeMaquinaRegistradora"
+        },
+        {
+          "codigo": "13",
+          "nombre": "DocumentoEmitidoPorBancosInstitucionesFinancieras"
+        },
+        {
+          "codigo": "14",
+          "nombre": "ReciboServiciosPublicos"
+        },
+        {
+          "codigo": "15",
+          "nombre": "BoletosEmitidosPorElServicioDe"
+        },
+        {
+          "codigo": "16",
+          "nombre": "BoletoDeViajeEmitidoPorLas"
+        },
+        {
+          "codigo": "18",
+          "nombre": "DocumentosEmitidosPorLasAfp"
+        },
+        {
+          "codigo": "19",
+          "nombre": "BoletoPorAtraccionesYEspectaculosPublicos"
+        },
+        {
+          "codigo": "20",
+          "nombre": "ComprobanteDeRetencion"
+        },
+        {
+          "codigo": "21",
+          "nombre": "ConocimientoDeEmbarquePorElServicio"
+        },
+        {
+          "codigo": "23",
+          "nombre": "PolizasDeAdjudicacionPorRemateO"
+        },
+        {
+          "codigo": "24",
+          "nombre": "CertificadoDePagoDeRegaliasEmitidas"
+        },
+        {
+          "codigo": "25",
+          "nombre": "DocumentoDeAtribucion"
+        },
+        {
+          "codigo": "28",
+          "nombre": "EtiquetasPorElPagoDeLa"
+        },
+        {
+          "codigo": "29",
+          "nombre": "DocumentosEmitidosPorLaCofopri"
+        },
+        {
+          "codigo": "30",
+          "nombre": "DocumentosEmitidosPorLasEmpresasQue"
+        },
+        {
+          "codigo": "31",
+          "nombre": "GuiaDeRemisionTransportista"
+        },
+        {
+          "codigo": "32",
+          "nombre": "DocumentosEmitidosPorRecaudadorasDeLa"
+        },
+        {
+          "codigo": "34",
+          "nombre": "DocumentoDelOperador"
+        },
+        {
+          "codigo": "35",
+          "nombre": "DocumentoDelParticipe"
+        },
+        {
+          "codigo": "36",
+          "nombre": "ReciboDeDistribucionDeGasNatural"
+        },
+        {
+          "codigo": "37",
+          "nombre": "DocumentosQueEmitanLosConcesionariosDel"
+        },
+        {
+          "codigo": "40",
+          "nombre": "ComprobanteDePercepcion"
+        },
+        {
+          "codigo": "41",
+          "nombre": "ComprobanteDePercepcionVentaInternaFisico"
+        },
+        {
+          "codigo": "42",
+          "nombre": "DocumentosEmitidosPorLosAdqEn"
+        },
+        {
+          "codigo": "43",
+          "nombre": "BoletoDeCompaniasDeAviacionTransporte"
+        },
+        {
+          "codigo": "45",
+          "nombre": "DocumentosEmitidosPorCentrosEducativosY"
+        },
+        {
+          "codigo": "55",
+          "nombre": "BvmeParaTransporteFerroviarioDePasajeros"
+        },
+        {
+          "codigo": "56",
+          "nombre": "ComprobanteDePagoSeaeDaeSeae"
+        },
+        {
+          "codigo": "71",
+          "nombre": "GuiaDeRemisionRemitenteComplementaria"
+        },
+        {
+          "codigo": "72",
+          "nombre": "GuiaDeRemisionTransportistaComplementaria"
+        },
+        {
+          "codigo": "87",
+          "nombre": "NotaDeCreditoEspecial"
+        },
+        {
+          "codigo": "88",
+          "nombre": "NotaDeDebitoEspecial"
+        }
+      ]
+    },
+    {
+      "catalogo": "05",
+      "clase": "TributoSunat",
+      "constantes": [
+        {
+          "codigo": "1000",
+          "nombre": "Igv"
+        },
+        {
+          "codigo": "1016",
+          "nombre": "Ivap"
+        },
+        {
+          "codigo": "2000",
+          "nombre": "Isc"
+        },
+        {
+          "codigo": "3000",
+          "nombre": "ImpuestoRenta"
+        },
+        {
+          "codigo": "7152",
+          "nombre": "Icbper"
+        },
+        {
+          "codigo": "9995",
+          "nombre": "Exportacion"
+        },
+        {
+          "codigo": "9996",
+          "nombre": "Gratuito"
+        },
+        {
+          "codigo": "9997",
+          "nombre": "Exonerado"
+        },
+        {
+          "codigo": "9998",
+          "nombre": "Inafecto"
+        },
+        {
+          "codigo": "9999",
+          "nombre": "OtrosTributos"
+        }
+      ]
+    },
+    {
+      "catalogo": "06",
+      "clase": "TipoDocumentoIdentidad",
+      "constantes": [
+        {
+          "codigo": "0",
+          "nombre": "NoDomiciliadoSinRuc"
+        },
+        {
+          "codigo": "1",
+          "nombre": "Dni"
+        },
+        {
+          "codigo": "4",
+          "nombre": "CarnetExtranjeria"
+        },
+        {
+          "codigo": "6",
+          "nombre": "Ruc"
+        },
+        {
+          "codigo": "7",
+          "nombre": "Pasaporte"
+        },
+        {
+          "codigo": "A",
+          "nombre": "CedulaDiplomatica"
+        },
+        {
+          "codigo": "B",
+          "nombre": "DocumentoPaisResidenciaNoDomiciliado"
+        },
+        {
+          "codigo": "C",
+          "nombre": "TaxIdentificationNumber"
+        },
+        {
+          "codigo": "D",
+          "nombre": "IdentificationNumber"
+        },
+        {
+          "codigo": "E",
+          "nombre": "TarjetaAndinaMigracion"
+        },
+        {
+          "codigo": "F",
+          "nombre": "PermisoTemporalPermanencia"
+        },
+        {
+          "codigo": "G",
+          "nombre": "Salvoconducto"
+        },
+        {
+          "codigo": "H",
+          "nombre": "CarnePermisoTemporalPermanencia"
+        }
+      ]
+    },
+    {
+      "catalogo": "07",
+      "clase": "AfectacionIgv",
+      "constantes": [
+        {
+          "codigo": "10",
+          "nombre": "GravadoOneroso"
+        },
+        {
+          "codigo": "11",
+          "nombre": "GravadoRetiroPremio"
+        },
+        {
+          "codigo": "12",
+          "nombre": "GravadoRetiroDonacion"
+        },
+        {
+          "codigo": "13",
+          "nombre": "GravadoRetiro"
+        },
+        {
+          "codigo": "14",
+          "nombre": "GravadoRetiroPublicidad"
+        },
+        {
+          "codigo": "15",
+          "nombre": "GravadoBonificaciones"
+        },
+        {
+          "codigo": "16",
+          "nombre": "GravadoRetiroEntregaTrabajadores"
+        },
+        {
+          "codigo": "17",
+          "nombre": "GravadoIvap"
+        },
+        {
+          "codigo": "20",
+          "nombre": "ExoneradoOneroso"
+        },
+        {
+          "codigo": "21",
+          "nombre": "ExoneradoGratuito"
+        },
+        {
+          "codigo": "30",
+          "nombre": "InafectoOneroso"
+        },
+        {
+          "codigo": "31",
+          "nombre": "InafectoRetiroBonificacion"
+        },
+        {
+          "codigo": "32",
+          "nombre": "InafectoRetiro"
+        },
+        {
+          "codigo": "33",
+          "nombre": "InafectoRetiroMuestrasMedicas"
+        },
+        {
+          "codigo": "34",
+          "nombre": "InafectoRetiroConvenioColectivo"
+        },
+        {
+          "codigo": "35",
+          "nombre": "InafectoRetiroPremio"
+        },
+        {
+          "codigo": "36",
+          "nombre": "InafectoRetiroPublicidad"
+        },
+        {
+          "codigo": "37",
+          "nombre": "InafectoGratuito"
+        },
+        {
+          "codigo": "40",
+          "nombre": "Exportacion"
+        }
+      ]
+    },
+    {
+      "catalogo": "08",
+      "clase": "SistemaIsc",
+      "constantes": [
+        {
+          "codigo": "01",
+          "nombre": "SistemaAlValor"
+        },
+        {
+          "codigo": "02",
+          "nombre": "MontoFijo"
+        },
+        {
+          "codigo": "03",
+          "nombre": "PreciosVentaAlPublico"
+        }
+      ]
+    },
+    {
+      "catalogo": "09",
+      "clase": "MotivoNotaCredito",
+      "constantes": [
+        {
+          "codigo": "01",
+          "nombre": "AnulacionDeLaOperacion"
+        },
+        {
+          "codigo": "02",
+          "nombre": "AnulacionPorErrorEnRuc"
+        },
+        {
+          "codigo": "03",
+          "nombre": "CorreccionDescripcion"
+        },
+        {
+          "codigo": "04",
+          "nombre": "DescuentoGlobal"
+        },
+        {
+          "codigo": "05",
+          "nombre": "DescuentoPorItem"
+        },
+        {
+          "codigo": "06",
+          "nombre": "DevolucionTotal"
+        },
+        {
+          "codigo": "07",
+          "nombre": "DevolucionPorItem"
+        },
+        {
+          "codigo": "08",
+          "nombre": "Bonificacion"
+        },
+        {
+          "codigo": "09",
+          "nombre": "DisminucionEnElValor"
+        },
+        {
+          "codigo": "10",
+          "nombre": "OtrosConceptos"
+        },
+        {
+          "codigo": "11",
+          "nombre": "AjustesDeOperacionesDeExportacion"
+        },
+        {
+          "codigo": "12",
+          "nombre": "AjustesAfectosAlIvap"
+        },
+        {
+          "codigo": "13",
+          "nombre": "CorreccionMontoNetoPendientePago"
+        }
+      ]
+    },
+    {
+      "catalogo": "10",
+      "clase": "MotivoNotaDebito",
+      "constantes": [
+        {
+          "codigo": "01",
+          "nombre": "InteresesPorMora"
+        },
+        {
+          "codigo": "02",
+          "nombre": "AumentoEnElValor"
+        },
+        {
+          "codigo": "03",
+          "nombre": "PenalidadesOtrosConceptos"
+        },
+        {
+          "codigo": "11",
+          "nombre": "AjustesDeOperacionesDeExportacion"
+        },
+        {
+          "codigo": "12",
+          "nombre": "AjustesAfectosAlIvap"
+        },
+        {
+          "codigo": "13",
+          "nombre": "Penalidades"
+        }
+      ]
+    },
+    {
+      "catalogo": "12",
+      "clase": "DocumentoRelacionadoTributario",
+      "constantes": [
+        {
+          "codigo": "01",
+          "nombre": "FacturaCorrigeErrorRuc"
+        },
+        {
+          "codigo": "02",
+          "nombre": "FacturaAnticipos"
+        },
+        {
+          "codigo": "03",
+          "nombre": "BoletaAnticipos"
+        },
+        {
+          "codigo": "04",
+          "nombre": "TicketDeSalidaEnapu"
+        },
+        {
+          "codigo": "05",
+          "nombre": "CodigoScop"
+        },
+        {
+          "codigo": "06",
+          "nombre": "FacturaElectronicaRemitente"
+        },
+        {
+          "codigo": "07",
+          "nombre": "GuiaDeRemisionRemitente"
+        },
+        {
+          "codigo": "08",
+          "nombre": "DeclaracionDeSalidaDelDepositoFranco"
+        },
+        {
+          "codigo": "09",
+          "nombre": "DeclaracionSimplificadaDeImportacion"
+        },
+        {
+          "codigo": "10",
+          "nombre": "LiquidacionCompraAnticipos"
+        },
+        {
+          "codigo": "99",
+          "nombre": "Otros"
+        }
+      ]
+    },
+    {
+      "catalogo": "16",
+      "clase": "TipoPrecio",
+      "constantes": [
+        {
+          "codigo": "01",
+          "nombre": "PrecioUnitarioConIgv"
+        },
+        {
+          "codigo": "02",
+          "nombre": "ValorReferencialGratuito"
+        },
+        {
+          "codigo": "03",
+          "nombre": "TarifasReguladas"
+        }
+      ]
+    },
+    {
+      "catalogo": "19",
+      "clase": "EstadoItemResumen",
+      "constantes": [
+        {
+          "codigo": "1",
+          "nombre": "Adicionar"
+        },
+        {
+          "codigo": "2",
+          "nombre": "Modificar"
+        },
+        {
+          "codigo": "3",
+          "nombre": "Anulado"
+        }
+      ]
+    },
+    {
+      "catalogo": "51",
+      "clase": "TipoOperacion",
+      "constantes": [
+        {
+          "codigo": "0101",
+          "nombre": "VentaInterna"
+        },
+        {
+          "codigo": "0112",
+          "nombre": "VentaInternaGastosDeduciblesPersonaNatural"
+        },
+        {
+          "codigo": "0113",
+          "nombre": "VentaInternaNrus"
+        },
+        {
+          "codigo": "0200",
+          "nombre": "ExportacionBienes"
+        },
+        {
+          "codigo": "0201",
+          "nombre": "ExportacionDeServiciosPrestacionServiciosRealizados"
+        },
+        {
+          "codigo": "0202",
+          "nombre": "ExportacionDeServiciosPrestacionDeServicios"
+        },
+        {
+          "codigo": "0203",
+          "nombre": "ExportacionDeServiciosTransporteDeNavieras"
+        },
+        {
+          "codigo": "0204",
+          "nombre": "ExportacionDeServiciosServiciosANaves"
+        },
+        {
+          "codigo": "0205",
+          "nombre": "ExportacionDeServiciosServiciosQueConformen"
+        },
+        {
+          "codigo": "0206",
+          "nombre": "ExportacionDeServiciosServiciosComplementariosAl"
+        },
+        {
+          "codigo": "0207",
+          "nombre": "ExportacionDeServiciosSuministroDeEnergia"
+        },
+        {
+          "codigo": "0208",
+          "nombre": "ExportacionDeServiciosPrestacionServiciosRealizados_0208"
+        },
+        {
+          "codigo": "0301",
+          "nombre": "OperacionesConCartaDePorteAereo"
+        },
+        {
+          "codigo": "0302",
+          "nombre": "OperacionesDeTransporteFerroviarioDePasajeros"
+        },
+        {
+          "codigo": "0401",
+          "nombre": "VentasNoDomiciliadosQueNoCalifican"
+        },
+        {
+          "codigo": "0501",
+          "nombre": "CompraInterna"
+        },
+        {
+          "codigo": "0502",
+          "nombre": "Anticipos"
+        },
+        {
+          "codigo": "0503",
+          "nombre": "CompraDeOro"
+        },
+        {
+          "codigo": "1001",
+          "nombre": "OperacionSujetaDetraccion"
+        },
+        {
+          "codigo": "1002",
+          "nombre": "OperacionSujetaADetraccionRecursosHidrobiologicos"
+        },
+        {
+          "codigo": "1003",
+          "nombre": "OperacionSujetaADetraccionServiciosDe"
+        },
+        {
+          "codigo": "1004",
+          "nombre": "OperacionSujetaADetraccionServiciosDe_1004"
+        },
+        {
+          "codigo": "2001",
+          "nombre": "OperacionSujetaPercepcion"
+        },
+        {
+          "codigo": "2002",
+          "nombre": "OperacionSujetaARetencionDeRenta"
+        },
+        {
+          "codigo": "2100",
+          "nombre": "CreditosAEmpresas"
+        },
+        {
+          "codigo": "2101",
+          "nombre": "CreditosDeConsumoRevolvente"
+        },
+        {
+          "codigo": "2102",
+          "nombre": "CreditosDeConsumoNoRevolvente"
+        },
+        {
+          "codigo": "2103",
+          "nombre": "OtrasOperacionesNoGravadasEmpresasDel"
+        },
+        {
+          "codigo": "2104",
+          "nombre": "OtrasOperacionesNoGravadasEmpresasDel_2104"
+        },
+        {
+          "codigo": "2105",
+          "nombre": "ComprobanteEmitidoPorAfp"
+        },
+        {
+          "codigo": "2106",
+          "nombre": "VentaNacionalATuristasTaxFree"
+        }
+      ]
+    },
+    {
+      "catalogo": "52",
+      "clase": "CodigoLeyenda",
+      "constantes": [
+        {
+          "codigo": "1000",
+          "nombre": "MontoEnLetras"
+        },
+        {
+          "codigo": "1002",
+          "nombre": "TransferenciaGratuita"
+        },
+        {
+          "codigo": "2000",
+          "nombre": "ComprobantePercepcion"
+        },
+        {
+          "codigo": "2001",
+          "nombre": "BienesAmazonia"
+        },
+        {
+          "codigo": "2002",
+          "nombre": "ServiciosAmazonia"
+        },
+        {
+          "codigo": "2003",
+          "nombre": "ConstruccionAmazonia"
+        },
+        {
+          "codigo": "2004",
+          "nombre": "LeyendaAgenciaDeViajePaqueteTuristico"
+        },
+        {
+          "codigo": "2005",
+          "nombre": "LeyendaVentaRealizadaPorEmisorItinerante"
+        },
+        {
+          "codigo": "2006",
+          "nombre": "OperacionSujetaDetraccion"
+        },
+        {
+          "codigo": "2007",
+          "nombre": "OperacionSujetaIvap"
+        },
+        {
+          "codigo": "2008",
+          "nombre": "LeyendaVentaExoneradaDelIgvIsc"
+        },
+        {
+          "codigo": "2009",
+          "nombre": "LeyendaPrimeraVentaDeMercanciaIdentificable"
+        },
+        {
+          "codigo": "2010",
+          "nombre": "RestitucionSimplificadoDeDerechosArancelarios"
+        },
+        {
+          "codigo": "2011",
+          "nombre": "LeyendaExportacionDeServiciosDecretoLegislativo"
+        },
+        {
+          "codigo": "2012",
+          "nombre": "ObservacionesRelacionadasConElTrasladoDe"
+        }
+      ]
+    },
+    {
+      "catalogo": "53",
+      "clase": "CargoDescuento",
+      "constantes": [
+        {
+          "codigo": "00",
+          "nombre": "DescuentosQueAfectanLaBaseImponible"
+        },
+        {
+          "codigo": "01",
+          "nombre": "DescuentosQueNoAfectanLaBase"
+        },
+        {
+          "codigo": "02",
+          "nombre": "DescuentosGlobalesQueAfectanLaBase"
+        },
+        {
+          "codigo": "03",
+          "nombre": "DescuentosGlobalesQueNoAfectanLa"
+        },
+        {
+          "codigo": "04",
+          "nombre": "DescuentosGlobalesPorAnticiposGravadosQue"
+        },
+        {
+          "codigo": "05",
+          "nombre": "DescuentosGlobalesPorAnticiposExonerados"
+        },
+        {
+          "codigo": "06",
+          "nombre": "DescuentosGlobalesPorAnticiposInafectos"
+        },
+        {
+          "codigo": "07",
+          "nombre": "FactorDeCompensacionDecretoDeUrgencia"
+        },
+        {
+          "codigo": "20",
+          "nombre": "AnticipoDeIsc"
+        },
+        {
+          "codigo": "45",
+          "nombre": "Fise"
+        },
+        {
+          "codigo": "46",
+          "nombre": "RecargoAlConsumoYOPropinas"
+        },
+        {
+          "codigo": "47",
+          "nombre": "CargosQueAfectanLaBaseImponible"
+        },
+        {
+          "codigo": "48",
+          "nombre": "CargosQueNoAfectanLaBase"
+        },
+        {
+          "codigo": "49",
+          "nombre": "CargosGlobalesQueAfectanLaBase"
+        },
+        {
+          "codigo": "50",
+          "nombre": "CargosGlobalesQueNoAfectanLa"
+        },
+        {
+          "codigo": "51",
+          "nombre": "PercepcionVentaInterna"
+        },
+        {
+          "codigo": "52",
+          "nombre": "PercepcionALaAdquisicionDeCombustible"
+        },
+        {
+          "codigo": "53",
+          "nombre": "PercepcionRealizadaAlAgenteDePercepcion"
+        },
+        {
+          "codigo": "54",
+          "nombre": "FactorDeAportacionDecretoDeUrgencia"
+        },
+        {
+          "codigo": "61",
+          "nombre": "RetencionDeRentaPorAnticipos"
+        },
+        {
+          "codigo": "62",
+          "nombre": "RetencionDelIgv"
+        },
+        {
+          "codigo": "63",
+          "nombre": "RentencionDeRentaDeSegundaCategoria"
+        }
+      ]
+    },
+    {
+      "catalogo": "54",
+      "clase": "BienServicioDetraccion",
+      "constantes": [
+        {
+          "codigo": "001",
+          "nombre": "AzucarYMelazaDeCana"
+        },
+        {
+          "codigo": "002",
+          "nombre": "Arroz"
+        },
+        {
+          "codigo": "003",
+          "nombre": "AlcoholEtilico"
+        },
+        {
+          "codigo": "004",
+          "nombre": "RecursosHidrobiologicos"
+        },
+        {
+          "codigo": "005",
+          "nombre": "MaizAmarilloDuro"
+        },
+        {
+          "codigo": "007",
+          "nombre": "CanaDeAzucar"
+        },
+        {
+          "codigo": "008",
+          "nombre": "Madera"
+        },
+        {
+          "codigo": "009",
+          "nombre": "ArenaYPiedra"
+        },
+        {
+          "codigo": "010",
+          "nombre": "ResiduosSubproductosDesechosRecortesYDesperdicios"
+        },
+        {
+          "codigo": "011",
+          "nombre": "BienesGravadosConElIgvO"
+        },
+        {
+          "codigo": "012",
+          "nombre": "IntermediacionLaboralYTercerizacion"
+        },
+        {
+          "codigo": "013",
+          "nombre": "AnimalesVivos"
+        },
+        {
+          "codigo": "014",
+          "nombre": "CarnesYDespojosComestibles"
+        },
+        {
+          "codigo": "015",
+          "nombre": "AbonosCuerosYPielesDeOrigen"
+        },
+        {
+          "codigo": "016",
+          "nombre": "AceiteDePescado"
+        },
+        {
+          "codigo": "017",
+          "nombre": "HarinaPolvoYPelletsDePescado"
+        },
+        {
+          "codigo": "019",
+          "nombre": "ArrendamientoDeBienesMuebles"
+        },
+        {
+          "codigo": "020",
+          "nombre": "MantenimientoYReparacionDeBienesMuebles"
+        },
+        {
+          "codigo": "021",
+          "nombre": "MovimientoDeCarga"
+        },
+        {
+          "codigo": "022",
+          "nombre": "OtrosServiciosEmpresariales"
+        },
+        {
+          "codigo": "023",
+          "nombre": "Leche"
+        },
+        {
+          "codigo": "024",
+          "nombre": "ComisionMercantil"
+        },
+        {
+          "codigo": "025",
+          "nombre": "FabricacionDeBienesPorEncargo"
+        },
+        {
+          "codigo": "026",
+          "nombre": "ServicioDeTransporteDePersonas"
+        },
+        {
+          "codigo": "027",
+          "nombre": "ServicioDeTransporteDeCarga"
+        },
+        {
+          "codigo": "028",
+          "nombre": "TransporteDePasajeros"
+        },
+        {
+          "codigo": "030",
+          "nombre": "ContratosDeConstruccion"
+        },
+        {
+          "codigo": "031",
+          "nombre": "OroGravadoConElIgv"
+        },
+        {
+          "codigo": "032",
+          "nombre": "PaprikaYOtrosFrutosDeLos"
+        },
+        {
+          "codigo": "034",
+          "nombre": "MineralesMetalicosNoAuriferos"
+        },
+        {
+          "codigo": "035",
+          "nombre": "BienesExoneradosDelIgv"
+        },
+        {
+          "codigo": "036",
+          "nombre": "OroYDemasMineralesMetalicosExonerados"
+        },
+        {
+          "codigo": "037",
+          "nombre": "DemasServiciosGravadosConElIgv"
+        },
+        {
+          "codigo": "038",
+          "nombre": "EspectaculosPublicosGravadosConElIgv"
+        },
+        {
+          "codigo": "039",
+          "nombre": "MineralesNoMetalicos"
+        },
+        {
+          "codigo": "040",
+          "nombre": "BienInmuebleGravadoConIgv"
+        },
+        {
+          "codigo": "041",
+          "nombre": "Plomo"
+        },
+        {
+          "codigo": "042",
+          "nombre": "LadrillosDeConstruccionBovedillasCubrevigasY"
+        },
+        {
+          "codigo": "043",
+          "nombre": "EstructurasMetalicasParaLaConstruccion"
+        },
+        {
+          "codigo": "044",
+          "nombre": "ServicioDeBeneficioDeMineralesMetalicos"
+        },
+        {
+          "codigo": "045",
+          "nombre": "MineralesDeOroYSusConcentrados"
+        },
+        {
+          "codigo": "046",
+          "nombre": "CobreGravadoConElIgv"
+        },
+        {
+          "codigo": "047",
+          "nombre": "PlataGravadaConElIgv"
+        },
+        {
+          "codigo": "099",
+          "nombre": "Ley30737"
+        }
+      ]
+    },
+    {
+      "catalogo": "59",
+      "clase": "MedioPago",
+      "constantes": [
+        {
+          "codigo": "001",
+          "nombre": "DepositoEnCuenta"
+        },
+        {
+          "codigo": "002",
+          "nombre": "Giro"
+        },
+        {
+          "codigo": "003",
+          "nombre": "TransferenciaDeFondos"
+        },
+        {
+          "codigo": "004",
+          "nombre": "OrdenDePago"
+        },
+        {
+          "codigo": "005",
+          "nombre": "TarjetaDeDebito"
+        },
+        {
+          "codigo": "006",
+          "nombre": "TarjetaDeCreditoEmitidaEnEl"
+        },
+        {
+          "codigo": "007",
+          "nombre": "ChequesConLaClausulaDeNo"
+        },
+        {
+          "codigo": "008",
+          "nombre": "EfectivoPorOperacionesEnLasQue"
+        },
+        {
+          "codigo": "009",
+          "nombre": "EfectivoEnLosDemasCasos"
+        },
+        {
+          "codigo": "010",
+          "nombre": "MediosDePagoUsadosEnComercio"
+        },
+        {
+          "codigo": "011",
+          "nombre": "DocumentosEmitidosPorLasEdpymesY"
+        },
+        {
+          "codigo": "012",
+          "nombre": "TarjetaDeCreditoEmitidaEnEl_012"
+        },
+        {
+          "codigo": "013",
+          "nombre": "TarjetasDeCreditoEmitidasEnEl"
+        },
+        {
+          "codigo": "101",
+          "nombre": "TransferenciasComercioExterior"
+        },
+        {
+          "codigo": "102",
+          "nombre": "ChequesBancariosComercioExterior"
+        },
+        {
+          "codigo": "103",
+          "nombre": "OrdenDePagoSimpleComercioExterior"
+        },
+        {
+          "codigo": "104",
+          "nombre": "OrdenDePagoDocumentarioComercioExterior"
+        },
+        {
+          "codigo": "105",
+          "nombre": "RemesaSimpleComercioExterior"
+        },
+        {
+          "codigo": "106",
+          "nombre": "RemesaDocumentariaComercioExterior"
+        },
+        {
+          "codigo": "107",
+          "nombre": "CartaDeCreditoSimpleComercioExterior"
+        },
+        {
+          "codigo": "108",
+          "nombre": "CartaDeCreditoDocumentarioComercioExterior"
+        },
+        {
+          "codigo": "999",
+          "nombre": "OtrosMediosDePago"
+        }
+      ]
+    }
+  ]
+}

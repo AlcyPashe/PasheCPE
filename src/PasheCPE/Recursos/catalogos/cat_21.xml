@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="21" nombre="Código de documentos relacionados (sólo guía de remisión electrónica)">
+  <c id="01">Numeración DAM</c>
+  <c id="02">Número de orden de entrega</c>
+  <c id="03">Número SCOP</c>
+  <c id="04">Número de manifiesto de carga</c>
+  <c id="05">Número de constancia de detracción</c>
+  <c id="06">Otros</c>
+</l>

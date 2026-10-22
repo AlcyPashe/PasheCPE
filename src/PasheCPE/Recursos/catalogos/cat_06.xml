@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="06" nombre="Código de tipo de documento de identidad">
+  <c id="0">DOC.TRIB.NO.DOM.SIN.RUC</c>
+  <c id="1">Documento Nacional de Identidad</c>
+  <c id="4">Carnet de extranjería</c>
+  <c id="6">Registro Unico de Contributentes</c>
+  <c id="7">Pasaporte</c>
+  <c id="A">Cédula Diplomática de identidad</c>
+  <c id="B">DOC.IDENT.PAIS.RESIDENCIA-NO.D</c>
+  <c id="C">Tax Identification Number - TIN – Doc Trib PP.NN</c>
+  <c id="D">Identification Number - IN – Doc Trib PP. JJ</c>
+  <c id="E">TAM- Tarjeta Andina de Migración</c>
+  <c id="F">Permiso Temporal de Permanencia - PTP</c>
+  <c id="G">Salvoconducto</c>
+  <c id="H">Carné Permiso Temp.Perman. - CPP</c>
+</l>

@@ -1,0 +1,24 @@
+{
+  "transitorios": [
+    { "codigo": "0100", "motivo": "El sistema no puede responder su solicitud" },
+    { "codigo": "0109", "motivo": "El servicio de autenticación no está disponible" },
+    { "codigo": "0125", "motivo": "No se pudo obtener la constancia" },
+    { "codigo": "0130", "motivo": "No se pudo obtener el ticket de proceso" },
+    { "codigo": "0131", "motivo": "No se pudo grabar el archivo en el directorio" },
+    { "codigo": "0132", "motivo": "No se pudo escribir en el archivo ZIP" },
+    { "codigo": "0133", "motivo": "No se pudo grabar la entrada del log" },
+    { "codigo": "0134", "motivo": "No se pudo grabar en el storage" },
+    { "codigo": "0135", "motivo": "No se pudo encolar el pedido" },
+    { "codigo": "0136", "motivo": "No se pudo recibir una respuesta del batch" },
+    { "codigo": "0137", "motivo": "Se obtuvo una respuesta nula" },
+    { "codigo": "0138", "motivo": "Error en base de datos de SUNAT" },
+    { "codigo": "0140", "motivo": "Existe un documento igual en proceso" },
+    { "codigo": "0200", "motivo": "Ocurrió un error en el batch" },
+    { "codigo": "0201", "motivo": "Llegó un requerimiento nulo al batch" },
+    { "codigo": "0250", "motivo": "Error desconocido al hacer unzip" },
+    { "codigo": "0251", "motivo": "No se pudo crear un directorio para el unzip" },
+    { "codigo": "0253", "motivo": "No se pudo comprimir la constancia" },
+    { "codigo": "0254", "motivo": "No se pudo enviar el mensaje" },
+    { "codigo": "0307", "motivo": "No se pudo recuperar la constancia" }
+  ]
+}

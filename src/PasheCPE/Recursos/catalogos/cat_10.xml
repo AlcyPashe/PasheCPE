@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="10" nombre="Códigos de tipo de nota de débito electrónica">
+  <c id="01">Intereses por mora</c>
+  <c id="02">Aumento en el valor</c>
+  <c id="03">Penalidades/ otros conceptos</c>
+  <c id="11">Ajustes de operaciones de exportación</c>
+  <c id="12">Ajustes afectos al IVAP</c>
+  <c id="13" desde="2027-01-01">Penalidades</c>
+</l>

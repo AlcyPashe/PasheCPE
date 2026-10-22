@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="11" nombre="Códigos de tipo de valor de venta (Resumen diario de boletas y notas)">
+  <c id="01">Gravado</c>
+  <c id="02">Exonerado</c>
+  <c id="03">Inafecto</c>
+  <c id="04">Exportación</c>
+  <c id="05" hasta="2026-12-31">Gratuitas</c>
+  <c id="06" desde="2027-01-01">Gratuitas-Gravada</c>
+  <c id="07" desde="2027-01-01">Gratuitas-Exoneradas</c>
+  <c id="08" desde="2027-01-01">Gratuitas-Inafectas</c>
+  <c id="09" desde="2027-01-01">Gratuitas-Exportación</c>
+</l>

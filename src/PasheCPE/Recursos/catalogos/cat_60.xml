@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="60" nombre="Código de tipo de dirección">
+  <c id="01">Punto de venta</c>
+  <c id="02">Producción</c>
+  <c id="03">Extracción</c>
+  <c id="04">Explotación</c>
+  <c id="05">Otros</c>
+</l>

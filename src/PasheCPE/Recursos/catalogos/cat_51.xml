@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="51" nombre="Código de tipo de operación">
+  <c id="0101" tipo-de-comprobante-asociado="Factura, Boletas">Venta interna no sujeta a Detracción o Percepción</c>
+  <c id="0112" tipo-de-comprobante-asociado="Factura">Venta Interna - Sustenta Gastos Deducibles Persona Natural</c>
+  <c id="0113" tipo-de-comprobante-asociado="Boleta">Venta Interna-NRUS</c>
+  <c id="0200" tipo-de-comprobante-asociado="Factura, Boletas">Exportación de Bienes</c>
+  <c id="0201" tipo-de-comprobante-asociado="Factura, Boletas">Exportación de Servicios – Prestación servicios realizados íntegramente en el país</c>
+  <c id="0202" tipo-de-comprobante-asociado="Factura">Exportación de Servicios – Prestación de servicios de hospedaje No Domiciliado</c>
+  <c id="0203" tipo-de-comprobante-asociado="Factura, Boletas">Exportación de Servicios – Transporte de navieras</c>
+  <c id="0204" tipo-de-comprobante-asociado="Factura, Boletas">Exportación de Servicios – Servicios a naves y aeronaves de bandera extranjera</c>
+  <c id="0205" tipo-de-comprobante-asociado="Factura">Exportación de Servicios - Servicios que conformen un Paquete Turístico</c>
+  <c id="0206" tipo-de-comprobante-asociado="Factura, Boletas">Exportación de Servicios – Servicios complementarios al transporte de carga</c>
+  <c id="0207" tipo-de-comprobante-asociado="Factura, Boletas">Exportación de Servicios – Suministro de energía eléctrica a favor de sujetos domiciliados en ZED</c>
+  <c id="0208" tipo-de-comprobante-asociado="Factura, Boletas">Exportación de Servicios – Prestación servicios realizados parcialmente en el extranjero</c>
+  <c id="0301" tipo-de-comprobante-asociado="Factura, Boletas">Operaciones con Carta de porte aéreo (emitidas en el ámbito nacional)</c>
+  <c id="0302" tipo-de-comprobante-asociado="Factura, Boletas">Operaciones de Transporte ferroviario de pasajeros</c>
+  <c id="0401" tipo-de-comprobante-asociado="Factura, Boletas">Ventas no domiciliados que no califican como exportación</c>
+  <c id="0501" tipo-de-comprobante-asociado="Liquidación de compra">Compra interna</c>
+  <c id="0502" tipo-de-comprobante-asociado="Liquidación de compra">Anticipos</c>
+  <c id="0503" tipo-de-comprobante-asociado="Liquidación de compra">Compra de oro</c>
+  <c id="1001" tipo-de-comprobante-asociado="Factura, Boletas">Operación Sujeta a Detracción</c>
+  <c id="1002" tipo-de-comprobante-asociado="Factura, Boletas">Operación Sujeta a Detracción- Recursos Hidrobiológicos</c>
+  <c id="1003" tipo-de-comprobante-asociado="Factura, Boletas">Operación Sujeta a Detracción- Servicios de Transporte Pasajeros</c>
+  <c id="1004" tipo-de-comprobante-asociado="Factura, Boletas">Operación Sujeta a Detracción- Servicios de Transporte Carga</c>
+  <c id="2001" tipo-de-comprobante-asociado="Factura, Boletas">Operación Sujeta a Percepción</c>
+  <c id="2002" tipo-de-comprobante-asociado="Factura">Operación sujeta a Retención de Renta de segunda categoría</c>
+  <c id="2100" tipo-de-comprobante-asociado="Factura, Boletas">Créditos a empresas</c>
+  <c id="2101" tipo-de-comprobante-asociado="Factura, Boletas">Créditos de consumo revolvente</c>
+  <c id="2102" tipo-de-comprobante-asociado="Factura, Boletas">Créditos de consumo no revolvente</c>
+  <c id="2103" tipo-de-comprobante-asociado="Factura, Boletas">Otras operaciones no gravadas - Empresas del sistema financiero y cooperativas de ahorro y crédito no autorizadas a captar recursos del público</c>
+  <c id="2104" tipo-de-comprobante-asociado="Factura, Boletas">Otras operaciones no gravadas - Empresas del sistema de seguros</c>
+  <c id="2105" tipo-de-comprobante-asociado="Boleta">Comprobante emitido por AFP</c>
+  <c id="2106" tipo-de-comprobante-asociado="Factura">Venta Nacional a Turistas - Tax Free</c>
+</l>

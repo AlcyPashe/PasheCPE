@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Xml" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
@@ -15,6 +16,12 @@
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     <PackageReference Include="QRCoder" />
+  </ItemGroup>
+
+  <!-- Datos versionados (TRD §3.3): generados por tools/GeneradorRecursos o mantenidos a mano -->
+  <ItemGroup>
+    <EmbeddedResource Include="Recursos\*.json" LogicalName="PasheCPE.Recursos.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Recursos\catalogos\*.xml" LogicalName="PasheCPE.Recursos.catalogos.%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

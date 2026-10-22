@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Herramienta de desarrollo: Excel de reglas de SUNAT → recursos embebidos de PasheCPE. No se distribuye. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>PasheCPE.GeneradorRecursos</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="GeneradorRecursos.Tests" />
+  </ItemGroup>
+
+</Project>

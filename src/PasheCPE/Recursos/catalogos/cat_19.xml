@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="19" nombre="Código de estado del ítem (resumen diario)">
+  <c id="1">Adicionar</c>
+  <c id="2">Modificar</c>
+  <c id="3">Anulado</c>
+</l>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="56" nombre="Código de tipo de servicio público">
+  <c id="1">Energía eléctrica</c>
+  <c id="2">Agua</c>
+  <c id="3">Cable</c>
+  <c id="4">Internet</c>
+  <c id="5">Otros servicios regulados por OSIPTEL</c>
+  <c id="6">Gas natural</c>
+  <c id="7">Telefonía</c>
+</l>

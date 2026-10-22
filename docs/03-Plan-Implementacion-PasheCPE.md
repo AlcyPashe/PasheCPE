@@ -30,7 +30,7 @@
 
 **Aceptación:** `dotnet build` y `dotnet test` en verde; `dotnet list package` solo muestra paquetes del TRD §1; el workflow `ci.yml` pasa en GitHub.
 
-**Estado:** completada el 22/10/2026. Pendiente: que `ci.yml` pase en GitHub tras el primer `git push`.
+**Estado:** completada el 22/10/2026; `ci.yml` en verde en GitHub (commit `7cc2602`).
 
 ---
 
@@ -38,16 +38,18 @@
 
 **Objetivo:** contratos públicos y utilidades base, sin XML ni red.
 
-1. Modelos de entrada (TRD §4) y resultados/estados (TRD §5), serializables con `JsonSerializerContext`.
+1. Modelos de entrada (TRD §4, salvo `GuiaRemisionCpe`, que pasa a la Fase 10) y resultados/estados (TRD §5), serializables con `JsonSerializerContext`.
 2. Fuente ya entregada: `recursos\VALIDACIONES\ReglasValidacion-CPE-2026-08-26.xlsx` (TRD §3.2). No editar el Excel.
-3. `tools\GeneradorRecursos` (consola C#, `DocumentFormat.OpenXml`, valores calculados de celdas) → `catalogos.json`, `catalogos\cat_XX.xml`, `errores-sunat.json`, `reglas-cpe.json` (con vigencias de `Control de Cambios`); clases de catálogo en C#. Prueba: el generador es idempotente y reporta conteos por hoja.
+3. `tools\GeneradorRecursos` (consola C#, `DocumentFormat.OpenXml`, valores calculados de celdas) → `catalogos.json`, `catalogos\cat_XX.xml`, `errores-sunat.json`, `reglas-cpe.json` (con vigencias de `Control de Cambios`) y `CodigosSunat.g.cs` (constantes de catálogo generadas, nombres estables en `Datos\nombres-constantes.json`). Datos curados en `tools\GeneradorRecursos\Datos`. Prueba: el generador es idempotente, reporta conteos por hoja y los recursos del repositorio coinciden con el Excel.
 4. `tasas.json`, `plazos.json`, `endpoints.json`, con sus lectores y sobrescritura por configuración; completar `tipo`/`transitorio` en `errores-sunat.json` (lista revisada con el desarrollador).
 5. Zona horaria Lima + `TimeProvider`; `NumeroALetras` (soles y dólares, céntimos, millones); `Redondeo`; `NombreArchivoCpe`.
 6. `AlmacenCpe` (carpetas CERT, DATA, FIRMA, ENVIO, RPTA, REPO, QR, LOG; `yyyy\MM`, sin días; escritura atómica) y `RegistroHistorial` (JSON por documento).
 7. `ReglasRegimen` (NRUS, RER, RMT, General; Amazonía por defecto; MYPE restaurantes/hoteles).
-8. `OpcionesPasheCpe` con validación al iniciar; `AddPasheCpe` y `PasheCpe.Crear` (aún con servicios vacíos).
+8. `OpcionesPasheCpe` con validación al iniciar; `AddPasheCpe` y `PasheCpe.Crear` (mismo `ServiceCollection`; en esta fase solo expone `Historial`).
 
 **Aceptación:** pruebas de número a letras, tasas por fecha (2025, 2026, 2027, 2028), plazos, rutas año/mes, historial concurrente, reglas de régimen, búsqueda de errores y catálogos.
+
+**Estado:** completada el 22/10/2026 (183 pruebas en verde).
 
 ---
 
@@ -159,7 +161,7 @@
 
 **Objetivo:** GRE remitente (09) y transportista (31) en producción.
 
-1. Clases perfil `DespatchAdvice`, `MapeadorDespatchAdvice` (09 y 31: modalidades 01/02, vehículos, conductores, M1/L, documentos relacionados, bienes).
+1. Modelo de entrada `GuiaRemisionCpe` (TRD §4) a partir del Excel GRE 25.09.2026, constantes de los catálogos 18, 20, 61 y 62 en `nombres-constantes.json`, clases perfil `DespatchAdvice`, `MapeadorDespatchAdvice` (09 y 31: modalidades 01/02, vehículos, conductores, M1/L, documentos relacionados, bienes).
 2. Validación modelo + XSD + XSL `ValidaExprRegGuiaRemitente-2.0.1.xsl` (09) + reglas C# (31).
 3. `ProveedorTokenGre`, `ClienteGre` (envío, ticket, CDR, QR del CDR), manejo 401/422/5xx, protección `PermitirEnvioConAmbienteBeta`.
 4. `IServicioGre` completo.

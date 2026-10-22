@@ -1,0 +1,61 @@
+{
+  "vigencias": [
+    {
+      "catalogo": "01",
+      "codigo": "25",
+      "desde": "2027-01-01",
+      "fuente": "Control de Cambios, fila 515: se agrega el código 25 (vigencia 01/08/2026 postergada al 01/01/2027)"
+    },
+    {
+      "catalogo": "10",
+      "codigo": "13",
+      "desde": "2027-01-01",
+      "fuente": "Control de Cambios, filas 518 y 562: se crea el código 13 (R.S. 000048-2026, postergada por la R.S. 000143-2026)"
+    },
+    {
+      "catalogo": "11",
+      "codigo": "05",
+      "hasta": "2026-12-31",
+      "fuente": "Control de Cambios, filas 516 y 562: se desactiva el código 05 (Gratuitas) desde el 01/01/2027"
+    },
+    {
+      "catalogo": "11",
+      "codigo": "06",
+      "desde": "2027-01-01",
+      "fuente": "Control de Cambios, filas 516 y 562: se agregan los códigos 06 a 09"
+    },
+    {
+      "catalogo": "11",
+      "codigo": "07",
+      "desde": "2027-01-01",
+      "fuente": "Control de Cambios, filas 516 y 562: se agregan los códigos 06 a 09"
+    },
+    {
+      "catalogo": "11",
+      "codigo": "08",
+      "desde": "2027-01-01",
+      "fuente": "Control de Cambios, filas 516 y 562: se agregan los códigos 06 a 09"
+    },
+    {
+      "catalogo": "11",
+      "codigo": "09",
+      "desde": "2027-01-01",
+      "fuente": "Control de Cambios, filas 516 y 562: se agregan los códigos 06 a 09"
+    },
+    {
+      "catalogo": "25.1",
+      "hasta": "2026-07-31",
+      "fuente": "Control de Cambios, fila 559: se retiran los catálogos 25.1, 25.2 y 25.3 desde el 01/08/2026"
+    },
+    {
+      "catalogo": "25.2",
+      "hasta": "2026-07-31",
+      "fuente": "Control de Cambios, fila 559: se retiran los catálogos 25.1, 25.2 y 25.3 desde el 01/08/2026"
+    },
+    {
+      "catalogo": "25.3",
+      "hasta": "2026-07-31",
+      "fuente": "Control de Cambios, fila 559: se retiran los catálogos 25.1, 25.2 y 25.3 desde el 01/08/2026"
+    }
+  ]
+}
