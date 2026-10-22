@@ -1,0 +1,42 @@
+# Compilación
+bin/
+obj/
+artifacts/
+TestResults/
+BenchmarkDotNet.Artifacts/
+*.nupkg
+*.snupkg
+coverage*.xml
+coverage*.json
+
+# Editores
+.vs/
+.idea/
+*.user
+*.suo
+*.swp
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Referencia UBL generada (se regenera con tools/generar-ubl.ps1)
+tools/ubl-referencia/
+
+# Secretos y certificados: NUNCA al repositorio
+*.pfx
+*.p12
+*.pem
+*.key
+secrets.json
+appsettings.*.local.json
+.env
+
+# Salidas de la demo y almacenes CPE locales
+samples/**/CPE/
+/CPE/
+
+# Sistema
+Thumbs.db
+.DS_Store

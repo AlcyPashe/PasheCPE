@@ -1,0 +1,37 @@
+name: Publicar NuGet
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publicar:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Versión desde el tag
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - name: Probar
+        run: dotnet test PasheCPE.slnx -c Release
+
+      - name: Empaquetar
+        run: dotnet pack PasheCPE.slnx -c Release -p:Version=${{ env.VERSION }} -o artifacts
+
+      - name: Publicar en GitHub Packages
+        shell: bash
+        run: >
+          dotnet nuget push "artifacts/*.nupkg"
+          --source "https://nuget.pkg.github.com/AlcyPashe/index.json"
+          --api-key "${{ secrets.GITHUB_TOKEN }}"
+          --skip-duplicate

@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  compilar-y-probar:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restaurar
+        run: dotnet restore PasheCPE.slnx
+
+      - name: Compilar
+        run: dotnet build PasheCPE.slnx -c Release --no-restore
+
+      - name: Probar
+        run: dotnet test PasheCPE.slnx -c Release --no-build

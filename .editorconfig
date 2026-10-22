@@ -1,0 +1,44 @@
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,yml,yaml,props,csproj,slnx,xml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+# Fuentes oficiales y datos de prueba: no tocar
+[{recursos/**,tests/Datos/**}]
+charset = unset
+indent_style = unset
+indent_size = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_prefer_braces = when_multiline:suggestion
+csharp_using_directive_placement = outside_namespace:warning
+dotnet_sort_system_directives_first = true
+dotnet_style_readonly_field = true:warning
+
+# Nombres
+dotnet_naming_rule.privados_con_guion.symbols = campos_privados
+dotnet_naming_rule.privados_con_guion.style = guion_bajo_camel
+dotnet_naming_rule.privados_con_guion.severity = warning
+dotnet_naming_symbols.campos_privados.applicable_kinds = field
+dotnet_naming_symbols.campos_privados.applicable_accessibilities = private
+dotnet_naming_style.guion_bajo_camel.capitalization = camel_case
+dotnet_naming_style.guion_bajo_camel.required_prefix = _
+
+# Librería: siempre ConfigureAwait(false) (solo en src\; las pruebas no lo usan)
+[src/**.cs]
+dotnet_diagnostic.CA2007.severity = warning
