@@ -5,7 +5,10 @@ using PasheCPE;
 using PasheCPE.Almacenamiento;
 using PasheCPE.Catalogos;
 using PasheCPE.Configuracion;
+using PasheCPE.Firma;
 using PasheCPE.Mapeo;
+using PasheCPE.Qr;
+using PasheCPE.Servicios;
 using PasheCPE.Tiempo;
 using PasheCPE.Tributos;
 using PasheCPE.Validacion;
@@ -68,6 +71,10 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<ValidadorSunat>();
         services.TryAddSingleton<IPrecalentador, Precalentador>();
         services.TryAddSingleton<GeneradorInvoice>();
+        services.TryAddSingleton<ProveedorCertificados>();
+        services.TryAddSingleton<FirmadorXml>();
+        services.TryAddSingleton<ConstructorContenidoQr>();
+        services.TryAddSingleton<IServicioCpe, ServicioCpe>();
         return services;
     }
 }

@@ -104,7 +104,7 @@ El resultado indica código SUNAT, descripción y ubicación de cada error; un d
 
 ### Firma, empaquetado y QR
 
-**RF-09 — Firma digital.** XML-DSig enveloped (RSA-SHA1/SHA1, perfil configurable a SHA-256 si SUNAT lo cambia) dentro de `ext:UBLExtensions`, con el certificado `.pfx` del emisor ubicado en `CPE\CERT\`. Expone el **valor resumen** (DigestValue).
+**RF-09 — Firma digital.** XML-DSig enveloped (RSA-SHA256/SHA-256 por defecto, como los comprobantes que SUNAT ya aceptó; perfil configurable a RSA-SHA1/SHA-1, el de las guías de SUNAT) dentro de `ext:UBLExtensions`, con el certificado `.pfx` del emisor ubicado en `CPE\CERT\`. Expone el **valor resumen** (DigestValue).
 
 **RF-10 — ZIP.** Un ZIP por documento con el XML firmado en la raíz.
 

@@ -94,6 +94,9 @@ public enum OrigenError
     /// </summary>
     ReglasComplementarias,
 
+    /// <summary>Certificado digital o firma del XML.</summary>
+    Firma,
+
     /// <summary>Respuesta de SUNAT u OSE.</summary>
     Sunat,
 }

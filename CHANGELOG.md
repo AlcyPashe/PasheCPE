@@ -5,6 +5,14 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 23/10/2026 — Fase 4 (firma, ZIP y QR):
+  - `ProveedorCertificados`: carga el .pfx de `CERT` con `X509CertificateLoader` (`MachineKeySet | Exportable`), caché por ruta que se invalida si cambia la fecha del archivo o la clave (guardada solo como hash SHA-256 en memoria); errores `PCPE-3001` a `PCPE-3004` (inexistente, clave incorrecta, sin clave privada RSA, fuera de vigencia en hora de Lima) y advertencia `PCPE-3005` de vencimiento próximo (`AvisoVencimientoCertificadoDias`), también en el log.
+  - `FirmadorXml`: XML-DSig enveloped con C14N, `Reference URI=""` y `KeyInfo/X509Data`, sin prefijo, en el `ext:ExtensionContent` vacío, con `Id` = `IdFirma`; verifica la firma antes de devolverla (`PCPE-3007`) y guarda en UTF-8 sin BOM sin reindentar. Valor resumen = `DigestValue`.
+  - `EmpaquetadorZip`: una entrada `{nombre}.xml` en la raíz, con la fecha del proceso.
+  - `ConstructorContenidoQr` (10 campos, opciones `Qr.CerosNumero` y `Qr.SeparadorFinal`) y `GeneradorQrPng` (QRCoder, corrección Q, 20 px por módulo, zona de silencio de 4 módulos).
+  - `IServicioCpe` público con `GenerarAsync(emisor, ComprobanteCpe)` y `ValidarAsync`; `PasheCpe.Cpe`. Pipeline DATA → validación → FIRMA → ENVIO → QR → historial `Generado` (operación `generar`), con todas las rutas, valor resumen, contenido QR y fecha límite de envío. No regenera un documento ya enviado (`PCPE-3101`). Los errores de certificado y firma llevan `OrigenError.Firma`.
+  - `GeneradorInvoice.Construir`: generación y validación sin escribir (la usa `ValidarAsync`).
+  - Pruebas con un certificado RSA 2048 autofirmado generado en la prueba: firma verificable y en su lugar, perfiles SHA-256 y SHA-1, `IdFirma` coherente con `cac:Signature`, alteración y otro certificado detectados, digest y bytes estables, bytes fuera de la firma iguales a DATA, XML firmado válido contra el XSD y la validación SUNAT; caché, recarga y errores del certificado; ZIP; contenido y tamaño del QR; pipeline completo, bloqueo de regeneración y `PasheCpe.Crear(...).Cpe`.
 - 22/10/2026 — Fase 3 (validación SUNAT con XSL y emulación DataPower):
   - `MotorXslSunat`: las 7 XSL oficiales embebidas desde `recursos/XSL` sin cambios, compiladas una sola vez con `XslCompiledTransform`; devuelve todos los errores y observaciones de una pasada y nunca lanza (`PCPE-2101`, `PCPE-2102`). La XSL de la GRE (1.0) se compila pero no se usa.
   - Emulación de DataPower: `validate_utils.xsl`, `error_utils.xsl` y `dat_fechas.xml` propios; `ResolutorRecursosLocales` (`local:///`); extensiones `dp:variable` (nombre del archivo enviado), EXSLT de fechas (hora de Lima) y de expresiones regulares, y `pcpe:` (catálogos a la fecha de recepción, moneda con `monedas.json`, propiedades de los catálogos 05, 07, 22 y 51, ruta del nodo).
@@ -43,6 +51,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 - 22/10/2026 — Fase 0: repositorio git (`main`, remoto `origin`), solución `PasheCPE.slnx` con `src/PasheCPE`, `src/PasheCPE.Pdf`, `tests/PasheCPE.Tests`, `tests/PasheCPE.Pdf.Tests` y `samples/PasheCPE.Demo`; `Directory.Packages.props` (CPM) con las dependencias del TRD §1; `src/` y `tests/Directory.Build.props`; metadatos NuGet (licencia propietaria `LICENSE.txt`, README, Source Link del SDK, PDB embebido); pruebas de humo de los dos ensamblados; `tests/Datos/`.
 
 ### Cambiado
+- 23/10/2026 — `PerfilFirma.Sha256` es el valor por defecto (antes `Sha1`): los comprobantes que SUNAT ya aceptó para el RUC piloto están firmados con RSA-SHA256/SHA-256. La firma va sin prefijo `ds:`. PRD RF-09 y TRD §10, §12 y §23 actualizados.
 - 22/10/2026 — Opción `Validacion.Reglas2027` renombrada a `Validacion.ReglasComplementarias` (como `OrigenError.ReglasComplementarias`): incluye reglas del Excel de 2022 a 2027 y cada regla aplica según su vigencia en `reglas-cpe.json`. TRD §9.4 y §23, guía de integración, README, descripción del paquete y CLAUDE.md actualizados.
 - 22/10/2026 — TRD §5.1 y §14: política de reintentos decidida (se quita el [verificar]). Plan de la Fase 5 actualizado.
   - `sendBill` no se reintenta dentro de la llamada.

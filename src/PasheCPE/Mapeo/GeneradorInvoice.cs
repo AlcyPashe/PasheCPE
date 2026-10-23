@@ -21,7 +21,7 @@ internal sealed record XmlGenerado(
 /// <summary>
 /// Factura o boleta → XML sin firmar en <c>DATA\yyyy\MM</c>: valida el modelo → calcula → mapea → serializa → valida
 /// el XSD → valida las XSL de SUNAT y las reglas complementarias → escribe. Con cualquier error no escribe nada; las
-/// observaciones de SUNAT van a las advertencias. La firma, el ZIP y el QR se agregan en la Fase 4.
+/// observaciones de SUNAT van a las advertencias. La firma, el ZIP y el QR los agrega <c>ServicioCpe</c>.
 /// </summary>
 internal sealed class GeneradorInvoice(
     ValidadorModelo validador,
@@ -32,11 +32,32 @@ internal sealed class GeneradorInvoice(
     AlmacenCpe almacen,
     Tiempo.RelojCpe reloj)
 {
-    public async Task<XmlGenerado> GenerarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct)
+    /// <summary>Referencia del comprobante: la fecha de emisión, o hoy en Lima si no se indica.</summary>
+    public ReferenciaCpe Referencia(EmisorCpe emisor, ComprobanteCpe cpe)
     {
         ArgumentNullException.ThrowIfNull(emisor);
         ArgumentNullException.ThrowIfNull(cpe);
-        var referencia = ReferenciaCpe.Comprobante(emisor.Ruc, cpe.TipoDocumento, cpe.Serie, cpe.Numero, cpe.FechaEmision ?? reloj.HoyLima());
+        return ReferenciaCpe.Comprobante(emisor.Ruc, cpe.TipoDocumento, cpe.Serie, cpe.Numero, cpe.FechaEmision ?? reloj.HoyLima());
+    }
+
+    /// <summary>Genera el XML y, si no hay errores, lo escribe en DATA.</summary>
+    public async Task<XmlGenerado> GenerarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct)
+    {
+        var generado = Construir(emisor, cpe);
+        if (!generado.Exito)
+        {
+            return generado;
+        }
+
+        var ruta = almacen.Ruta(CarpetaCpe.Data, generado.Referencia, NombreArchivoCpe.Xml(generado.Referencia));
+        await AlmacenCpe.EscribirAsync(ruta, generado.Xml!, ct).ConfigureAwait(false);
+        return generado with { Ruta = ruta };
+    }
+
+    /// <summary>Valida, calcula, mapea, serializa y valida el XML, sin escribir nada (validación de nivel 1).</summary>
+    public XmlGenerado Construir(EmisorCpe emisor, ComprobanteCpe cpe)
+    {
+        var referencia = Referencia(emisor, cpe);
 
         var errores = validador.Validar(emisor, cpe);
         if (errores.Count > 0)
@@ -65,8 +86,6 @@ internal sealed class GeneradorInvoice(
             return new XmlGenerado(referencia, xml, null, validacion.Errores, advertencias, calculo);
         }
 
-        var ruta = almacen.Ruta(CarpetaCpe.Data, referencia, NombreArchivoCpe.Xml(referencia));
-        await AlmacenCpe.EscribirAsync(ruta, xml, ct).ConfigureAwait(false);
-        return new XmlGenerado(referencia, xml, ruta, [], advertencias, calculo);
+        return new XmlGenerado(referencia, xml, null, [], advertencias, calculo);
     }
 }

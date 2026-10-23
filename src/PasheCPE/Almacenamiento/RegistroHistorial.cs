@@ -85,7 +85,8 @@ internal sealed class RegistroHistorial(AlmacenCpe almacen, ILogger<RegistroHist
         }
     }
 
-    private string Ruta(ReferenciaCpe referencia) => almacen.Ruta(CarpetaCpe.Log, referencia, NombreArchivoCpe.Historial(referencia));
+    /// <summary>Ruta del historial del documento: LOG\yyyy\MM\{nombre}.json.</summary>
+    public string Ruta(ReferenciaCpe referencia) => almacen.Ruta(CarpetaCpe.Log, referencia, NombreArchivoCpe.Historial(referencia));
 
     private static async Task<HistorialCpe?> LeerAsync(string ruta, CancellationToken ct)
     {

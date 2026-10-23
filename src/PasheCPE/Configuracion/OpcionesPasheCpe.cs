@@ -18,8 +18,8 @@ public sealed class OpcionesPasheCpe
     /// <summary>Id de la firma (<c>ds:Signature/@Id</c>) y de la referencia en <c>cac:Signature</c>.</summary>
     public string IdFirma { get; set; } = "PasheSign";
 
-    /// <summary>Algoritmos de la firma.</summary>
-    public PerfilFirma PerfilFirma { get; set; } = PerfilFirma.Sha1;
+    /// <summary>Algoritmos de la firma (por defecto RSA-SHA256, el de los comprobantes que SUNAT ya aceptó).</summary>
+    public PerfilFirma PerfilFirma { get; set; } = PerfilFirma.Sha256;
 
     /// <summary>Cómo se informan las boletas y sus notas.</summary>
     public ModoEnvioBoletas ModoEnvioBoletas { get; set; } = ModoEnvioBoletas.ResumenDiario;
@@ -65,6 +65,21 @@ public sealed class OpcionesPasheCpe
 
     /// <summary>Monto en letras de la leyenda 1000.</summary>
     public OpcionesMontoEnLetras MontoEnLetras { get; set; } = new();
+
+    /// <summary>Contenido del código QR de los comprobantes.</summary>
+    public OpcionesQr Qr { get; set; } = new();
+}
+
+/// <summary>
+/// Contenido del QR de los comprobantes (TRD §12): RUC|TIPO|SERIE|NUMERO|IGV|TOTAL|FECHA|TIPODOCADQ|NUMDOCADQ|VALORRESUMEN.
+/// </summary>
+public sealed class OpcionesQr
+{
+    /// <summary>Número con ceros a la izquierda hasta 8 dígitos (00000123). Por defecto sin ceros (123).</summary>
+    public bool CerosNumero { get; set; }
+
+    /// <summary>Agrega un «|» al final del contenido. Por defecto no.</summary>
+    public bool SeparadorFinal { get; set; }
 }
 
 /// <summary>Monto en letras de la leyenda 1000 (DIECISEIS CON 00/100 SOLES).</summary>
@@ -153,10 +168,10 @@ public enum Ambiente
 /// <summary>Algoritmos de firma.</summary>
 public enum PerfilFirma
 {
-    /// <summary>RSA-SHA1 con digest SHA-1 (el que SUNAT documenta).</summary>
+    /// <summary>RSA-SHA1 con digest SHA-1 (el que documentan las guías de SUNAT; criptográficamente obsoleto).</summary>
     Sha1,
 
-    /// <summary>RSA-SHA256 con digest SHA-256, preparado por si SUNAT lo exige.</summary>
+    /// <summary>RSA-SHA256 con digest SHA-256 (por defecto): el de los comprobantes que SUNAT ya aceptó en producción.</summary>
     Sha256,
 }
 

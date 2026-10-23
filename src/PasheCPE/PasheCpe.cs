@@ -14,6 +14,7 @@ namespace PasheCPE;
 /// <example>
 /// <code>
 /// using var pashe = PasheCpe.Crear(new OpcionesPasheCpe { RutaBase = @"D:\CPE", Ambiente = Ambiente.Beta });
+/// var generacion = await pashe.Cpe.GenerarAsync(emisor, factura);
 /// var pendientes = pashe.Historial.ListarPendientesAsync(2026, 10);
 /// </code>
 /// </example>
@@ -24,8 +25,12 @@ public sealed class PasheCpe : IDisposable, IAsyncDisposable
     private PasheCpe(ServiceProvider proveedor)
     {
         _proveedor = proveedor;
+        Cpe = proveedor.GetRequiredService<IServicioCpe>();
         Historial = proveedor.GetRequiredService<IHistorialCpe>();
     }
+
+    /// <summary>Comprobantes de pago: factura y boleta.</summary>
+    public IServicioCpe Cpe { get; }
 
     /// <summary>Historial de envíos.</summary>
     public IHistorialCpe Historial { get; }

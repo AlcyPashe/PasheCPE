@@ -102,6 +102,11 @@
 
 **Aceptación:** firma verificable con certificado autofirmado; firma en `ext:ExtensionContent`; alteración detectada; digest estable; ZIP con una entrada en raíz; QR con los 10 campos y tamaño/zona de silencio correctos; `GenerarAsync` deja los 4 archivos en las carpetas `yyyy\MM` correctas.
 
+**Estado:** completada el 23/10/2026 (483 pruebas en verde).
+- Decisiones con el desarrollador: firma RSA-SHA256/SHA-256 por defecto y sin prefijo `ds:` (como los dorados aceptados; `Sha1` por opción), `IServicioCpe` con solo `GenerarAsync` y `ValidarAsync` (crece por fases), y no se regenera un documento ya enviado (`PCPE-3101`).
+- El XML firmado pasa el XSD completo (con la firma) y la validación SUNAT; fuera de la firma conserva los bytes de DATA.
+- Errores de certificado y firma como `PCPE-3001`–`3007` (`OrigenError.Firma`), sin excepciones.
+
 ---
 
 ## Fase 5 — Envío SOAP, conectividad y control de respuestas (Factura y Boleta)

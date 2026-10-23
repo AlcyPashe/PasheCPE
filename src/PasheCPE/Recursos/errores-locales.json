@@ -47,6 +47,14 @@
     { "codigo": "PCPE-1290", "descripcion": "Los totales calculados no son válidos ({0}). Revise anticipos y descuentos globales." },
     { "codigo": "PCPE-2001", "descripcion": "El XML no cumple el esquema UBL 2.1: {0}" },
     { "codigo": "PCPE-2101", "descripcion": "La XSL {0} pidió la variable de DataPower '{1}', que PasheCPE no emula. Revise la emulación (TRD §9.3)." },
-    { "codigo": "PCPE-2102", "descripcion": "No se pudo ejecutar la XSL de SUNAT {0}: {1}" }
+    { "codigo": "PCPE-2102", "descripcion": "No se pudo ejecutar la XSL de SUNAT {0}: {1}" },
+    { "codigo": "PCPE-3001", "descripcion": "No existe el certificado '{0}' en la carpeta CERT." },
+    { "codigo": "PCPE-3002", "descripcion": "No se pudo abrir el certificado '{0}': la clave es incorrecta o el archivo no es un PKCS#12 (.pfx) válido." },
+    { "codigo": "PCPE-3003", "descripcion": "El certificado '{0}' no tiene una clave privada RSA para firmar." },
+    { "codigo": "PCPE-3004", "descripcion": "El certificado '{0}' no está vigente: es válido del {1} al {2} (hora de Lima)." },
+    { "codigo": "PCPE-3005", "descripcion": "El certificado '{0}' vence el {1} (en {2} días). Renuévelo antes de esa fecha." },
+    { "codigo": "PCPE-3006", "descripcion": "No se pudo firmar el XML: {0}" },
+    { "codigo": "PCPE-3007", "descripcion": "La firma del XML no se pudo verificar con el certificado '{0}'." },
+    { "codigo": "PCPE-3101", "descripcion": "El documento {0} ya tiene el estado {1} en el historial: no se regenera, porque cambiaría el valor resumen de lo enviado a SUNAT. Envíe o consulte el archivo ya generado; para corregirlo, emita otro número." }
   ]
 }

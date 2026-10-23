@@ -333,6 +333,8 @@ public interface IPrecalentador { Task PrecalentarAsync(CancellationToken ct = d
 
 Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → serializar (DATA) → validar XSD + XSL + reglas complementarias → firmar (FIRMA, valor resumen) → ZIP (ENVIO) → QR (QR) → verificar conectividad → enviar → clasificar → CDR (RPTA) → historial (LOG) → resultado**. Cada etapa persiste su archivo y el resultado devuelve todas las rutas. `EnviarAsync` parte de ENVIO\ y nunca regenera.
 
+`IServicioCpe` crece por fases (decidido con el desarrollador el 23/10/2026): en la Fase 4 solo tiene `GenerarAsync(emisor, ComprobanteCpe)` y `ValidarAsync`; los demás métodos se agregan en la fase que los implementa (5–8), sin stubs. `GenerarAsync` no regenera un documento cuyo historial tenga un estado distinto de `Generado` o `ErrorValidacionLocal` (`PCPE-3101`): cambiaría el valor resumen de lo enviado a SUNAT.
+
 ## 7. Cálculo tributario
 
 - Toda la aritmética con `decimal`; redondeo `MidpointRounding.AwayFromZero` a 2 decimales en montos; valores unitarios hasta 10 decimales.
@@ -455,12 +457,13 @@ internal sealed class ProveedorCertificados
 ```
 
 - Prohibido: `new X509Certificate2(...)` (SYSLIB0057), `RSACryptoServiceProvider`, `EphemeralKeySet`.
-- `SignedXml` con `SigningKey = cert.GetRSAPrivateKey()`, `SignatureMethod = rsa-sha1`, `CanonicalizationMethod` C14N (configurable a exc-c14n), `Reference("")` + `XmlDsigEnvelopedSignatureTransform`, `DigestMethod = sha1`, `KeyInfoX509Data(cert)`.
-- Perfil de algoritmo en opciones (`PerfilFirma.Sha1` por defecto, `Sha256` preparado).
-- Firma con `Id` configurable (`IdFirma`, por defecto `"PasheSign"`), prefijo `ds`, insertada en `ext:ExtensionContent` por XPath con `XmlNamespaceManager`. `cac:Signature` del documento coherente (ID, RUC, razón social, `#IdFirma`).
-- Guardar con `PreserveWhitespace = true` y sin reindentar. Verificación local `CheckSignature(cert, true)` antes del ZIP.
+- `SignedXml` con `SigningKey = cert.GetRSAPrivateKey()`, `CanonicalizationMethod` C14N, `Reference("")` + `XmlDsigEnvelopedSignatureTransform`, `SignatureMethod`/`DigestMethod` según el perfil, `KeyInfoX509Data(cert)` (solo el certificado del firmante).
+- Perfil de algoritmo en opciones: `PerfilFirma.Sha256` por defecto (`rsa-sha256` + `sha256`) y `Sha1` (`rsa-sha1` + `sha1`). Decidido con el desarrollador el 23/10/2026: los 8 dorados aceptados por SUNAT están firmados con RSA-SHA256/SHA-256.
+- Firma con `Id` configurable (`IdFirma`, por defecto `"PasheSign"`), **sin prefijo** (namespace por defecto `http://www.w3.org/2000/09/xmldsig#`, como los dorados aceptados; con `SignedXml` un prefijo `ds:` obligaría a firmar el `SignedInfo` a mano), insertada en el `ext:ExtensionContent` vacío por XPath con `XmlNamespaceManager`. `cac:Signature` del documento coherente (ID, RUC, razón social, `#IdFirma`).
+- Guardar con `PreserveWhitespace = true`, UTF-8 sin BOM y sin reindentar (fuera de la firma, los bytes son los de DATA). Verificación local `CheckSignature(cert, true)` antes del ZIP.
+- `ProveedorCertificados` no lanza: archivo inexistente o fuera de CERT (`PCPE-3001`), clave incorrecta (`PCPE-3002`), sin clave privada RSA (`PCPE-3003`), fuera de vigencia en hora de Lima (`PCPE-3004`); la caché se invalida si cambia la fecha del archivo o la clave (que solo se guarda como hash SHA-256 en memoria).
 - Valor resumen = `ds:DigestValue` (Base64).
-- Certificado próximo a vencer (< 30 días, configurable) → advertencia en el resultado y en el log.
+- Certificado próximo a vencer (< 30 días, configurable) → advertencia `PCPE-3005` en el resultado y en el log.
 
 ## 11. ZIP y nombres
 
@@ -469,7 +472,7 @@ internal sealed class ProveedorCertificados
 
 ## 12. QR
 
-- `ConstructorContenidoQr` (01/03/07/08): `RUC|TIPO|SERIE|NUMERO|IGV|TOTAL|FECHA|TIPODOCADQ|NUMDOCADQ|VALORRESUMEN`, montos `0.00`, fecha `yyyy-MM-dd`; opciones: ceros del número y `|` final (por defecto no).
+- `ConstructorContenidoQr` (01/03/07/08): `RUC|TIPO|SERIE|NUMERO|IGV|TOTAL|FECHA|TIPODOCADQ|NUMDOCADQ|VALORRESUMEN`, montos `0.00`, fecha `yyyy-MM-dd`; opciones `Qr.CerosNumero` (número a 8 dígitos) y `Qr.SeparadorFinal` (`|` final), ambas por defecto `false`. IGV = subtotal del tributo 1000; TOTAL = importe total a pagar.
 - GRE (09/31): contenido = enlace que SUNAT devuelve en el CDR, en `cac:DocumentResponse/cac:DocumentReference/cbc:DocumentDescription` (confirmado con los CDR reales de `tests/Datos/Dorados/09-GRE`: `https://e-factura.sunat.gob.pe/v1/contribuyente/gre/comprobantes/descargaqr?hashqr=…`).
 - `GeneradorQrPng` (QRCoder): corrección Q, 20 px por módulo, zona de silencio de 4 módulos, PNG en `QR\yyyy\MM\{nombre}.png`. Tamaño impreso en el PDF A4: 3.5 × 3.5 cm.
 
@@ -583,7 +586,7 @@ Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la con
   "Ambiente": "Beta",                       // Beta | Produccion
   "ExoneradoAmazoniaPorDefecto": true,
   "IdFirma": "PasheSign",
-  "PerfilFirma": "Sha1",
+  "PerfilFirma": "Sha256",                 // Sha256 | Sha1
   "ModoEnvioBoletas": "ResumenDiario",      // ResumenDiario | Individual
   "Validacion": { "Modelo": true, "Esquema": true, "XslSunat": true, "ReglasComplementarias": true },
   "TimeoutConexionSegundos": 10,
@@ -602,7 +605,8 @@ Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la con
   "VigenciasCatalogos": [                   // reemplazan las vigencias de catalogos.json (p. ej. una nueva postergación)
     // { "Catalogo": "10", "Codigo": "13", "Desde": "2027-07-01" }
   ],
-  "MontoEnLetras": { "ConTildes": false }   // leyenda 1000 sin tildes (impresoras ESC/POS)
+  "MontoEnLetras": { "ConTildes": false },  // leyenda 1000 sin tildes (impresoras ESC/POS)
+  "Qr": { "CerosNumero": false, "SeparadorFinal": false }
 }
 ```
 
@@ -616,7 +620,7 @@ var r = await pashe.Cpe.EmitirAsync(emisor, factura, ct);   // pashe.Gre, pashe.
 // Dispose libera el proveedor de servicios y los HttpClient.
 ```
 
-`PasheCpe.Crear` valida las opciones de inmediato (`OptionsValidationException`). Cada servicio aparece en `PasheCpe` en la fase que lo implementa (Fase 1: `Historial`), sin stubs. Un endpoint con `"verificado": false` en `endpoints.json` (p. ej. `billConsultService`) se advierte en el log la primera vez que se usa.
+`PasheCpe.Crear` valida las opciones de inmediato (`OptionsValidationException`). Cada servicio aparece en `PasheCpe` en la fase que lo implementa (Fase 1: `Historial`; Fase 4: `Cpe`), sin stubs. Un endpoint con `"verificado": false` en `endpoints.json` (p. ej. `billConsultService`) se advierte en el log la primera vez que se usa.
 
 ## 24. Pruebas
 
