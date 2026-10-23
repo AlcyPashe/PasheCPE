@@ -6,6 +6,7 @@ internal sealed record ErrorSunat(
     string Descripcion,
     string Tipo,
     bool Transitorio,
+    bool EnProceso,
     IReadOnlyList<string> Condiciones,
     string? Listados);
 
@@ -61,10 +62,16 @@ internal static class LectorErrores
         }
 
         var transitorios = datos.Transitorios.Select(t => t.Codigo).ToHashSet(StringComparer.Ordinal);
-        var faltantes = transitorios.Where(t => !descripciones.ContainsKey(t)).ToList();
+        var enProceso = datos.EnProceso.Select(t => t.Codigo).ToHashSet(StringComparer.Ordinal);
+        var faltantes = transitorios.Concat(enProceso).Where(t => !descripciones.ContainsKey(t)).ToList();
         if (faltantes.Count > 0)
         {
-            throw new InvalidDataException($"Códigos transitorios curados que no existen en el Excel: {string.Join(", ", faltantes)}.");
+            throw new InvalidDataException($"Códigos transitorios o en proceso curados que no existen en el Excel: {string.Join(", ", faltantes)}.");
+        }
+
+        if (transitorios.Overlaps(enProceso))
+        {
+            throw new InvalidDataException("Un código no puede ser transitorio y en proceso a la vez.");
         }
 
         return [.. descripciones
@@ -74,6 +81,7 @@ internal static class LectorErrores
                 p.Value,
                 Tipo(p.Key),
                 transitorios.Contains(p.Key),
+                enProceso.Contains(p.Key),
                 condiciones.TryGetValue(p.Key, out var lista) ? lista : [],
                 listados.GetValueOrDefault(p.Key)))];
     }

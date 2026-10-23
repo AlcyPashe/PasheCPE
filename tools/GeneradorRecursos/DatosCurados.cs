@@ -10,6 +10,7 @@ internal sealed record DatosCurados(
     IReadOnlyList<VigenciaCurada> Vigencias,
     IReadOnlyList<FormatoCurado> Formatos,
     IReadOnlyList<TransitorioCurado> Transitorios,
+    IReadOnlyList<TransitorioCurado> EnProceso,
     IReadOnlyList<ClaseConstantes> Clases,
     UnidadesCuradas Unidades)
 {
@@ -21,10 +22,12 @@ internal sealed record DatosCurados(
     public static DatosCurados Cargar(string raiz, string? nombresConstantes = null)
     {
         var carpeta = Path.Combine(raiz, Carpeta);
+        var transitorios = Leer<ArchivoTransitorios>(Path.Combine(carpeta, "errores-transitorios.json"));
         return new DatosCurados(
             Leer<ArchivoVigencias>(Path.Combine(carpeta, "vigencias-catalogos.json")).Vigencias,
             Leer<ArchivoFormatos>(Path.Combine(carpeta, "formatos-catalogos.json")).Formatos,
-            Leer<ArchivoTransitorios>(Path.Combine(carpeta, "errores-transitorios.json")).Transitorios,
+            transitorios.Transitorios,
+            transitorios.EnProceso ?? [],
             (nombresConstantes is null
                 ? Leer<ArchivoNombresConstantes>(Path.Combine(raiz, ArchivoNombres))
                 : Deserializar<ArchivoNombresConstantes>(nombresConstantes, "nombres de constantes")).Clases,
@@ -40,7 +43,14 @@ internal sealed record DatosCurados(
 
     private sealed record ArchivoFormatos(IReadOnlyList<FormatoCurado> Formatos);
 
-    private sealed record ArchivoTransitorios(IReadOnlyList<TransitorioCurado> Transitorios);
+    /// <summary>
+    /// Transitorios (falla interna de SUNAT: se puede reintentar), en proceso (0140: se consulta el CDR, nunca se
+    /// reenvía) y los revisados que no son transitorios (solo documentación).
+    /// </summary>
+    private sealed record ArchivoTransitorios(
+        IReadOnlyList<TransitorioCurado> Transitorios,
+        IReadOnlyList<TransitorioCurado>? EnProceso,
+        IReadOnlyList<TransitorioCurado>? NoTransitoriosRevisados);
 }
 
 /// <summary>Vigencia de un código (o de todo el catálogo si <see cref="Codigo"/> es null).</summary>

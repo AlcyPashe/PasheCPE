@@ -45,7 +45,7 @@ internal static class Generador
         {
             $"Excel: {archivoExcel} (SHA-256 {fuente.Sha256})",
             $"Catálogos: {catalogos.Count} (códigos: {catalogos.Sum(c => c.Items.Count)}; solo formato: {catalogos.Count(c => c.Formato is not null)}; con vigencia: {catalogos.Sum(c => c.Items.Count(i => i.Desde is not null || i.Hasta is not null)) + catalogos.Count(c => c.Desde is not null || c.Hasta is not null)})",
-            $"CódigosRetorno + General: {errores.Count} códigos (servicio: {errores.Count(e => e.Tipo == "servicio")}; rechazo: {errores.Count(e => e.Tipo == "rechazo")}; observación: {errores.Count(e => e.Tipo == "observacion")}; transitorios: {errores.Count(e => e.Transitorio)}; repetidos ignorados: {erroresDuplicados})",
+            $"CódigosRetorno + General: {errores.Count} códigos (servicio: {errores.Count(e => e.Tipo == "servicio")}; rechazo: {errores.Count(e => e.Tipo == "rechazo")}; observación: {errores.Count(e => e.Tipo == "observacion")}; transitorios: {errores.Count(e => e.Transitorio)}; en proceso: {errores.Count(e => e.EnProceso)}; repetidos ignorados: {erroresDuplicados})",
         };
 
         var reglasPorDocumento = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -165,6 +165,10 @@ internal static class Generador
             json.WriteString("descripcion", error.Descripcion);
             json.WriteString("tipo", error.Tipo);
             json.WriteBoolean("transitorio", error.Transitorio);
+            if (error.EnProceso)
+            {
+                json.WriteBoolean("enProceso", true);
+            }
             if (error.Condiciones.Count > 0)
             {
                 Lista(json, "condiciones", error.Condiciones);

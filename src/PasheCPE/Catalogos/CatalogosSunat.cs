@@ -1,16 +1,18 @@
 using System.Collections.Frozen;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Options;
 
 namespace PasheCPE.Catalogos;
 
 /// <summary>
 /// Catálogos del Anexo N.° 8 (<c>catalogos.json</c>, generado del Excel de SUNAT). Un código es válido si existe
 /// y está vigente a la fecha de emisión; los catálogos que SUNAT solo publica como enlace se validan por formato.
+/// Las vigencias de <see cref="OpcionesPasheCpe.VigenciasCatalogos"/> reemplazan a las del Excel.
 /// </summary>
-internal sealed class CatalogosSunat(CatalogoErrores errores)
+internal sealed class CatalogosSunat(CatalogoErrores errores, IOptions<OpcionesPasheCpe> opciones)
 {
-    private readonly Lazy<FrozenDictionary<string, CatalogoCargado>> _catalogos = new(Cargar);
+    private readonly Lazy<FrozenDictionary<string, CatalogoCargado>> _catalogos = new(() => Cargar(opciones.Value.VigenciasCatalogos));
 
     public bool Existe(string catalogo, string codigo) => Obtener(catalogo).Items.ContainsKey(codigo);
 
@@ -69,16 +71,40 @@ internal sealed class CatalogosSunat(CatalogoErrores errores)
         _catalogos.Value.GetValueOrDefault(catalogo)
         ?? throw new ArgumentException($"No existe el catálogo N.° {catalogo} en catalogos.json.", nameof(catalogo));
 
-    private static FrozenDictionary<string, CatalogoCargado> Cargar() =>
-        RecursosEmbebidos.Leer("catalogos.json", DatosJson.Default.ArchivoCatalogos).Catalogos
-            .ToFrozenDictionary(
-                p => p.Key,
-                p => new CatalogoCargado(
-                    p.Value,
-                    p.Value.Formato is null ? null : new Regex(p.Value.Formato, RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1)),
-                    p.Value.Items.GroupBy(i => i.Codigo, StringComparer.Ordinal)
-                        .ToFrozenDictionary(g => g.Key, g => g.ToArray(), StringComparer.Ordinal)),
-                StringComparer.Ordinal);
+    private static FrozenDictionary<string, CatalogoCargado> Cargar(IList<VigenciaCatalogo> vigencias)
+    {
+        var catalogos = RecursosEmbebidos.Leer("catalogos.json", DatosJson.Default.ArchivoCatalogos).Catalogos
+            .ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        foreach (var vigencia in vigencias)
+        {
+            var datos = catalogos.GetValueOrDefault(vigencia.Catalogo)
+                ?? throw new InvalidOperationException($"PasheCPE:VigenciasCatalogos: no existe el catálogo N.° {vigencia.Catalogo}.");
+            if (vigencia.Codigo is null)
+            {
+                catalogos[vigencia.Catalogo] = datos with { Desde = vigencia.Desde, Hasta = vigencia.Hasta };
+                continue;
+            }
+
+            if (!datos.Items.Any(i => i.Codigo == vigencia.Codigo))
+            {
+                throw new InvalidOperationException($"PasheCPE:VigenciasCatalogos: no existe el código {vigencia.Codigo} en el catálogo N.° {vigencia.Catalogo}.");
+            }
+
+            catalogos[vigencia.Catalogo] = datos with
+            {
+                Items = [.. datos.Items.Select(i => i.Codigo == vigencia.Codigo ? i with { Desde = vigencia.Desde, Hasta = vigencia.Hasta } : i)],
+            };
+        }
+
+        return catalogos.ToFrozenDictionary(
+            p => p.Key,
+            p => new CatalogoCargado(
+                p.Value,
+                p.Value.Formato is null ? null : new Regex(p.Value.Formato, RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1)),
+                p.Value.Items.GroupBy(i => i.Codigo, StringComparer.Ordinal)
+                    .ToFrozenDictionary(g => g.Key, g => g.ToArray(), StringComparer.Ordinal)),
+            StringComparer.Ordinal);
+    }
 
     private sealed record CatalogoCargado(DatosCatalogo Datos, Regex? Formato, FrozenDictionary<string, ItemCatalogo[]> Items);
 }

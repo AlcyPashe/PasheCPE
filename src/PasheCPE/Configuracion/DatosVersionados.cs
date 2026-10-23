@@ -40,6 +40,26 @@ public sealed class TramoIcbper : TramoVigencia
     public decimal MontoPorUnidad { get; set; }
 }
 
+/// <summary>
+/// Vigencia que reemplaza la de <c>catalogos.json</c> (por ejemplo, si SUNAT posterga un código). Sin
+/// <see cref="Codigo"/> se aplica al catálogo completo. Los valores informados reemplazan a los embebidos; null = sin
+/// límite.
+/// </summary>
+public sealed class VigenciaCatalogo
+{
+    /// <summary>Número del catálogo (01, 10, 25.1…).</summary>
+    public string Catalogo { get; set; } = string.Empty;
+
+    /// <summary>Código del catálogo; null = todo el catálogo.</summary>
+    public string? Codigo { get; set; }
+
+    /// <summary>Primer día de vigencia; null = desde siempre.</summary>
+    public DateOnly? Desde { get; set; }
+
+    /// <summary>Último día de vigencia; null = sin fin.</summary>
+    public DateOnly? Hasta { get; set; }
+}
+
 /// <summary>Plazo máximo de envío a SUNAT, en días calendario contados desde el día siguiente.</summary>
 public sealed class PlazoEnvio
 {

@@ -119,9 +119,17 @@ public sealed class GeneradorTests(EjecucionesGenerador ejecuciones) : IClassFix
             .Select(e => e.GetProperty("codigo").GetString())
             .ToList();
 
-        Assert.Equal(20, transitorios.Count);
+        Assert.Equal(18, transitorios.Count);
         Assert.Contains("0100", transitorios);
         Assert.DoesNotContain("0111", transitorios);
+        // 0250 y 0252 apuntan al ZIP enviado (reenviarlo no lo arregla); 0140 es «en proceso», no transitorio.
+        Assert.DoesNotContain("0250", transitorios);
+        Assert.DoesNotContain("0252", transitorios);
+        Assert.DoesNotContain("0140", transitorios);
+        var enProceso = json.RootElement.GetProperty("errores").EnumerateArray()
+            .Where(e => e.TryGetProperty("enProceso", out var valor) && valor.GetBoolean())
+            .Select(e => e.GetProperty("codigo").GetString());
+        Assert.Equal(["0140"], enProceso);
     }
 
     [Fact]

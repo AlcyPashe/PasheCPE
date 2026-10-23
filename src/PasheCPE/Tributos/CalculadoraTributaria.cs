@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using PasheCPE.Catalogos;
 using PasheCPE.Tiempo;
 
@@ -18,7 +19,13 @@ namespace PasheCPE.Tributos;
 /// anticipos; el importe a pagar resta el total de anticipos.
 /// </para>
 /// </summary>
-internal sealed class CalculadoraTributaria(ReglasRegimen reglas, TablaTasas tasas, CatalogosSunat catalogos, CatalogoErrores errores, RelojCpe reloj)
+internal sealed class CalculadoraTributaria(
+    ReglasRegimen reglas,
+    TablaTasas tasas,
+    CatalogosSunat catalogos,
+    CatalogoErrores errores,
+    RelojCpe reloj,
+    IOptions<OpcionesPasheCpe> opciones)
 {
     private const string _columnaTributo = "Codigo de tributo";
 
@@ -248,7 +255,7 @@ internal sealed class CalculadoraTributaria(ReglasRegimen reglas, TablaTasas tas
     {
         var leyendas = new List<LeyendaCpe>
         {
-            new() { Codigo = CodigoLeyenda.MontoEnLetras, Texto = NumeroALetras.Convertir(importeTotal, comprobante.Moneda) },
+            new() { Codigo = CodigoLeyenda.MontoEnLetras, Texto = NumeroALetras.Convertir(importeTotal, comprobante.Moneda, opciones.Value.MontoEnLetras.ConTildes) },
         };
 
         void Agregar(string codigo)

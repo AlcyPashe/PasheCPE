@@ -138,7 +138,7 @@ Notas del archivo:
 - **Datos curados** (`tools\GeneradorRecursos\Datos\`, cada entrada cita su fila de `Control de Cambios`): lo que el Excel solo describe en texto libre.
   - `vigencias-catalogos.json`: desde/hasta de códigos o catálogos completos (Cat. 01 código 25, Cat. 10 código 13, Cat. 11 códigos 05–09, Cat. 25.1–25.3 retirados).
   - `formatos-catalogos.json`: expresión regular de los catálogos publicados solo como enlace (02, 03, 04, 13, 25).
-  - `errores-transitorios.json`: faults que indican una falla temporal (`transitorio = true`).
+  - `errores-transitorios.json` (revisado con el desarrollador el 22/10/2026): `transitorios` (18 faults que describen una falla interna de SUNAT → `transitorio = true`), `enProceso` (0140 → `enProceso = true`) y `noTransitoriosRevisados` (0250, 0252: apuntan al ZIP enviado; solo documentación). Un código nuevo se detecta con el historial `LOG` y se agrega aquí.
   - `nombres-constantes.json`: nombre de cada constante de `CodigosSunat.g.cs`. Los códigos nuevos reciben un nombre derivado de la descripción, que queda fijo aunque SUNAT cambie el texto (así no se rompe el contrato público).
   - `unidades-medida.json`: unidades de medida de uso habitual (NIU, ZZ, KGM, LTR, MTR, BX, GLL…) → clase `UnidadMedida` (catálogo N.° 03, que el Excel publica solo como enlace). Cada código debe cumplir el formato del catálogo; cualquier otro código con ese formato se sigue aceptando.
 - Las fechas de `Control de Cambios` llegan como serial de Excel o texto; si una celda trae dos fechas (vigencia postergada) vale la última.
@@ -150,7 +150,8 @@ Notas del archivo:
 |---|---|
 | `tasas.json` | IGV/IPM, tasa especial MYPE restaurantes/hoteles, ICBPER, con `desde`/`hasta` |
 | `plazos.json` | Plazos de envío por tipo de documento |
-| `errores-sunat.json` | Código → descripción oficial, tipo (`servicio`, `rechazo`, `observacion`) y `transitorio` (bool) — generado del Excel (§3.2) |
+| `catalogos.json` | Catálogos con vigencia por código — generado del Excel (§3.2). Las vigencias se sobrescriben con `PasheCPE:VigenciasCatalogos` (catálogo, código opcional, desde, hasta), por si SUNAT vuelve a postergar un código |
+| `errores-sunat.json` | Código → descripción oficial, tipo (`servicio`, `rechazo`, `observacion`), `transitorio` y `enProceso` (bool) — generado del Excel (§3.2) |
 | `reglas-cpe.json` | Matriz de reglas por documento con tag UBL, tipo, código y vigencia — generado del Excel (§3.2) |
 | `endpoints.json` | Endpoints por canal y ambiente |
 | `parametros.json` | Parámetros legales que no son tasas ni plazos: importe de la boleta sin identificar al cliente (S/ 700), inicio del contrato de colaboración empresarial (01/01/2027) |
@@ -268,7 +269,9 @@ public sealed record ResultadoEnvio
 | Sin interfaz de red / sin Internet | `SinConexionInternet` | sí | no |
 | DNS o TCP del destino falla con Internet disponible | `ServicioNoDisponible` | sí | no |
 | HTTP 502/503/504, timeout de **conexión**, error TLS | `ServicioNoDisponible` | sí | no |
-| Fault con código `transitorio = true` (p. ej. "El sistema no puede responder su solicitud") | `ServicioNoDisponible` | sí | según operación |
+| Fault con código `transitorio = true` (falla interna de SUNAT, p. ej. 0100 "El sistema no puede responder su solicitud") | se reintenta **como máximo 3 veces** con espera progresiva; si persiste, `ServicioNoDisponible` con `EsReintentable = true` y decide el sistema de ventas (nunca reintentos infinitos) | sí | según operación |
+| Fault con código `enProceso = true` (0140 "Existe un documento igual en proceso") | `EnProceso` con `RequiereConsultaEstado = true`: **nunca se reenvía**; se consulta el CDR después de una espera | — | **sí** |
+| Fault que apunta al archivo enviado (0250 error al descomprimir, 0252 ZIP sin archivos…) | `ErrorServicio`: reenviar el mismo archivo no lo arregla | no | no |
 | Fault 0100–1999 no transitorio (credenciales, perfil, nombre/estructura de archivo) | `ErrorServicio` | no | no |
 | Fault 1033 (registrado previamente) | — | — | **sí** → `getStatusCdr` y se devuelve el estado real |
 | Timeout de **lectura** tras enviar, conexión cortada a mitad | `RespuestaIncierta` | no (reconciliar) | **sí** |
@@ -355,7 +358,7 @@ Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → seri
 - Default por emisor: `ExoneradoAmazonia` → 20 y leyenda Cat.52 (2001 bienes, 2002 servicios, 2003 construcción, según `LineaCpe.TipoItem`); si no → 10. `TasaEspecialRestaurantesHoteles` → la afectación 10 usa la tasa MYPE vigente en la fecha de emisión.
 - `NRUS`: solo tipos 03, 07/08 de boletas y GRE; factura → error local.
 - ICBPER: tributo 7152 (ICBPER/OTH), monto = bolsas × tarifa vigente; no integra la base del IGV.
-- Leyenda 1000 (monto en letras) con `NumeroALetras` propio ("CIENTO VEINTE CON 50/100 SOLES").
+- Leyenda 1000 (monto en letras) con `NumeroALetras` propio ("CIENTO VEINTE CON 50/100 SOLES"), **sin tildes por defecto** (DIECISEIS, VEINTIDOS, MILLON, DOLARES AMERICANOS) porque los tickets se imprimen en impresoras térmicas ESC/POS; `MontoEnLetras.ConTildes = true` las conserva (PDF u otros usos). «UNO»/«VEINTIUNO» al final de la cifra y «UN»/«VEINTIUN» delante de MIL o MILLON(ES). Importe cero: «CERO CON 00/100 SOLES»; si todo es gratuito va además la leyenda 1002.
 - Cuadre obligatorio antes de serializar: suma de líneas = `LineExtensionAmount`; `TaxInclusiveAmount`; descuentos/cargos/anticipos; `PayableAmount`.
 - Forma de pago: `cac:PaymentTerms` `FormaPago` Contado, o Crédito + monto pendiente + `Cuota001…` con monto y vencimiento; detracción con `PaymentMeans` (cuenta Banco de la Nación) y `PaymentTerms` (código Cat.54, porcentaje, monto).
 
@@ -487,6 +490,8 @@ No usa ping (ICMP suele estar bloqueado). Se puede desactivar por opción.
 - Respuestas parseadas con `XmlReader` (sin cargar DOM completo): `applicationResponse` (Base64 ZIP), `ticket`, `status/statusCode/content`, `statusCdr/statusCode/statusMessage/content`.
 - `LectorFaultSoap`: `faultcode`/`faultstring`/`detail`; código = sufijo numérico del `faultcode` (`soap-env:Client.0111` → `0111`) o, si no, el número del `faultstring`; se enriquece con `errores-sunat.json`.
 - Timeouts separados: conexión (`TimeoutConexionSegundos`, 10) y respuesta (`TimeoutRespuestaSegundos`, 60). Resiliencia (reintentos con espera exponencial) **solo** para `getStatus`, `getStatusCdr` y token GRE.
+- Faults transitorios (§5.1): como máximo 3 reintentos con espera progresiva por operación; luego `ServicioNoDisponible` con `EsReintentable = true`. Nunca reintentos infinitos. En `sendBill`, el reintento debe respetar la regla de no reenviar automáticamente (principio 4): **[verificar con el desarrollador en la Fase 5]** si cada reintento va precedido de `getStatusCdr` o si los transitorios de `sendBill` solo se informan sin reintentar.
+- 0140 (`enProceso`): nunca se reenvía; `EnProceso` con `RequiereConsultaEstado = true` y consulta del CDR después de una espera.
 - Bloqueo por documento dentro del proceso (`SemaphoreSlim` por nombre de archivo) para impedir envíos simultáneos del mismo comprobante.
 
 Endpoints por defecto (`endpoints.json`, sobrescribibles por emisor/canal):
@@ -579,7 +584,11 @@ Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la con
     { "Canal": "OSE:efact", "Ambiente": "Produccion", "Servicio": "Comprobantes", "Url": "https://…/billService" }
   ],
   "Tasas": { "Igv": [], "MypeRestaurantesHoteles": [], "Icbper": [] },  // cada lista informada reemplaza a la de tasas.json
-  "Plazos": []                              // si se informa, reemplaza plazos.json
+  "Plazos": [],                             // si se informa, reemplaza plazos.json
+  "VigenciasCatalogos": [                   // reemplazan las vigencias de catalogos.json (p. ej. una nueva postergación)
+    // { "Catalogo": "10", "Codigo": "13", "Desde": "2027-07-01" }
+  ],
+  "MontoEnLetras": { "ConTildes": false }   // leyenda 1000 sin tildes (impresoras ESC/POS)
 }
 ```
 

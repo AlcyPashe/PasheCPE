@@ -22,6 +22,19 @@ public sealed class CatalogoErroresTests
         Assert.True(_errores.Buscar("0100")?.Transitorio);
 
     [Fact]
+    public void Buscar_DocumentoIgualEnProceso_EsEnProcesoYNoTransitorio()
+    {
+        var error = _errores.Buscar("0140")!;
+
+        Assert.True(error.EnProceso);
+        Assert.False(error.Transitorio);
+    }
+
+    [Fact]
+    public void Buscar_ErrorAlDescomprimirElZip_NoEsTransitorio() =>
+        Assert.False(_errores.Buscar("0250")?.Transitorio);
+
+    [Fact]
     public void Buscar_CodigoSinCeros_LoCompleta() =>
         Assert.Equal("0111", _errores.Buscar("111")?.Codigo);
 

@@ -59,6 +59,22 @@ public sealed class OpcionesPasheCpe
 
     /// <summary>Plazos que reemplazan los de <c>plazos.json</c>; si se informa, reemplaza la lista completa.</summary>
     public IList<PlazoEnvio> Plazos { get; } = [];
+
+    /// <summary>Vigencias de catálogos o códigos que reemplazan las de <c>catalogos.json</c>.</summary>
+    public IList<VigenciaCatalogo> VigenciasCatalogos { get; } = [];
+
+    /// <summary>Monto en letras de la leyenda 1000.</summary>
+    public OpcionesMontoEnLetras MontoEnLetras { get; set; } = new();
+}
+
+/// <summary>Monto en letras de la leyenda 1000 (DIECISEIS CON 00/100 SOLES).</summary>
+public sealed class OpcionesMontoEnLetras
+{
+    /// <summary>
+    /// Con tildes (DIECISÉIS, MILLÓN, DÓLARES). Por defecto sin tildes: las impresoras térmicas ESC/POS suelen
+    /// imprimirlas mal.
+    /// </summary>
+    public bool ConTildes { get; set; }
 }
 
 /// <summary>Capas de validación local (PRD RF-07).</summary>

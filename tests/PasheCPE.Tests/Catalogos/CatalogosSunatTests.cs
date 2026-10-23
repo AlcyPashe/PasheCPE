@@ -1,11 +1,35 @@
 using System.Reflection;
+using Microsoft.Extensions.Options;
 using PasheCPE.Catalogos;
 
 namespace PasheCPE.Tests.Catalogos;
 
 public sealed class CatalogosSunatTests
 {
-    private readonly CatalogosSunat _catalogos = new(new CatalogoErrores());
+    private readonly CatalogosSunat _catalogos = new(new CatalogoErrores(), Options.Create(new OpcionesPasheCpe()));
+
+    [Fact]
+    public void Validar_VigenciaSobrescritaPorConfiguracion_ReemplazaLaDelExcel()
+    {
+        // Si SUNAT vuelve a postergar el código 13 del catálogo N.° 10, se corrige por configuración.
+        var opciones = new OpcionesPasheCpe();
+        opciones.VigenciasCatalogos.Add(new VigenciaCatalogo { Catalogo = MotivoNotaDebito.NumeroCatalogo, Codigo = MotivoNotaDebito.Penalidades, Desde = new DateOnly(2027, 7, 1) });
+        var catalogos = new CatalogosSunat(new CatalogoErrores(), Options.Create(opciones));
+
+        Assert.NotNull(catalogos.Validar(MotivoNotaDebito.NumeroCatalogo, MotivoNotaDebito.Penalidades, new DateOnly(2027, 1, 15)));
+        Assert.Null(catalogos.Validar(MotivoNotaDebito.NumeroCatalogo, MotivoNotaDebito.Penalidades, new DateOnly(2027, 7, 1)));
+    }
+
+    [Fact]
+    public void Validar_VigenciaDeCodigoInexistente_FallaConMensajeClaro()
+    {
+        var opciones = new OpcionesPasheCpe();
+        opciones.VigenciasCatalogos.Add(new VigenciaCatalogo { Catalogo = "10", Codigo = "99" });
+        var catalogos = new CatalogosSunat(new CatalogoErrores(), Options.Create(opciones));
+
+        var error = Assert.Throws<InvalidOperationException>(() => catalogos.Existe("10", "01"));
+        Assert.Contains("código 99", error.Message, StringComparison.Ordinal);
+    }
 
     [Fact]
     public void Validar_CodigoVigente_NoDevuelveError() =>

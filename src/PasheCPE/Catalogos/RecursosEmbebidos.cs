@@ -54,12 +54,17 @@ internal sealed record ItemCatalogo(
 
 internal sealed record ArchivoErrores(IReadOnlyList<DatosError> Errores);
 
-/// <summary>Código de retorno de SUNAT: tipo «servicio» (fault), «rechazo» u «observacion».</summary>
+/// <summary>
+/// Código de retorno de SUNAT: tipo «servicio» (fault), «rechazo» u «observacion». <c>Transitorio</c>: falla interna de
+/// SUNAT que se puede reintentar (máximo 3 veces); <c>EnProceso</c>: el documento ya está en proceso (0140), se consulta
+/// el CDR y nunca se reenvía.
+/// </summary>
 internal sealed record DatosError(
     string Codigo,
     string Descripcion,
     string Tipo,
     bool Transitorio,
+    bool EnProceso,
     IReadOnlyList<string>? Condiciones,
     string? Listados);
 

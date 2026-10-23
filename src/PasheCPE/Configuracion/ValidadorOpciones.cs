@@ -72,6 +72,11 @@ internal sealed class ValidadorOpciones : IValidateOptions<OpcionesPasheCpe>
             errores.Add($"PasheCPE:Tasas:Igv: en el tramo desde {tramo.Desde:yyyy-MM-dd} IGV + IPM debe ser igual a la tasa.");
         }
 
+        foreach (var vigencia in options.VigenciasCatalogos.Where(v => string.IsNullOrWhiteSpace(v.Catalogo) || v.Desde > v.Hasta))
+        {
+            errores.Add($"PasheCPE:VigenciasCatalogos: la vigencia del catálogo '{vigencia.Catalogo}' (código '{vigencia.Codigo}') debe indicar el catálogo y tener Desde ≤ Hasta.");
+        }
+
         foreach (var plazo in options.Plazos.Where(p => string.IsNullOrWhiteSpace(p.Documento) || p.Dias <= 0))
         {
             errores.Add($"PasheCPE:Plazos: el plazo de '{plazo.Documento}' debe indicar el documento y días mayores que cero.");

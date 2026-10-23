@@ -10,6 +10,7 @@ Cómo absorber cambios de SUNAT sin tocar los sistemas de ventas.
 | Plazo de envío | `plazos.json` | parche |
 | Nueva versión del Excel de reglas (códigos, catálogos, reglas) | `recursos/VALIDACIONES` → `dotnet run --project tools/GeneradorRecursos` → revisar diff de `errores-sunat.json`, `catalogos.json`, `reglas-cpe.json`, `CodigosSunat.g.cs` y `nombres-constantes.json` (constantes nuevas o retiradas) | parche o menor (mayor si se retira una constante) |
 | Vigencia de un código de catálogo o nuevo fault transitorio | `tools/GeneradorRecursos/Datos/vigencias-catalogos.json` o `errores-transitorios.json` (citar la fila de `Control de Cambios`) → ejecutar el generador | parche |
+| Postergación urgente de un código (sin esperar una versión) | `PasheCPE:VigenciasCatalogos` en el appsettings del sistema de ventas; luego llevarla a `vigencias-catalogos.json` en la siguiente versión | ninguna (configuración) |
 | Endpoint | `endpoints.json` | parche |
 | Regla de validación | `recursos/XSL` (si SUNAT publica, ver §2.1) o una `IReglaCpe` en `Validacion/Reglas` + su clasificación en `ajustes-xsl.json` | menor |
 | Unidad de medida de uso habitual | `tools/GeneradorRecursos/Datos/unidades-medida.json` → ejecutar el generador | menor (constante nueva) |
@@ -47,5 +48,11 @@ Cuando SUNAT publique XSL nuevas (o un Excel de reglas nuevo), **revisar complet
 | 01/04/2027 | Designaciones DAE/DAEE (fuera de alcance) | Ninguna |
 | 01/01/2028 | IPM 3.5 %; fin de la tasa especial MYPE (salvo prórroga) | Revisar prórroga |
 | 01/01/2029 | IPM 4 % / IGV 14 % | Ya en `tasas.json` |
+
+## 4. Pendientes normativos
+
+| Tema | Situación | Acción |
+|---|---|---|
+| Catálogo N.° 54: códigos 038, 042, 043, 046 y 047 | Agregados en «Control de Cambios», fila 561 (Excel del 24/07/2026), **sin fecha de vigencia**. Se aceptan como vigentes sin fecha: la detracción la decide el sistema de ventas y SUNAT también los acepta | Cuando se identifique la resolución que los incorpora, agregar la fecha en `vigencias-catalogos.json` (o en `PasheCPE:VigenciasCatalogos`) |
 
 Revisar cada diciembre las leyes de prórroga (tasa MYPE, exoneraciones de la Amazonía) y cada trimestre las publicaciones del portal CPE.

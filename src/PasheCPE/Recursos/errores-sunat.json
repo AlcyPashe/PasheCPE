@@ -162,7 +162,8 @@
       "codigo": "0140",
       "descripcion": "Existe un Documento igual en Proceso.",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": false,
+      "enProceso": true
     },
     {
       "codigo": "0151",
@@ -293,7 +294,7 @@
       "codigo": "0250",
       "descripcion": "No se pudo procesar su solicitud. (Ocurrio un error desconocido al hacer unzip)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": false
     },
     {
       "codigo": "0251",

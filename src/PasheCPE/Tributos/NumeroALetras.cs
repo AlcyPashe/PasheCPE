@@ -7,6 +7,7 @@ namespace PasheCPE.Tributos;
 /// <summary>
 /// Monto en letras de la leyenda 1000: «CIENTO VEINTE CON 50/100 SOLES». Se escribe «UNO» al final de la cifra y
 /// «UN» delante de MIL y MILLÓN(ES) (VEINTIÚN MIL, UN MILLÓN). Los nombres de moneda vienen de <c>monedas.json</c>.
+/// Sin tildes salvo que se pida (VEINTIUN MIL, UN MILLON). Un importe cero es «CERO CON 00/100 SOLES».
 /// </summary>
 internal static class NumeroALetras
 {
@@ -28,8 +29,20 @@ internal static class NumeroALetras
     private static readonly string[] _centenas =
         ["", "CIENTO", "DOSCIENTOS", "TRESCIENTOS", "CUATROCIENTOS", "QUINIENTOS", "SEISCIENTOS", "SETECIENTOS", "OCHOCIENTOS", "NOVECIENTOS"];
 
-    /// <summary>Convierte un monto (redondeado a 2 decimales) a letras con el nombre de la moneda ISO 4217.</summary>
-    public static string Convertir(decimal monto, string moneda)
+    /// <summary>
+    /// Convierte un monto (redondeado a 2 decimales) a letras con el nombre de la moneda ISO 4217. Por defecto sin
+    /// tildes (DIECISEIS, MILLON, DOLARES), para las impresoras térmicas ESC/POS (<see cref="OpcionesMontoEnLetras"/>).
+    /// </summary>
+    public static string Convertir(decimal monto, string moneda, bool conTildes = false)
+    {
+        var texto = ConTildes(monto, moneda);
+        return conTildes ? texto : SinTildes(texto);
+    }
+
+    private static string SinTildes(string texto) =>
+        texto.Replace('Á', 'A').Replace('É', 'E').Replace('Í', 'I').Replace('Ó', 'O').Replace('Ú', 'U').Replace('Ü', 'U');
+
+    private static string ConTildes(decimal monto, string moneda)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(monto);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(monto, _maximo);

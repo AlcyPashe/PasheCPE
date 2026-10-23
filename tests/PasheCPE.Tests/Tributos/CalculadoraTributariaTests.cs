@@ -117,6 +117,21 @@ public sealed class CalculadoraTributariaTests : IDisposable
 
         Assert.Equal((AfectacionIgv.ExoneradoGratuito, 39.20m, 0m), (calculo.Lineas[0].Afectacion, calculo.Lineas[0].ValorVenta, calculo.Lineas[0].Igv));
         Assert.Equal(0m, calculo.ImporteTotal);
+        // Todo gratuito: la leyenda 1000 dice CERO y además va la 1002 de transferencia gratuita.
+        Assert.Equal("CERO CON 00/100 SOLES", calculo.Leyendas.Single(l => l.Codigo == CodigoLeyenda.MontoEnLetras).Texto);
+        Assert.Contains(calculo.Leyendas, l => l.Codigo == CodigoLeyenda.TransferenciaGratuita);
+    }
+
+    [Theory]
+    [InlineData(false, "DIECISEIS CON 00/100 SOLES")]
+    [InlineData(true, "DIECISÉIS CON 00/100 SOLES")]
+    public void MontoEnLetras_SinTildesPorDefectoYConTildesPorOpcion(bool conTildes, string esperado)
+    {
+        using var servicios = new ServiciosPrueba(o => o.MontoEnLetras.ConTildes = conTildes);
+
+        var calculo = servicios.Obtener<CalculadoraTributaria>().Calcular(Ejemplos.Emisor(), Comprobante(Linea(1, 16m)));
+
+        Assert.Equal(esperado, calculo.Leyendas.Single(l => l.Codigo == CodigoLeyenda.MontoEnLetras).Texto);
     }
 
     [Theory]
