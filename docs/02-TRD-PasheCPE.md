@@ -156,6 +156,8 @@ Notas del archivo:
 | `endpoints.json` | Endpoints por canal y ambiente |
 | `parametros.json` | Parámetros legales que no son tasas ni plazos: importe de la boleta sin identificar al cliente (S/ 700), inicio del contrato de colaboración empresarial (01/01/2027) |
 | `monedas.json`, `errores-locales.json` | Nombres de moneda para el monto en letras; mensajes de la validación local (`PCPE-xxxx`) |
+| `estados-consulta-cdr.json` | Estados de `getStatusCdr` (`statusCode` 0001–0012) y su significado (aceptado, rechazado, de baja, no existe, error) **[verificar]** contra el manual de consulta |
+| `mensajes-usuario.json` | `MensajeUsuario` para el cajero: por estado y, con prioridad, por código (1033, 0140, 0102–0104, 0111, `PCPE-4xxx`…) |
 | `ajustes-xsl.json` | Ajustes entre las XSL (06/09/2022) y el Excel vigente: códigos de la XSL que se suprimen y la regla C# que los reemplaza, y la clasificación de cada fila de 01/03 posterior a la XSL (§9.4). No se sobrescribe por configuración |
 | `xsl-compatibilidad.json` | Variables que las XSL usan sin declarar y su valor de respaldo (§9.3). No se sobrescribe por configuración |
 | `xsl-utils\` | `validate_utils.xsl`, `error_utils.xsl` y `dat_fechas.xml` propios, que reemplazan a los de DataPower (§9.3) |
@@ -273,7 +275,8 @@ public sealed record ResultadoEnvio
 | Fault con código `enProceso = true` (0140 "Existe un documento igual en proceso") | `EnProceso` con `RequiereConsultaEstado = true`: **nunca se reenvía**; se consulta el CDR después de una espera | — | **sí** |
 | Fault que apunta al archivo enviado (0250 error al descomprimir, 0252 ZIP sin archivos…) | `ErrorServicio`: reenviar el mismo archivo no lo arregla | no | no |
 | Fault 0100–1999 no transitorio (credenciales, perfil, nombre/estructura de archivo) | `ErrorServicio` | no | no |
-| Fault 1033 (registrado previamente) | — | — | **sí** → `getStatusCdr` y se devuelve el estado real |
+| Fault 2000–3999 (SUNAT devuelve así los rechazos de `sendBill`, sin CDR) | `Rechazado` con el código en `Errores` | no | no |
+| Fault 1033 (registrado previamente) | — | — | **sí** → `getStatusCdr` y se devuelve el estado real; donde no se puede consultar (beta, boletas, series B): `ErrorServicio` con `RequiereConsultaEstado` («verifique en SOL») |
 | Timeout de **lectura** tras enviar, conexión cortada a mitad | `RespuestaIncierta` | no (reconciliar) | **sí** |
 | HTTP 401 GRE | renovar token una vez; si persiste `ErrorServicio` | — | — |
 | HTTP 422 GRE (`errors[]`) | `ErrorServicio` con la lista | no | no |
@@ -333,7 +336,7 @@ public interface IPrecalentador { Task PrecalentarAsync(CancellationToken ct = d
 
 Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → serializar (DATA) → validar XSD + XSL + reglas complementarias → firmar (FIRMA, valor resumen) → ZIP (ENVIO) → QR (QR) → verificar conectividad → enviar → clasificar → CDR (RPTA) → historial (LOG) → resultado**. Cada etapa persiste su archivo y el resultado devuelve todas las rutas. `EnviarAsync` parte de ENVIO\ y nunca regenera.
 
-`IServicioCpe` crece por fases (decidido con el desarrollador el 23/10/2026): en la Fase 4 solo tiene `GenerarAsync(emisor, ComprobanteCpe)` y `ValidarAsync`; los demás métodos se agregan en la fase que los implementa (5–8), sin stubs. `GenerarAsync` no regenera un documento cuyo historial tenga un estado distinto de `Generado` o `ErrorValidacionLocal` (`PCPE-3101`): cambiaría el valor resumen de lo enviado a SUNAT.
+`IServicioCpe` crece por fases (decidido con el desarrollador el 23/10/2026): en la Fase 4 solo tiene `GenerarAsync(emisor, ComprobanteCpe)` y `ValidarAsync`; la Fase 5 agrega `EnviarAsync`, `EmitirAsync(emisor, ComprobanteCpe)` y `ConsultarCdrAsync`; los demás métodos se agregan en la fase que los implementa (6–8), sin stubs. `GenerarAsync` no regenera un documento cuyo historial tenga un estado distinto de `Generado` o `ErrorValidacionLocal` (`PCPE-3101`): cambiaría el valor resumen de lo enviado a SUNAT.
 
 ## 7. Cálculo tributario
 
@@ -487,7 +490,7 @@ No usa ping (ICMP suele estar bloqueado). Se puede desactivar por opción.
 
 ## 14. Transporte SOAP (SUNAT y OSE)
 
-- `HttpClient` nombrado por canal vía `IHttpClientFactory`; SOAP 1.1, `Content-Type: text/xml; charset=utf-8`, `SOAPAction: ""` **[verificar por canal]**.
+- `HttpClient` nombrado vía `IHttpClientFactory` (`SocketsHttpHandler` con `ConnectCallback`: un timeout de la conexión significa que no se envió nada); SOAP 1.1, `Content-Type: text/xml; charset=utf-8`. `SOAPAction` es dato por endpoint (`soapAction` en `endpoints.json`, plantilla `urn:{operacion}` para SUNAT, decidido el 23/10/2026) **[verificar con el envío a beta]**; vacío → `SOAPAction: ""`.
 - Sobre construido con plantillas (raw string literals) y `wsse:UsernameToken` (`Username = RUC + usuario`, `Password` texto). Para OSE, usuario y clave los asigna el OSE.
 - Operaciones: `sendBill(fileName, contentFile)`, `sendSummary(fileName, contentFile)`, `getStatus(ticket)`, `getStatusCdr(rucComprobante, tipoComprobante, serieComprobante, numeroComprobante)`.
 - Respuestas parseadas con `XmlReader` (sin cargar DOM completo): `applicationResponse` (Base64 ZIP), `ticket`, `status/statusCode/content`, `statusCdr/statusCode/statusMessage/content`.
@@ -508,6 +511,9 @@ No usa ping (ICMP suele estar bloqueado). Se puede desactivar por opción.
   - Si fue `RespuestaIncierta` o un fault de *constancia o ticket* (o del resto de transitorios), primero se consulta con `getStatusCdr`. Si SUNAT ya lo tiene, se devuelve ese estado y no se reenvía.
   - Si fue un fault de *disponibilidad*, se reenvía directamente.
   - En el RC y la RA, que no tienen `getStatusCdr`, el ticket registrado se consulta con `getStatus` antes de reenviar.
+  - Donde `getStatusCdr` no existe (beta, boletas, series que no empiezan con F: códigos 0009/0010 de la consulta), se reenvía **el mismo ZIP** de ENVIO sin regenerarlo; si SUNAT ya lo tenía responde 1033 (decidido con el desarrollador el 23/10/2026).
+  - Los grupos *disponibilidad* y *constancia* son datos (`grupo` en `tools/GeneradorRecursos/Datos/errores-transitorios.json` → `grupoTransitorio` en `errores-sunat.json`).
+  - Una cancelación del llamador durante la llamada se registra como `RespuestaIncierta` (SUNAT pudo haber recibido el documento) y luego se propaga la cancelación.
 - 0140 (`enProceso`): nunca se reenvía; `EnProceso` con `RequiereConsultaEstado = true` y consulta del CDR después de una espera.
 - Bloqueo por documento dentro del proceso (`SemaphoreSlim` por nombre de archivo) para impedir envíos simultáneos del mismo comprobante.
 
@@ -527,7 +533,7 @@ Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la con
 
 ## 15. Lectura del CDR
 
-`LectorCdr` (con `XmlReader` y `XmlNamespaceManager`): guarda `R-{nombre}.zip` íntegro en `RPTA\yyyy\MM\`; extrae en memoria; lee `cbc:ResponseDate`, `cbc:ResponseTime`, `cac:DocumentResponse/cac:Response/cbc:ResponseCode`, `cbc:Description`, `cbc:ReferenceID`, todas las `cbc:Note` (formato `"4252 - texto"` → `ObservacionCpe{Codigo, Descripcion}`), `cac:DocumentReference/cbc:ID` y, en GRE, el enlace del QR. Valida opcionalmente la firma del CDR. El ZIP del CDR por SOAP trae además una entrada de carpeta `dummy/` (vista en los CDR reales): se ignoran las entradas que no son archivos XML.
+`LectorCdr` (con `XmlReader` y `XmlNamespaceManager`): guarda `R-{nombre}.zip` íntegro en `RPTA\yyyy\MM\`; extrae en memoria; lee `cbc:ResponseDate`, `cbc:ResponseTime`, `cac:DocumentResponse/cac:Response/cbc:ResponseCode`, `cbc:Description`, `cbc:ReferenceID`, todas las `cbc:Note` (formato `"4252 - texto"` → `ObservacionCpe{Codigo, Descripcion}`), `cac:DocumentReference/cbc:ID` y, en GRE, el enlace del QR. Valida la firma del CDR solo si `VerificarFirmaCdr = true` (si no es válida, observación `PCPE-4009`). SUNAT agrega dentro de `Signature` elementos fuera del estándar (`Proposito`, `Revocacion`, `TSL`, `Expiracion`) que no están firmados: se retiran antes de verificar. Los CDR SOAP dorados verifican; en los de la GRE (API REST) el `SignedInfo` verifica pero el digest del documento no coincide (revisar en la Fase 10). El ZIP del CDR por SOAP trae además una entrada de carpeta `dummy/` (vista en los CDR reales): se ignoran las entradas que no son archivos XML.
 
 ## 16. Tickets
 
@@ -594,6 +600,7 @@ Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la con
   "Conectividad": { "Verificar": true, "HostControl": "www.gob.pe", "CacheSegundos": 15 },
   "Tickets": { "EsperasSegundos": [2, 4, 8, 15, 30] },
   "Gre": { "PermitirEnvioConAmbienteBeta": false },
+  "VerificarFirmaCdr": false,               // verifica la firma de SUNAT en cada CDR
   "AvisoVencimientoCertificadoDias": 30,
   "PrecalentarAlIniciar": true,
   "GenerarPdfAutomaticamente": false,

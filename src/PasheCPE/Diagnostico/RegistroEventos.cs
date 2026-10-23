@@ -24,4 +24,28 @@ internal static partial class RegistroEventos
     [LoggerMessage(EventId = 1401, Level = LogLevel.Information,
         Message = "Documento {Nombre} generado y firmado (valor resumen {ValorResumen}).")]
     public static partial void DocumentoGenerado(ILogger registro, string nombre, string valorResumen);
+
+    [LoggerMessage(EventId = 1501, Level = LogLevel.Debug,
+        Message = "SOAP {Operacion} → {Endpoint}: {Sobre}")]
+    public static partial void SobreSoapEnviado(ILogger registro, string operacion, string endpoint, SobreEnmascarado sobre);
+
+    [LoggerMessage(EventId = 1502, Level = LogLevel.Debug,
+        Message = "SOAP {Operacion} ← HTTP {Http}: {Sobre}")]
+    public static partial void SobreSoapRecibido(ILogger registro, string operacion, int http, SobreEnmascarado sobre);
+
+    [LoggerMessage(EventId = 1503, Level = LogLevel.Warning,
+        Message = "Falla de red en {Operacion} ({Endpoint}): {Falla}. {Detalle}")]
+    public static partial void FallaRedSoap(ILogger registro, string operacion, string endpoint, Transporte.Soap.FallaRed falla, string detalle);
+
+    [LoggerMessage(EventId = 1504, Level = LogLevel.Information,
+        Message = "{Operacion} de {Nombre}: {Estado} {Codigo} {Descripcion}")]
+    public static partial void EnvioResultado(ILogger registro, string operacion, string nombre, EstadoCpe estado, string? codigo, string? descripcion);
+
+    [LoggerMessage(EventId = 1505, Level = LogLevel.Error,
+        Message = "{Operacion} de {Nombre}: {Estado} {Codigo} {Descripcion}")]
+    public static partial void EnvioFallido(ILogger registro, string operacion, string nombre, EstadoCpe estado, string? codigo, string? descripcion);
+
+    [LoggerMessage(EventId = 1506, Level = LogLevel.Warning,
+        Message = "Reintento {Intento} de {Operacion} de {Nombre} tras {Estado} {Codigo}.")]
+    public static partial void Reintento(ILogger registro, int intento, string operacion, string nombre, EstadoCpe estado, string? codigo);
 }

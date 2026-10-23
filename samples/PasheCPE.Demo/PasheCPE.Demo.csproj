@@ -1,15 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Envíos reales a beta/producción: solo los ejecuta el desarrollador, manualmente. Credenciales en user-secrets (Fase 5). -->
+  <!-- Envíos reales a beta/producción: solo los ejecuta el desarrollador, manualmente. Credenciales en user-secrets. -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <!-- Sin .exe propio: dotnet run lo ejecuta con dotnet.exe (firmado por Microsoft), así el antivirus no lo bloquea. -->
     <UseAppHost>false</UseAppHost>
+    <UserSecretsId>pashecpe-demo-7d3f2c1a-5b8e-4f60-9a41-2e6c0b9d8f17</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PasheCPE\PasheCPE.csproj" />
     <ProjectReference Include="..\..\src\PasheCPE.Pdf\PasheCPE.Pdf.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

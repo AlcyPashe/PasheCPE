@@ -30,6 +30,14 @@
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
   </ItemGroup>
 
+  <!-- Solo samples\PasheCPE.Demo (Microsoft): configuración con user-secrets y log en consola. No entran en el paquete. -->
+  <ItemGroup Label="Demo (no se distribuye)">
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.13" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.13" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.13" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.13" />
+  </ItemGroup>
+
   <ItemGroup Label="Herramientas (no se distribuyen)">
     <PackageVersion Include="DocumentFormat.OpenXml" Version="3.5.1" />
   </ItemGroup>

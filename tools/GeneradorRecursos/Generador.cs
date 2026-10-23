@@ -169,6 +169,8 @@ internal static class Generador
             {
                 json.WriteBoolean("enProceso", true);
             }
+
+            Escritura.TextoOpcional(json, "grupoTransitorio", error.GrupoTransitorio);
             if (error.Condiciones.Count > 0)
             {
                 Lista(json, "condiciones", error.Condiciones);

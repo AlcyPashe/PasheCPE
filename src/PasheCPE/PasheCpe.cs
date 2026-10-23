@@ -27,6 +27,7 @@ public sealed class PasheCpe : IDisposable, IAsyncDisposable
         _proveedor = proveedor;
         Cpe = proveedor.GetRequiredService<IServicioCpe>();
         Historial = proveedor.GetRequiredService<IHistorialCpe>();
+        Conectividad = proveedor.GetRequiredService<IVerificadorConectividad>();
     }
 
     /// <summary>Comprobantes de pago: factura y boleta.</summary>
@@ -34,6 +35,9 @@ public sealed class PasheCpe : IDisposable, IAsyncDisposable
 
     /// <summary>Historial de envíos.</summary>
     public IHistorialCpe Historial { get; }
+
+    /// <summary>Verificación de conectividad con SUNAT u OSE.</summary>
+    public IVerificadorConectividad Conectividad { get; }
 
     /// <summary>
     /// Crea la instancia. Las opciones se validan de inmediato (<see cref="OptionsValidationException"/> si no son

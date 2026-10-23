@@ -105,6 +105,12 @@ public sealed class EndpointCpe
 
     /// <summary>false si aún no se confirmó con un envío real (se advierte en el log la primera vez que se usa).</summary>
     public bool Verificado { get; set; } = true;
+
+    /// <summary>
+    /// Cabecera SOAPAction de los servicios SOAP; «{operacion}» se reemplaza por la operación (sendBill, getStatusCdr…).
+    /// Vacía o null: <c>SOAPAction: ""</c>.
+    /// </summary>
+    public string? SoapAction { get; set; }
 }
 
 /// <summary>Servicio de SUNAT u OSE.</summary>

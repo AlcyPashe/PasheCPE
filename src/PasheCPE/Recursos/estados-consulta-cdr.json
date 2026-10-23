@@ -1,0 +1,17 @@
+{
+  "fuente": "Manual del servicio de consulta de CDR de SUNAT (billConsultService: getStatusCdr). [verificar] contra el manual vigente y un envío real en producción.",
+  "estados": [
+    { "codigo": "0001", "descripcion": "El comprobante existe y está aceptado.", "resultado": "Aceptado" },
+    { "codigo": "0002", "descripcion": "El comprobante existe pero está rechazado.", "resultado": "Rechazado" },
+    { "codigo": "0003", "descripcion": "El comprobante existe pero está de baja.", "resultado": "Baja" },
+    { "codigo": "0004", "descripcion": "Formato de RUC no es válido.", "resultado": "Error" },
+    { "codigo": "0005", "descripcion": "Formato del tipo de comprobante no es válido.", "resultado": "Error" },
+    { "codigo": "0006", "descripcion": "Formato de serie inválido.", "resultado": "Error" },
+    { "codigo": "0007", "descripcion": "El numero de comprobante debe ser mayor que cero.", "resultado": "Error" },
+    { "codigo": "0008", "descripcion": "El número de RUC no está inscrito en los registros de la SUNAT.", "resultado": "Error" },
+    { "codigo": "0009", "descripcion": "EL tipo de comprobante debe ser (01, 07 o 08).", "resultado": "Error" },
+    { "codigo": "0010", "descripcion": "Sólo puede consultar facturas, notas de crédito y débito electrónicas, cuyo número de serie inicia con F.", "resultado": "Error" },
+    { "codigo": "0011", "descripcion": "El comprobante de pago electrónico no existe.", "resultado": "NoExiste" },
+    { "codigo": "0012", "descripcion": "El comprobante de pago electrónico no le pertenece.", "resultado": "Error" }
+  ]
+}

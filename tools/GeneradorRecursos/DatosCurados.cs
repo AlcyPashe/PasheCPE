@@ -59,8 +59,11 @@ internal sealed record VigenciaCurada(string Catalogo, string? Codigo, DateOnly?
 /// <summary>Catálogo que el Excel publica solo como enlace: se valida por formato.</summary>
 internal sealed record FormatoCurado(string Catalogo, string Formato, string Fuente);
 
-/// <summary>Código de error de servicio que indica una falla temporal (se puede reintentar).</summary>
-internal sealed record TransitorioCurado(string Codigo, string Motivo);
+/// <summary>
+/// Código de error de servicio que indica una falla temporal (se puede reintentar). <see cref="Grupo"/> (solo los
+/// transitorios): «disponibilidad» si SUNAT no recibió el documento, «constancia» si pudo haberlo registrado.
+/// </summary>
+internal sealed record TransitorioCurado(string Codigo, string Motivo, string? Grupo = null);
 
 /// <summary>Archivo de nombres estables de las constantes generadas.</summary>
 internal sealed record ArchivoNombresConstantes(IReadOnlyList<ClaseConstantes> Clases);

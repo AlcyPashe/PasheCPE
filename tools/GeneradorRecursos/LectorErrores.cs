@@ -7,6 +7,7 @@ internal sealed record ErrorSunat(
     string Tipo,
     bool Transitorio,
     bool EnProceso,
+    string? GrupoTransitorio,
     IReadOnlyList<string> Condiciones,
     string? Listados);
 
@@ -61,7 +62,14 @@ internal static class LectorErrores
             }
         }
 
-        var transitorios = datos.Transitorios.Select(t => t.Codigo).ToHashSet(StringComparer.Ordinal);
+        var grupos = datos.Transitorios.ToDictionary(t => t.Codigo, t => t.Grupo, StringComparer.Ordinal);
+        var sinGrupo = datos.Transitorios.Where(t => t.Grupo is not ("disponibilidad" or "constancia")).Select(t => t.Codigo).ToList();
+        if (sinGrupo.Count > 0)
+        {
+            throw new InvalidDataException($"Códigos transitorios sin grupo «disponibilidad» o «constancia»: {string.Join(", ", sinGrupo)}.");
+        }
+
+        var transitorios = grupos.Keys.ToHashSet(StringComparer.Ordinal);
         var enProceso = datos.EnProceso.Select(t => t.Codigo).ToHashSet(StringComparer.Ordinal);
         var faltantes = transitorios.Concat(enProceso).Where(t => !descripciones.ContainsKey(t)).ToList();
         if (faltantes.Count > 0)
@@ -82,6 +90,7 @@ internal static class LectorErrores
                 Tipo(p.Key),
                 transitorios.Contains(p.Key),
                 enProceso.Contains(p.Key),
+                grupos.GetValueOrDefault(p.Key),
                 condiciones.TryGetValue(p.Key, out var lista) ? lista : [],
                 listados.GetValueOrDefault(p.Key)))];
     }

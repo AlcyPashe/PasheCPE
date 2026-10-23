@@ -33,6 +33,8 @@ internal static class RecursosEmbebidos
 [JsonSerializable(typeof(ArchivoCompatibilidadXsl))]
 [JsonSerializable(typeof(ArchivoReglasCpe))]
 [JsonSerializable(typeof(ArchivoAjustesXsl))]
+[JsonSerializable(typeof(ArchivoEstadosConsultaCdr))]
+[JsonSerializable(typeof(ArchivoMensajesUsuario))]
 internal sealed partial class DatosJson : JsonSerializerContext;
 
 internal sealed record ArchivoCatalogos(IReadOnlyDictionary<string, DatosCatalogo> Catalogos);
@@ -57,7 +59,8 @@ internal sealed record ArchivoErrores(IReadOnlyList<DatosError> Errores);
 /// <summary>
 /// Código de retorno de SUNAT: tipo «servicio» (fault), «rechazo» u «observacion». <c>Transitorio</c>: falla interna de
 /// SUNAT que se puede reintentar (máximo 3 veces); <c>EnProceso</c>: el documento ya está en proceso (0140), se consulta
-/// el CDR y nunca se reenvía.
+/// el CDR y nunca se reenvía. <c>GrupoTransitorio</c> (solo transitorios): «disponibilidad» si SUNAT no recibió el
+/// documento (se reenvía directamente) o «constancia» si pudo haberlo registrado (antes se consulta su estado).
 /// </summary>
 internal sealed record DatosError(
     string Codigo,
@@ -65,8 +68,36 @@ internal sealed record DatosError(
     string Tipo,
     bool Transitorio,
     bool EnProceso,
+    string? GrupoTransitorio,
     IReadOnlyList<string>? Condiciones,
     string? Listados);
+
+internal sealed record ArchivoEstadosConsultaCdr(IReadOnlyList<EstadoConsultaCdr> Estados);
+
+/// <summary>Estado que devuelve <c>getStatusCdr</c> (<c>statusCode</c>) y lo que significa para el comprobante.</summary>
+internal sealed record EstadoConsultaCdr(string Codigo, string Descripcion, ResultadoConsultaCdr Resultado);
+
+/// <summary>Significado de un estado de la consulta del CDR.</summary>
+internal enum ResultadoConsultaCdr
+{
+    /// <summary>Existe y está aceptado.</summary>
+    Aceptado,
+
+    /// <summary>Existe y está rechazado.</summary>
+    Rechazado,
+
+    /// <summary>Existe y está dado de baja.</summary>
+    Baja,
+
+    /// <summary>SUNAT no lo tiene: se puede enviar.</summary>
+    NoExiste,
+
+    /// <summary>La consulta no es válida (formato, tipo de documento, pertenencia).</summary>
+    Error,
+}
+
+/// <summary>Mensajes para el cajero: por estado y, con prioridad, por código.</summary>
+internal sealed record ArchivoMensajesUsuario(IReadOnlyDictionary<string, string> Estados, IReadOnlyDictionary<string, string> Codigos);
 
 internal sealed record ArchivoErroresLocales(IReadOnlyList<DatosErrorLocal> Errores);
 

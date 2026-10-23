@@ -1,0 +1,28 @@
+{
+  "estados": {
+    "Generado": "El comprobante está generado y firmado; aún no se envió a SUNAT.",
+    "ErrorValidacionLocal": "El comprobante tiene errores y no se envió. Corrija los datos indicados y vuelva a generarlo.",
+    "SinConexionInternet": "No hay conexión a Internet. El comprobante quedó guardado y se puede enviar cuando vuelva la conexión.",
+    "ServicioNoDisponible": "SUNAT no está disponible en este momento. El comprobante quedó guardado; vuelva a enviarlo más tarde.",
+    "ErrorServicio": "SUNAT no recibió el comprobante por un problema de configuración o del archivo. Avise al área de sistemas.",
+    "RespuestaIncierta": "Se envió el comprobante, pero SUNAT no respondió. No lo vuelva a emitir: el sistema consultará su estado.",
+    "EnProceso": "SUNAT está procesando el comprobante. Consulte su estado en unos minutos.",
+    "Aceptado": "Comprobante aceptado por SUNAT.",
+    "AceptadoConObservaciones": "Comprobante aceptado por SUNAT con observaciones; revíselas para los siguientes comprobantes.",
+    "Rechazado": "SUNAT rechazó el comprobante. Emita uno nuevo con otro número y los datos corregidos."
+  },
+  "codigos": {
+    "0102": "El usuario o la clave SOL son incorrectos. Avise al área de sistemas.",
+    "0103": "El usuario SOL no existe. Avise al área de sistemas.",
+    "0104": "La clave SOL es incorrecta. Avise al área de sistemas.",
+    "0111": "El usuario SOL no tiene el perfil para enviar comprobantes electrónicos. Avise al área de sistemas.",
+    "0140": "SUNAT ya está procesando un comprobante igual. No lo reenvíe: consulte su estado en unos minutos.",
+    "0154": "El RUC del comprobante no corresponde al usuario SOL. Avise al área de sistemas.",
+    "1032": "El comprobante ya figura en SUNAT como anulado o rechazado.",
+    "1033": "SUNAT ya tiene registrado este comprobante. Verifique su estado en SUNAT Operaciones en Línea antes de emitir otro.",
+    "PCPE-4001": "El comprobante no está generado. Genérelo antes de enviarlo.",
+    "PCPE-4002": "Las boletas se informan en el resumen diario; no se envían una por una.",
+    "PCPE-4005": "SUNAT no permite consultar el estado de este comprobante por este medio. Verifíquelo en SUNAT Operaciones en Línea.",
+    "PCPE-4006": "Venció el plazo para enviar el comprobante a SUNAT."
+  }
+}

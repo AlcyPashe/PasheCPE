@@ -55,6 +55,16 @@
     { "codigo": "PCPE-3005", "descripcion": "El certificado '{0}' vence el {1} (en {2} días). Renuévelo antes de esa fecha." },
     { "codigo": "PCPE-3006", "descripcion": "No se pudo firmar el XML: {0}" },
     { "codigo": "PCPE-3007", "descripcion": "La firma del XML no se pudo verificar con el certificado '{0}'." },
-    { "codigo": "PCPE-3101", "descripcion": "El documento {0} ya tiene el estado {1} en el historial: no se regenera, porque cambiaría el valor resumen de lo enviado a SUNAT. Envíe o consulte el archivo ya generado; para corregirlo, emita otro número." }
+    { "codigo": "PCPE-3101", "descripcion": "El documento {0} ya tiene el estado {1} en el historial: no se regenera, porque cambiaría el valor resumen de lo enviado a SUNAT. Envíe o consulte el archivo ya generado; para corregirlo, emita otro número." },
+    { "codigo": "PCPE-4001", "descripcion": "No existe el ZIP de envío {0}: genere el documento antes de enviarlo." },
+    { "codigo": "PCPE-4002", "descripcion": "La boleta o nota {0} se informa en el resumen diario (ModoEnvioBoletas = ResumenDiario); no se envía con sendBill." },
+    { "codigo": "PCPE-4003", "descripcion": "El emisor no tiene credenciales SOAP (usuario y clave) para el canal {0}." },
+    { "codigo": "PCPE-4004", "descripcion": "No hay endpoint {0} para el canal {1} en {2}. Configúrelo en PasheCPE:Endpoints." },
+    { "codigo": "PCPE-4005", "descripcion": "La consulta del CDR (getStatusCdr) no está disponible {0}." },
+    { "codigo": "PCPE-4006", "descripcion": "El plazo para enviar {0} a SUNAT venció el {1}." },
+    { "codigo": "PCPE-4007", "descripcion": "La referencia {0} no es un comprobante que se envíe con sendBill (01, 03, 07 u 08)." },
+    { "codigo": "PCPE-4008", "descripcion": "El estado de la consulta del CDR {0} no está en estados-consulta-cdr.json: {1}" },
+    { "codigo": "PCPE-4009", "descripcion": "La firma de SUNAT en el CDR {0} no es válida." },
+    { "codigo": "PCPE-4010", "descripcion": "La respuesta de SUNAT a {0} no se pudo leer (HTTP {1}): {2}" }
   ]
 }

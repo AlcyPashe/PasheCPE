@@ -5,6 +5,7 @@
       "ambiente": "Beta",
       "servicio": "Comprobantes",
       "url": "https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService",
+      "soapAction": "urn:{operacion}",
       "verificado": true
     },
     {
@@ -12,6 +13,7 @@
       "ambiente": "Produccion",
       "servicio": "Comprobantes",
       "url": "https://e-factura.sunat.gob.pe/ol-ti-itcpfegem/billService",
+      "soapAction": "urn:{operacion}",
       "verificado": true
     },
     {
@@ -19,6 +21,7 @@
       "ambiente": "Produccion",
       "servicio": "ConsultaCdr",
       "url": "https://e-factura.sunat.gob.pe/ol-it-wsconscpegem/billConsultService",
+      "soapAction": "urn:{operacion}",
       "verificado": false
     },
     {

@@ -2,12 +2,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
+using PasheCPE.Conectividad;
+using PasheCPE.Transporte.Soap;
 
 namespace PasheCPE.Tests.Utilidades;
 
 /// <summary>
 /// Proveedor de servicios de PasheCPE para pruebas: almacén temporal y reloj fijo (por defecto el 22/10/2026 a las
-/// 10:00 de Lima), para que los plazos de envío no dependan del día en que corren las pruebas.
+/// 10:00 de Lima), para que los plazos de envío no dependan del día en que corren las pruebas. SUNAT y la red son dobles
+/// (<see cref="Sunat"/>, <see cref="Red"/>) y los reintentos no esperan: ninguna prueba llega a la red.
 /// </summary>
 internal sealed class ServiciosPrueba : IDisposable
 {
@@ -20,6 +23,9 @@ internal sealed class ServiciosPrueba : IDisposable
         var servicios = new ServiceCollection();
         servicios.AddSingleton<TimeProvider>(Reloj);
         servicios.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+        servicios.AddSingleton(new FabricaManejadorHttp(() => Sunat));
+        servicios.AddSingleton<ISondaRed>(Red);
+        servicios.AddSingleton(new EsperasReintento([TimeSpan.Zero, TimeSpan.Zero, TimeSpan.Zero]));
         registrar?.Invoke(servicios);
         servicios.AddPasheCpe(o =>
         {
@@ -32,6 +38,10 @@ internal sealed class ServiciosPrueba : IDisposable
     public AlmacenTemporal Almacen { get; }
 
     public FakeTimeProvider Reloj { get; }
+
+    public SunatFalso Sunat { get; } = new();
+
+    public RedFalsa Red { get; } = new();
 
     public T Obtener<T>()
         where T : notnull => _proveedor.GetRequiredService<T>();

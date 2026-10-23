@@ -9,6 +9,7 @@
       "descripcion": "El sistema no puede responder su solicitud. Intente nuevamente o comuníquese con su Administrador",
       "tipo": "servicio",
       "transitorio": true,
+      "grupoTransitorio": "disponibilidad",
       "condiciones": [
         "Problema con el servicio de recepción de comprobantes"
       ]
@@ -54,6 +55,7 @@
       "descripcion": "El sistema no puede responder su solicitud. (El servicio de autenticación no está disponible)",
       "tipo": "servicio",
       "transitorio": true,
+      "grupoTransitorio": "disponibilidad",
       "condiciones": [
         "Problema con la autenticación del servicio (usuario y contraseña con los que se invoca el servicio)"
       ]
@@ -90,7 +92,8 @@
       "codigo": "0125",
       "descripcion": "No se pudo obtener la constancia",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0126",
@@ -108,55 +111,64 @@
       "codigo": "0130",
       "descripcion": "El sistema no puede responder su solicitud. (No se pudo obtener el ticket de proceso)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0131",
       "descripcion": "El sistema no puede responder su solicitud. (No se pudo grabar el archivo en el directorio)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0132",
       "descripcion": "El sistema no puede responder su solicitud. (No se pudo grabar escribir en el archivo zip)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0133",
       "descripcion": "El sistema no puede responder su solicitud. (No se pudo grabar la entrada del log)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0134",
       "descripcion": "El sistema no puede responder su solicitud. (No se pudo grabar en el storage)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0135",
       "descripcion": "El sistema no puede responder su solicitud. (No se pudo encolar el pedido)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0136",
       "descripcion": "El sistema no puede responder su solicitud. (No se pudo recibir una respuesta del batch)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0137",
       "descripcion": "El sistema no puede responder su solicitud. (Se obtuvo una respuesta nula)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0138",
       "descripcion": "El sistema no puede responder su solicitud. (Error en Base de Datos)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "disponibilidad"
     },
     {
       "codigo": "0140",
@@ -264,13 +276,15 @@
       "codigo": "0200",
       "descripcion": "No se pudo procesar su solicitud. (Ocurrio un error en el batch)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0201",
       "descripcion": "No se pudo procesar su solicitud. (Llego un requerimiento nulo al batch)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0202",
@@ -300,7 +314,8 @@
       "codigo": "0251",
       "descripcion": "No se pudo procesar su solicitud. (No se pudo crear un directorio para el unzip)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0252",
@@ -312,13 +327,15 @@
       "codigo": "0253",
       "descripcion": "No se pudo procesar su solicitud. (No se pudo comprimir la constancia)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0254",
       "descripcion": "No se pudo procesar su solicitud. (No se pudo enviar el mensaje)",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0300",
@@ -369,7 +386,8 @@
       "codigo": "0307",
       "descripcion": "No se pudo recuperar la constancia",
       "tipo": "servicio",
-      "transitorio": true
+      "transitorio": true,
+      "grupoTransitorio": "constancia"
     },
     {
       "codigo": "0400",

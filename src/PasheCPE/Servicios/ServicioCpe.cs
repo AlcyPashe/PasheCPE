@@ -15,10 +15,11 @@ namespace PasheCPE.Servicios;
 /// Fachada de comprobantes (<see cref="IServicioCpe"/>). Pipeline de generación (TRD §6): historial → XML validado en
 /// DATA (<see cref="GeneradorInvoice"/>) → certificado → firma (FIRMA) → ZIP (ENVIO) → QR → historial (LOG). Cada
 /// etapa persiste su archivo y el resultado devuelve todas las rutas; con un error se detiene sin escribir las
-/// siguientes.
+/// siguientes. El envío y la consulta los hace <see cref="EnvioComprobantes"/>.
 /// </summary>
 internal sealed class ServicioCpe(
     GeneradorInvoice generador,
+    EnvioComprobantes envio,
     ProveedorCertificados certificados,
     FirmadorXml firmador,
     ConstructorContenidoQr qr,
@@ -26,6 +27,7 @@ internal sealed class ServicioCpe(
     RegistroHistorial historial,
     TablaPlazos plazos,
     CatalogoErrores errores,
+    CatalogoRespuestas respuestas,
     RelojCpe reloj,
     ILogger<ServicioCpe> registro) : IServicioCpe
 {
@@ -92,6 +94,42 @@ internal sealed class ServicioCpe(
         {
             ValorResumen = firmado.ValorResumen,
             ContenidoQr = contenidoQr,
+        };
+    }
+
+    public Task<ResultadoEnvio> EnviarAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default) =>
+        envio.EnviarAsync(emisor, referencia, ct);
+
+    public Task<ResultadoEnvio> ConsultarCdrAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default) =>
+        envio.ConsultarCdrAsync(emisor, referencia, ct);
+
+    public async Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default)
+    {
+        var generacion = await GenerarAsync(emisor, cpe, ct).ConfigureAwait(false);
+        if (!generacion.Exito)
+        {
+            return new ResultadoEmision
+            {
+                Generacion = generacion,
+                Envio = new ResultadoEnvio
+                {
+                    Estado = EstadoCpe.ErrorValidacionLocal,
+                    Codigo = generacion.Errores[0].Codigo,
+                    Descripcion = generacion.Errores[0].Descripcion,
+                    MensajeUsuario = respuestas.MensajeUsuario(EstadoCpe.ErrorValidacionLocal, null),
+                    Errores = generacion.Errores,
+                    Rutas = generacion.Rutas,
+                    FechaLimiteEnvio = generacion.FechaLimiteEnvio,
+                    FechaProceso = generacion.FechaProceso,
+                },
+            };
+        }
+
+        var enviado = await envio.EnviarAsync(emisor, generacion.Referencia, ct).ConfigureAwait(false);
+        return new ResultadoEmision
+        {
+            Generacion = generacion,
+            Envio = enviado with { ValorResumen = generacion.ValorResumen, ContenidoQr = generacion.ContenidoQr },
         };
     }
 

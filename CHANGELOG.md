@@ -5,6 +5,30 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 23/10/2026 — Fase 5 (envío SOAP, conectividad y control de respuestas de factura y boleta):
+  - `IServicioCpe.EnviarAsync`, `EmitirAsync` y `ConsultarCdrAsync`; `PasheCpe.Conectividad` (`IVerificadorConectividad`).
+  - `EnvioComprobantes`: parte del ZIP de ENVIO y nunca regenera.
+    - Un resultado definitivo del historial se devuelve sin llamar a SUNAT.
+    - Tras una respuesta incierta, un 0140, un fault de constancia o un 1033 consulta primero con `getStatusCdr`. Si no se puede consultar (beta, boletas, series B), reenvía el mismo ZIP.
+    - `sendBill` sin reintentos internos; `getStatusCdr` hasta 3 con espera progresiva.
+    - Bloqueo por documento y verificación de plazo.
+  - `VerificadorConectividad`: interfaz de red, DNS + TCP 443 al destino y host de control; caché de 15 s e invalidación ante fallas de red.
+  - Transporte SOAP:
+    - `ConstructorSobreSoap` (`wsse:UsernameToken`, valores escapados).
+    - `ClienteSoap` (`SocketsHttpHandler` con límite propio de conexión para distinguir «no se envió» de «sin respuesta»).
+    - `LectorRespuestaSoap` (`XmlReader`; código del fault desde `faultcode` o `faultstring`).
+  - `LectorCdr` (guarda `R-*.zip` en RPTA, ignora `dummy/`, notas, enlace QR de GRE, verificación opcional de la firma con `VerificarFirmaCdr`).
+  - `ClasificadorRespuesta`: única fuente de la tabla del TRD §5.1.
+  - Datos nuevos: `estados-consulta-cdr.json` (**[verificar]**) y `mensajes-usuario.json`; `soapAction` en `endpoints.json`; `grupoTransitorio` (disponibilidad/constancia) en `errores-sunat.json`, desde `errores-transitorios.json`. Errores locales `PCPE-4001`–`4010`.
+  - `Telemetria` (`ActivitySource`/`Meter` «PasheCPE») y `Enmascarador` (clave y Base64 en los logs `Debug` de sobres SOAP).
+  - `samples/PasheCPE.Demo`: emisión a beta con `appsettings.json` y user-secrets (las claves se piden enmascaradas si faltan). Casos: factura gravada y exonerada, boleta individual, rechazo forzado, clave SOL errónea, reenvío, consulta e historial. Confirmación escrita en producción. Paquetes Microsoft solo de la demo.
+  - Pruebas sin red, con un SUNAT falso (`HttpMessageHandler`) y una red falsa:
+    - aceptado, observado y rechazado por CDR y por fault 2xxx;
+    - faults 0111, 0100, 0109, 0125, 0140 y 1033 (beta y producción);
+    - HTTP 502, 503 y 504, timeout de conexión y de respuesta, conexión cortada, sin Internet;
+    - reconciliación con `getStatusCdr`, reintentos y envíos simultáneos;
+    - historial y logs sin credenciales;
+    - los CDR dorados reales.
 - 23/10/2026 — Fase 4 (firma, ZIP y QR):
   - `ProveedorCertificados`: carga el .pfx de `CERT` con `X509CertificateLoader` (`MachineKeySet | Exportable`), caché por ruta que se invalida si cambia la fecha del archivo o la clave (guardada solo como hash SHA-256 en memoria); errores `PCPE-3001` a `PCPE-3004` (inexistente, clave incorrecta, sin clave privada RSA, fuera de vigencia en hora de Lima) y advertencia `PCPE-3005` de vencimiento próximo (`AvisoVencimientoCertificadoDias`), también en el log.
   - `FirmadorXml`: XML-DSig enveloped con C14N, `Reference URI=""` y `KeyInfo/X509Data`, sin prefijo, en el `ext:ExtensionContent` vacío, con `Id` = `IdFirma`; verifica la firma antes de devolverla (`PCPE-3007`) y guarda en UTF-8 sin BOM sin reindentar. Valor resumen = `DigestValue`.
@@ -51,6 +75,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 - 22/10/2026 — Fase 0: repositorio git (`main`, remoto `origin`), solución `PasheCPE.slnx` con `src/PasheCPE`, `src/PasheCPE.Pdf`, `tests/PasheCPE.Tests`, `tests/PasheCPE.Pdf.Tests` y `samples/PasheCPE.Demo`; `Directory.Packages.props` (CPM) con las dependencias del TRD §1; `src/` y `tests/Directory.Build.props`; metadatos NuGet (licencia propietaria `LICENSE.txt`, README, Source Link del SDK, PDB embebido); pruebas de humo de los dos ensamblados; `tests/Datos/`.
 
 ### Cambiado
+- 23/10/2026 — TRD §5.1: un fault 2000–3999 de `sendBill` es `Rechazado`. §14: `SOAPAction` como dato y reenvío del mismo ZIP sin consulta posible. §15: firma del CDR; hallazgo: los CDR de la GRE (API REST) no verifican el digest con la canonicalización declarada (se revisa en la Fase 10).
 - 23/10/2026 — `PerfilFirma.Sha256` es el valor por defecto (antes `Sha1`): los comprobantes que SUNAT ya aceptó para el RUC piloto están firmados con RSA-SHA256/SHA-256. La firma va sin prefijo `ds:`. PRD RF-09 y TRD §10, §12 y §23 actualizados.
 - 22/10/2026 — Opción `Validacion.Reglas2027` renombrada a `Validacion.ReglasComplementarias` (como `OrigenError.ReglasComplementarias`): incluye reglas del Excel de 2022 a 2027 y cada regla aplica según su vigencia en `reglas-cpe.json`. TRD §9.4 y §23, guía de integración, README, descripción del paquete y CLAUDE.md actualizados.
 - 22/10/2026 — TRD §5.1 y §14: política de reintentos decidida (se quita el [verificar]). Plan de la Fase 5 actualizado.

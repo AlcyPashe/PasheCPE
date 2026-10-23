@@ -128,6 +128,11 @@
 
 **Aceptación (sin red):** pruebas con handler falso para aceptado, observado, rechazado, faults 0111/1033/0100, HTTP 503, timeout de conexión y de lectura, sin Internet. **(Manual, beta):** factura gravada y factura exonerada Amazonía aceptadas, boleta individual aceptada, un rechazo forzado y una clave errónea correctamente clasificados; historial JSON con todos los intentos.
 
+**Estado:** implementada el 23/10/2026 (591 pruebas en verde); **pendiente la prueba manual en beta** del desarrollador con `samples/PasheCPE.Demo` (RUC 20493400364, MODDATOS).
+- Decisiones con el desarrollador: sin `getStatusCdr` (beta, boletas, series B) se reenvía el mismo ZIP; `SOAPAction` = `urn:{operacion}` como dato en `endpoints.json`; emisor de la demo en `appsettings.json`.
+- Los rechazos de `sendBill` llegan como fault 2000–3999 → `Rechazado` (agregado al TRD §5.1).
+- Hallazgo: los CDR SOAP dorados verifican la firma de SUNAT; los de la GRE no (digest), se revisa en la Fase 10.
+
 ---
 
 ## Fase 6 — Resumen diario de boletas

@@ -42,6 +42,12 @@ public sealed class OpcionesPasheCpe
     /// <summary>Guías de remisión.</summary>
     public OpcionesGre Gre { get; set; } = new();
 
+    /// <summary>
+    /// Verifica la firma de SUNAT en cada CDR recibido; si no es válida, el resultado lo advierte (PCPE-4009). Por defecto no: el CDR
+    /// llega por HTTPS desde SUNAT y la verificación solo agrega tiempo.
+    /// </summary>
+    public bool VerificarFirmaCdr { get; set; }
+
     /// <summary>Días antes del vencimiento del certificado a partir de los cuales se advierte.</summary>
     public int AvisoVencimientoCertificadoDias { get; set; } = 30;
 

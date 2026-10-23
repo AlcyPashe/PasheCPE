@@ -4,12 +4,16 @@ using Microsoft.Extensions.Options;
 using PasheCPE;
 using PasheCPE.Almacenamiento;
 using PasheCPE.Catalogos;
+using PasheCPE.Conectividad;
 using PasheCPE.Configuracion;
 using PasheCPE.Firma;
 using PasheCPE.Mapeo;
 using PasheCPE.Qr;
+using PasheCPE.Respuestas;
 using PasheCPE.Servicios;
 using PasheCPE.Tiempo;
+using PasheCPE.Transporte;
+using PasheCPE.Transporte.Soap;
 using PasheCPE.Tributos;
 using PasheCPE.Validacion;
 using PasheCPE.Validacion.Reglas;
@@ -74,6 +78,20 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<ProveedorCertificados>();
         services.TryAddSingleton<FirmadorXml>();
         services.TryAddSingleton<ConstructorContenidoQr>();
+        services.TryAddSingleton<CatalogoRespuestas>();
+        services.TryAddSingleton<ISondaRed, SondaRed>();
+        services.TryAddSingleton<VerificadorConectividad>();
+        services.TryAddSingleton<IVerificadorConectividad>(sp => sp.GetRequiredService<VerificadorConectividad>());
+        services.TryAddSingleton(sp => FabricaManejadorHttp.Sockets(sp.GetRequiredService<IOptions<OpcionesPasheCpe>>()));
+        services.TryAddSingleton(EsperasReintento.PorDefecto);
+        services.AddHttpClient(ClienteSoap.NombreCliente, c => c.Timeout = Timeout.InfiniteTimeSpan)
+            .ConfigurePrimaryHttpMessageHandler(sp => sp.GetRequiredService<FabricaManejadorHttp>().Crear());
+        services.TryAddSingleton<ClienteSoap>();
+        services.TryAddSingleton<LectorRespuestaSoap>();
+        services.TryAddSingleton<LectorCdr>();
+        services.TryAddSingleton<ClasificadorRespuesta>();
+        services.TryAddSingleton<BloqueoDocumentos>();
+        services.TryAddSingleton<EnvioComprobantes>();
         services.TryAddSingleton<IServicioCpe, ServicioCpe>();
         return services;
     }

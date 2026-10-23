@@ -133,6 +133,21 @@ public sealed class GeneradorTests(EjecucionesGenerador ejecuciones) : IClassFix
     }
 
     [Fact]
+    public void ErroresSunat_TransitoriosConGrupoDeDisponibilidadOConstancia()
+    {
+        using var json = Json("src/PasheCPE/Recursos/errores-sunat.json");
+        var grupos = json.RootElement.GetProperty("errores").EnumerateArray()
+            .Where(e => e.GetProperty("transitorio").GetBoolean())
+            .ToDictionary(e => e.GetProperty("codigo").GetString()!, e => e.GetProperty("grupoTransitorio").GetString());
+
+        // TRD §14: disponibilidad (SUNAT no recibió el documento) frente a constancia (pudo haberlo registrado).
+        Assert.Equal(["0100", "0109", "0138"], grupos.Where(g => g.Value == "disponibilidad").Select(g => g.Key).Order(StringComparer.Ordinal));
+        Assert.All(grupos.Values, g => Assert.True(g is "disponibilidad" or "constancia", g));
+        Assert.Equal("constancia", grupos["0125"]);
+        Assert.DoesNotContain(json.RootElement.GetProperty("errores").EnumerateArray(), e => !e.GetProperty("transitorio").GetBoolean() && e.TryGetProperty("grupoTransitorio", out _));
+    }
+
+    [Fact]
     public void Constantes_UnidadesDeMedidaCuradas()
     {
         var codigo = Encoding.UTF8.GetString(ejecuciones.Primera.Archivos[Generador.ArchivoConstantes]);
