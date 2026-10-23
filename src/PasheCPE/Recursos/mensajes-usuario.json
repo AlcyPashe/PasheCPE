@@ -20,9 +20,12 @@
     "0154": "El RUC del comprobante no corresponde al usuario SOL. Avise al área de sistemas.",
     "1032": "El comprobante ya figura en SUNAT como anulado o rechazado.",
     "1033": "SUNAT ya tiene registrado este comprobante. Verifique su estado en SUNAT Operaciones en Línea antes de emitir otro.",
+    "0127": "SUNAT no encuentra el ticket del resumen. Verifique el resumen en SUNAT Operaciones en Línea antes de enviarlo otra vez.",
+    "98": "SUNAT está procesando el resumen. Consulte el ticket en unos minutos.",
     "PCPE-4001": "El comprobante no está generado. Genérelo antes de enviarlo.",
     "PCPE-4002": "Las boletas se informan en el resumen diario; no se envían una por una.",
     "PCPE-4005": "SUNAT no permite consultar el estado de este comprobante por este medio. Verifíquelo en SUNAT Operaciones en Línea.",
-    "PCPE-4006": "Venció el plazo para enviar el comprobante a SUNAT."
+    "PCPE-4006": "Venció el plazo para enviar el comprobante a SUNAT.",
+    "PCPE-4011": "El resumen aún no tiene ticket: envíelo antes de consultarlo."
   }
 }

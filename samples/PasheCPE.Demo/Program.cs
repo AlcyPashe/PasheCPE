@@ -40,6 +40,12 @@ opcionesSinValidacion.Validacion.XslSunat = false;
 opcionesSinValidacion.Validacion.ReglasComplementarias = false;
 using var pasheSinValidacion = PasheCpe.Crear(opcionesSinValidacion, registros);
 
+// Resumen diario: las boletas se generan sin enviarlas y se informan en el RC (ModoEnvioBoletas = ResumenDiario).
+var opcionesResumen = new OpcionesPasheCpe();
+configuracion.GetSection("PasheCPE").Bind(opcionesResumen);
+opcionesResumen.ModoEnvioBoletas = ModoEnvioBoletas.ResumenDiario;
+using var pasheResumen = PasheCpe.Crear(opcionesResumen, registros);
+
 EmisorCpe Emisor(bool amazonia, string clave, string? usuario = null) => new()
 {
     Ruc = datos.Emisor.Ruc,
@@ -86,6 +92,8 @@ while (true)
     Console.WriteLine("6. Reenviar o reconciliar un documento ya generado (EnviarAsync)");
     Console.WriteLine("7. Consultar el CDR (getStatusCdr, solo producción)");
     Console.WriteLine("8. Ver el historial de un documento");
+    Console.WriteLine("9. Resumen diario: 2 boletas (gravada y exonerada), RC desde FIRMA, envío y espera del ticket");
+    Console.WriteLine("10. Consultar el ticket de un resumen ya enviado (también desde otra ejecución)");
     Console.WriteLine("0. Salir");
     var opcion = Consola.Preguntar("Opción");
     try
@@ -116,6 +124,14 @@ while (true)
             case "8":
                 Consola.Imprimir(await pashe.Historial.ObtenerAsync(Consola.Referencia(datos.Emisor.Ruc)));
                 break;
+            case "9":
+                await ResumenDiario(pasheResumen, Emisor(amazonia: false, claveSol), Consola.Numero());
+                break;
+            case "10":
+                var resumen = Consola.ReferenciaResumen(datos.Emisor.Ruc);
+                Consola.Imprimir(await pasheResumen.Cpe.ConsultarTicketAsync(Emisor(amazonia: false, claveSol), resumen));
+                await ImprimirDocumentos(pasheResumen, resumen);
+                break;
             case "0":
                 return;
         }
@@ -123,6 +139,53 @@ while (true)
     catch (OperationCanceledException)
     {
         Console.WriteLine("Cancelado.");
+    }
+}
+
+// Genera dos boletas (sin enviarlas), arma el RC leyendo sus XML firmados, lo envía y espera el ticket.
+async Task ResumenDiario(PasheCpe instancia, EmisorCpe emisor, long numero)
+{
+    var hoy = DateOnly.FromDateTime(DateTime.Now);
+    var boletas = new[] { (numero, AfectacionIgv.GravadoOneroso), (numero + 1, AfectacionIgv.ExoneradoOneroso) };
+    foreach (var (n, afectacion) in boletas)
+    {
+        var generacion = await instancia.Cpe.GenerarAsync(emisor, Comprobante(TipoDocumentoSunat.BoletaDeVenta, datos.SerieBoleta, n, datos.ClienteBoleta, afectacion) with { FechaEmision = hoy });
+        Consola.Imprimir(generacion);
+        if (!generacion.Exito)
+        {
+            return;
+        }
+    }
+
+    var documentos = boletas.Select(b => new DocumentoResumenCpe { TipoDocumento = TipoDocumentoSunat.BoletaDeVenta, Serie = datos.SerieBoleta, Numero = b.Item1 }).ToList();
+    foreach (var resumen in await instancia.Cpe.GenerarResumenAsync(emisor, hoy, documentos))
+    {
+        Consola.Imprimir(resumen);
+        if (!resumen.Exito)
+        {
+            continue;
+        }
+
+        var envio = await instancia.Cpe.EnviarAsync(emisor, resumen.Referencia);
+        Consola.Imprimir(envio);
+        if (envio.Estado == EstadoCpe.EnProceso)
+        {
+            Console.WriteLine("  Esperando el ticket (2, 4, 8, 15 y 30 s)…");
+            Consola.Imprimir(await instancia.Cpe.EsperarTicketAsync(emisor, resumen.Referencia));
+        }
+
+        await ImprimirDocumentos(instancia, resumen.Referencia);
+    }
+}
+
+// Estado de cada documento informado en el resumen, según su propio historial.
+static async Task ImprimirDocumentos(PasheCpe instancia, ReferenciaCpe resumen)
+{
+    var historial = await instancia.Historial.ObtenerAsync(resumen);
+    foreach (var documento in historial?.Documentos ?? [])
+    {
+        var propio = await instancia.Historial.ObtenerAsync(documento.Referencia);
+        Console.WriteLine($"  {documento.Referencia.NombreArchivo} (estado del ítem {documento.Estado}): {propio?.EstadoActual.ToString() ?? "sin historial"}");
     }
 }
 
@@ -188,11 +251,23 @@ internal static class Consola
 
     public static ReferenciaCpe Referencia(string ruc)
     {
-        var tipo = Preguntar("Tipo (01 factura, 03 boleta)", "01");
+        var tipo = Preguntar("Tipo (01 factura, 03 boleta, RC resumen diario)", "01");
+        if (tipo == ReferenciaCpe.TipoResumenDiario)
+        {
+            return ReferenciaResumen(ruc);
+        }
+
         var serie = Preguntar("Serie", tipo == "03" ? "B001" : "F001");
         var numero = long.Parse(Preguntar("Número"), CultureInfo.InvariantCulture);
         var fecha = DateOnly.ParseExact(Preguntar("Fecha de emisión (yyyy-MM-dd)", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)), "yyyy-MM-dd", CultureInfo.InvariantCulture);
         return ReferenciaCpe.Comprobante(ruc, tipo, serie, numero, fecha);
+    }
+
+    public static ReferenciaCpe ReferenciaResumen(string ruc)
+    {
+        var fecha = DateOnly.ParseExact(Preguntar("Fecha de generación del resumen (yyyy-MM-dd)", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        var correlativo = int.Parse(Preguntar("Correlativo del día", "1"), CultureInfo.InvariantCulture);
+        return ReferenciaCpe.Resumen(ruc, fecha, correlativo);
     }
 
     public static void Imprimir(ResultadoGeneracion generacion)
@@ -212,7 +287,11 @@ internal static class Consola
         if (generacion.Exito)
         {
             Console.WriteLine($"  Valor resumen: {generacion.ValorResumen}");
-            Console.WriteLine($"  QR: {generacion.ContenidoQr}");
+            if (generacion.ContenidoQr is not null)
+            {
+                Console.WriteLine($"  QR: {generacion.ContenidoQr}");
+            }
+
             Console.WriteLine($"  Fecha límite de envío: {generacion.FechaLimiteEnvio:dd/MM/yyyy}");
         }
     }
@@ -228,6 +307,11 @@ internal static class Consola
         }
 
         Console.WriteLine($"  Mensaje para el cajero: {envio.MensajeUsuario}");
+        if (envio.Ticket is not null)
+        {
+            Console.WriteLine($"  Ticket: {envio.Ticket}");
+        }
+
         Console.WriteLine($"  Reintentable: {envio.EsReintentable} · Requiere consulta de estado: {envio.RequiereConsultaEstado}");
         foreach (var observacion in envio.Observaciones)
         {
@@ -258,8 +342,12 @@ internal static class Consola
             return;
         }
 
-        Console.WriteLine($"  Estado actual: {historial.EstadoActual}");
+        Console.WriteLine($"  Estado actual: {historial.EstadoActual}{(historial.Ticket is null ? string.Empty : $" · ticket {historial.Ticket}")}");
         Imprimir(historial.Intentos);
+        foreach (var documento in historial.Documentos ?? [])
+        {
+            Console.WriteLine($"    Informa {documento.Referencia.NombreArchivo} (estado del ítem {documento.Estado})");
+        }
     }
 
     private static void Imprimir(IReadOnlyList<IntentoEnvio> intentos)

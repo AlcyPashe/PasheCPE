@@ -14,6 +14,19 @@ public sealed record HistorialCpe
 
     /// <summary>Intentos en orden cronológico.</summary>
     public IReadOnlyList<IntentoEnvio> Intentos { get; init; } = [];
+
+    /// <summary>Documentos informados (solo en el resumen diario): su resultado se registra también en sus historiales.</summary>
+    public IReadOnlyList<DocumentoInformadoCpe>? Documentos { get; init; }
+}
+
+/// <summary>Documento informado en un resumen diario, con el estado del ítem (catálogo N.° 19).</summary>
+public sealed record DocumentoInformadoCpe
+{
+    /// <summary>Boleta o nota informada (su fecha es la de emisión).</summary>
+    public required ReferenciaCpe Referencia { get; init; }
+
+    /// <summary>Estado del ítem: 1 adicionar, 2 modificar, 3 anulado.</summary>
+    public required string Estado { get; init; }
 }
 
 /// <summary>Un intento de envío o consulta.</summary>

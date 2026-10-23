@@ -6,6 +6,8 @@ namespace PasheCPE.Transporte.Soap;
 internal static class OperacionSoap
 {
     public const string SendBill = "sendBill";
+    public const string SendSummary = "sendSummary";
+    public const string GetStatus = "getStatus";
     public const string GetStatusCdr = "getStatusCdr";
 }
 
@@ -24,6 +26,14 @@ internal static class ConstructorSobreSoap
 
     public static string SendBill(string usuario, string clave, string nombreZip, string zipBase64) => Sobre(usuario, clave, $"""
         <ser:sendBill><fileName>{E(nombreZip)}</fileName><contentFile>{zipBase64}</contentFile></ser:sendBill>
+        """);
+
+    public static string SendSummary(string usuario, string clave, string nombreZip, string zipBase64) => Sobre(usuario, clave, $"""
+        <ser:sendSummary><fileName>{E(nombreZip)}</fileName><contentFile>{zipBase64}</contentFile></ser:sendSummary>
+        """);
+
+    public static string GetStatus(string usuario, string clave, string ticket) => Sobre(usuario, clave, $"""
+        <ser:getStatus><ticket>{E(ticket)}</ticket></ser:getStatus>
         """);
 
     public static string GetStatusCdr(string usuario, string clave, ReferenciaCpe referencia)

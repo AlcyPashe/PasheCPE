@@ -5,6 +5,25 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 23/10/2026 — Fase 6 (resumen diario de boletas):
+  - `IServicioCpe.GenerarResumenAsync` con los totales de cada línea (`ResumenDiarioCpe`) o desde FIRMA (`DocumentoResumenCpe`: la línea se arma con el XML firmado de la boleta o nota); `ConsultarTicketAsync` y `EsperarTicketAsync` (ticket explícito o tomado del historial); `EnviarAsync` envía el RC con `sendSummary`.
+  - `SummaryDocuments` UBL 2.0 / 1.1 y `MapeadorSummary`:
+    - un `BillingPayment` por tipo de valor de venta (catálogo N.° 11, constantes `TipoValorVenta`);
+    - gratuitas en 05 o desagregadas en 06–09 según la vigencia del catálogo a la fecha de generación, con el IGV de gratuitas (9996) desde 2027;
+    - IGV siempre con su tasa (la del modelo, o la vigente a la fecha de emisión / MYPE); ISC, ICBPER y otros cargos solo si son mayores que cero;
+    - razón social del adquiriente y boleta modificada de las notas.
+  - Lotes de 500 líneas y correlativos del día (`AsignadorCorrelativos`, bajo un bloqueo por RUC y fecha); un lote con errores no se escribe ni impide los demás.
+  - `ValidadorResumen` (`PCPE-1301`–`1320`): tipo, serie, estado, fechas, repetidos (3094–3096), cliente sobre S/ 700, notas, importes y el historial de cada documento (2282, 2663). Fuera de plazo se genera con advertencia (`PCPE-1318`, observación 4443); la anulación fuera de plazo se bloquea (`PCPE-1313`, 2957).
+  - XSD UBL 2.0 en un segundo `XmlSchemaSet` (`UBLPE-SummaryDocuments-1.0.xsd`); los 2 RC dorados lo pasan.
+  - Reglas 2027 del RC: `TasaIgvResumen` (2992, 3504, 3102), `IgvResumen` (4019), `RazonSocialAdquiriente` (2022) y `NombreTributoGratuito` (3051); 43 filas del RC clasificadas en `ajustes-xsl.json`.
+  - `EnvioResumenes`:
+    - `sendSummary` reintenta solo los faults de disponibilidad; con ticket, el siguiente `EnviarAsync` consulta el ticket y no reenvía.
+    - `getStatus` con hasta 3 reintentos; espera progresiva `Tickets.EsperasSegundos` (2, 4, 8, 15 y 30 s) con `TimeProvider`.
+    - El resultado del RC se registra también en el historial de cada boleta: en proceso, aceptada o, si el RC se rechaza, de vuelta a `Generado`.
+  - `SoporteEnvio`: los pasos comunes a `sendBill` y `sendSummary` (credenciales, conectividad, historial, rutas).
+  - Datos: `estados-ticket.json`; `documentos` en el historial del RC; mensajes 0127 y 98; errores locales `PCPE-4011`–`4013` y `PCPE-4015`.
+  - Demo: casos «Resumen diario» (dos boletas, RC desde FIRMA, envío y espera del ticket) y «Consultar el ticket» desde otra ejecución.
+  - Pruebas sin red: mapeo 2026/2027, lotes y correlativos (también simultáneos), cada error del modelo, lectura desde FIRMA contra el cálculo tributario, importes iguales al RC dorado, reglas 2027, sobres y lectura de `sendSummary`/`getStatus`, ciclo 98→0, 99 con y sin CDR, 0127, esperas agotadas, reintentos y consulta desde otro proceso.
 - 23/10/2026 — Fase 5 (envío SOAP, conectividad y control de respuestas de factura y boleta):
   - `IServicioCpe.EnviarAsync`, `EmitirAsync` y `ConsultarCdrAsync`; `PasheCpe.Conectividad` (`IVerificadorConectividad`).
   - `EnvioComprobantes`: parte del ZIP de ENVIO y nunca regenera.
@@ -78,6 +97,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 - 23/10/2026 — `Validacion.Modelo` y `Validacion.Esquema` no tenían efecto: `GeneradorInvoice` siempre validaba el modelo y el XSD (lo encontró la prueba manual en beta, caso de rechazo forzado). Los errores del cálculo y de los totales siguen bloqueando siempre.
 
 ### Cambiado
+- 23/10/2026 — Fase 6: `PCPE-2001` dice «esquema UBL de SUNAT» (2.1 o 2.0); `PCPE-4007` admite el RC; `RegistroHistorial` guarda los documentos informados del RC; los pasos comunes del envío pasan de `EnvioComprobantes` a `SoporteEnvio`. TRD §3.3, §4, §5.1, §6, §9.2, §9.4, §14, §16 y §18, y guía de integración §4–§6 (resumen diario y servicio de reenvío).
 - 23/10/2026 — `SOAPAction: "urn:{operacion}"` confirmado en beta. La demo prueba las credenciales erróneas con usuario y clave inexistentes; beta no valida credenciales, así que ese caso se verifica en producción. Beta devuelve los rechazos como fault con HTTP 200 (prueba agregada con la respuesta real de F001-11).
 - 23/10/2026 — TRD §5.1: un fault 2000–3999 de `sendBill` es `Rechazado`. §14: `SOAPAction` como dato y reenvío del mismo ZIP sin consulta posible. §15: firma del CDR; hallazgo: los CDR de la GRE (API REST) no verifican el digest con la canonicalización declarada (se revisa en la Fase 10).
 - 23/10/2026 — `PerfilFirma.Sha256` es el valor por defecto (antes `Sha1`): los comprobantes que SUNAT ya aceptó para el RUC piloto están firmados con RSA-SHA256/SHA-256. La firma va sin prefijo `ds:`. PRD RF-09 y TRD §10, §12 y §23 actualizados.

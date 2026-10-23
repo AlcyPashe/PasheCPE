@@ -62,6 +62,11 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<ParametrosSunat>();
         services.TryAddSingleton<CalculadoraTributaria>();
         services.TryAddSingleton<MapeadorInvoice>();
+        services.TryAddSingleton<MapeadorSummary>();
+        services.TryAddSingleton<ValidadorResumen>();
+        services.TryAddSingleton<GeneradorSummary>();
+        services.TryAddSingleton<LectorBoletaFirmada>();
+        services.TryAddSingleton<AsignadorCorrelativos>();
         services.TryAddSingleton<ValidadorEsquema>();
         services.TryAddSingleton<ValidadorModelo>();
         services.TryAddSingleton<MotorXslSunat>();
@@ -72,6 +77,10 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaTotalPrecioVenta>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaCodigoProducto>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaContratoColaboracion>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaTasaIgvResumen>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaIgvResumen>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaRazonSocialAdquiriente>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaNombreTributoGratuito>());
         services.TryAddSingleton<ValidadorSunat>();
         services.TryAddSingleton<IPrecalentador, Precalentador>();
         services.TryAddSingleton<GeneradorInvoice>();
@@ -91,7 +100,10 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<LectorCdr>();
         services.TryAddSingleton<ClasificadorRespuesta>();
         services.TryAddSingleton<BloqueoDocumentos>();
+        services.TryAddSingleton<SoporteEnvio>();
         services.TryAddSingleton<EnvioComprobantes>();
+        services.TryAddSingleton<EnvioResumenes>();
+        services.TryAddSingleton<GeneracionResumenes>();
         services.TryAddSingleton<IServicioCpe, ServicioCpe>();
         return services;
     }

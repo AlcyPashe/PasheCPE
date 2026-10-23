@@ -157,6 +157,7 @@ Notas del archivo:
 | `parametros.json` | Parámetros legales que no son tasas ni plazos: importe de la boleta sin identificar al cliente (S/ 700), inicio del contrato de colaboración empresarial (01/01/2027) |
 | `monedas.json`, `errores-locales.json` | Nombres de moneda para el monto en letras; mensajes de la validación local (`PCPE-xxxx`) |
 | `estados-consulta-cdr.json` | Estados de `getStatusCdr` (`statusCode` 0001–0012) y su significado (aceptado, rechazado, de baja, no existe, error) **[verificar]** contra el manual de consulta |
+| `estados-ticket.json` | Estados del ticket de `getStatus` (0 procesado, 98 en proceso, 99 con errores) para el resumen diario y la baja |
 | `mensajes-usuario.json` | `MensajeUsuario` para el cajero: por estado y, con prioridad, por código (1033, 0140, 0102–0104, 0111, `PCPE-4xxx`…) |
 | `ajustes-xsl.json` | Ajustes entre las XSL (06/09/2022) y el Excel vigente: códigos de la XSL que se suprimen y la regla C# que los reemplaza, y la clasificación de cada fila de 01/03 posterior a la XSL (§9.4). No se sobrescribe por configuración |
 | `xsl-compatibilidad.json` | Variables que las XSL usan sin declarar y su valor de respaldo (§9.3). No se sobrescribe por configuración |
@@ -213,7 +214,8 @@ public sealed record EmisorCpe
 - `ComprobanteCpe` (01/03): tipo, serie, número, fecha y hora de emisión (null → ahora en Lima), vencimiento, moneda, tipo de operación (Cat.51), cliente, líneas, forma de pago (contado/crédito + cuotas), descuentos/cargos globales, anticipos, detracción, documentos relacionados, orden de compra, contrato de colaboración, leyendas adicionales, observaciones, `ModoPrecio` (`ValorUnitario` sin impuestos | `PrecioUnitario` con impuestos).
 - `LineaCpe`: código interno, código de producto SUNAT (8 dígitos), GTIN, descripción, unidad (Cat.03), cantidad, valor o precio unitario, afectación (Cat.07, null → default del emisor), descuento, ICBPER (cantidad de bolsas), indicador de gratuito, ISC opcional.
 - `NotaCpe`: datos de `ComprobanteCpe` + tipo (07/08), motivo (Cat.09/10), sustento, **un** documento modificado (tipo, serie, número).
-- `ResumenDiarioCpe`: fecha de referencia + líneas (boleta/nota, estado 1 adicionar / 2 modificar / 3 anular, cliente con razón social, totales por afectación con gratuitas desagregadas en gravadas/exoneradas/inafectas, IGV de gratuitas y tasa del IGV — campos 2027). La librería asigna correlativos y divide en lotes de 500.
+- `ResumenDiarioCpe`: fecha de referencia + líneas (boleta/nota, estado 1 adicionar / 2 modificar / 3 anular, cliente con razón social, totales por afectación con gratuitas desagregadas en gravadas/exoneradas/inafectas/exportación, IGV de gratuitas y tasa del IGV — campos 2027; sin tasa, la librería usa la vigente a la fecha de emisión, o la MYPE si el emisor la aplica). La librería asigna correlativos y divide en lotes de 500.
+- `DocumentoResumenCpe` (Fase 6, decidido con el desarrollador el 23/10/2026): tipo, serie, número y estado de una boleta o nota **ya generada por PasheCPE**; con esta vía la librería arma la línea leyendo su XML firmado de `FIRMA` (lo informado coincide con lo firmado).
 - `ComunicacionBajaCpe`: fecha de referencia + documentos (tipo, serie, número, motivo).
 - `GuiaRemisionCpe` (09/31) — **se define en la Fase 10** a partir del Excel GRE; campos previstos: remitente/transportista, destinatario, motivo (Cat.20) y descripción, modalidad (Cat.18: 01 público / 02 privado), fecha de inicio de traslado, peso bruto y unidad, bultos, partida y llegada (ubigeo, dirección, código de establecimiento), vehículos (placa, autorización), conductores (documento, nombres, licencia), transportista (RUC, razón social, MTC), indicador M1/L, documentos relacionados (Cat.61), bienes (código, descripción, unidad, cantidad, bien normalizado Cat.62).
 - `ReferenciaCpe`: `(Ruc, TipoDocumento, Serie, Numero, Fecha)` o `(Ruc, Tipo RC/RA, Fecha, Correlativo)`; resuelve nombre de archivo y periodo.
@@ -286,6 +288,9 @@ public sealed record ResultadoEnvio
 | `sendSummary` / GRE envío correcto, ticket 98 | `EnProceso` | — | sí |
 | Ticket 0 | según CDR | — | — |
 | Ticket 99 con CDR | `Rechazado` con errores del CDR | no | no |
+| Ticket 99 sin CDR (SOAP) | `Rechazado` con `PCPE-4013`: el resumen no se registró y sus documentos se informan en otro | no | no |
+| Ticket 0 sin CDR o estado desconocido (`estados-ticket.json`) | `ErrorServicio` (`PCPE-4013`/`PCPE-4012`); el estado del resumen no cambia | no | sí |
+| Fault 0127 (el ticket no existe) | `ErrorServicio`; el siguiente `EnviarAsync` reenvía el mismo ZIP | no | no |
 | Ticket 99 sin CDR (GRE `error.numError/desError`) | `Rechazado` o `ErrorServicio` según código | no | no |
 
 Regla dura: **ningún** `sendBill` se reenvía automáticamente; `RespuestaIncierta` y 1033 siempre pasan por reconciliación.
@@ -298,14 +303,15 @@ public interface IServicioCpe   // 01, 03, 07, 08, RC, RA
     Task<ResultadoGeneracion> GenerarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default);
     Task<ResultadoGeneracion> GenerarAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default);
     Task<IReadOnlyList<ResultadoGeneracion>> GenerarResumenAsync(EmisorCpe emisor, ResumenDiarioCpe resumen, CancellationToken ct = default);
+    Task<IReadOnlyList<ResultadoGeneracion>> GenerarResumenAsync(EmisorCpe emisor, DateOnly fechaReferencia, IReadOnlyList<DocumentoResumenCpe> documentos, CancellationToken ct = default); // desde FIRMA
     Task<ResultadoGeneracion> GenerarBajaAsync(EmisorCpe emisor, ComunicacionBajaCpe baja, CancellationToken ct = default);
 
     Task<ResultadoEnvio> EnviarAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default);   // sendBill o sendSummary según tipo
     Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default);       // generar + enviar
     Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default);
 
-    Task<ResultadoEnvio> ConsultarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string ticket, CancellationToken ct = default);
-    Task<ResultadoEnvio> EsperarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string ticket, CancellationToken ct = default); // con reintentos progresivos
+    Task<ResultadoEnvio> ConsultarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default); // null → ticket del historial
+    Task<ResultadoEnvio> EsperarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default); // con espera progresiva
     Task<ResultadoEnvio> ConsultarCdrAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default);   // getStatusCdr
 
     Task<ResultadoValidacion> ValidarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default);       // solo nivel 1
@@ -336,7 +342,7 @@ public interface IPrecalentador { Task PrecalentarAsync(CancellationToken ct = d
 
 Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → serializar (DATA) → validar XSD + XSL + reglas complementarias → firmar (FIRMA, valor resumen) → ZIP (ENVIO) → QR (QR) → verificar conectividad → enviar → clasificar → CDR (RPTA) → historial (LOG) → resultado**. Cada etapa persiste su archivo y el resultado devuelve todas las rutas. `EnviarAsync` parte de ENVIO\ y nunca regenera.
 
-`IServicioCpe` crece por fases (decidido con el desarrollador el 23/10/2026): en la Fase 4 solo tiene `GenerarAsync(emisor, ComprobanteCpe)` y `ValidarAsync`; la Fase 5 agrega `EnviarAsync`, `EmitirAsync(emisor, ComprobanteCpe)` y `ConsultarCdrAsync`; los demás métodos se agregan en la fase que los implementa (6–8), sin stubs. `GenerarAsync` no regenera un documento cuyo historial tenga un estado distinto de `Generado` o `ErrorValidacionLocal` (`PCPE-3101`): cambiaría el valor resumen de lo enviado a SUNAT.
+`IServicioCpe` crece por fases (decidido con el desarrollador el 23/10/2026): en la Fase 4 solo tiene `GenerarAsync(emisor, ComprobanteCpe)` y `ValidarAsync`; la Fase 5 agrega `EnviarAsync`, `EmitirAsync(emisor, ComprobanteCpe)` y `ConsultarCdrAsync`; la Fase 6, `GenerarResumenAsync` (con totales o desde FIRMA), `ConsultarTicketAsync` y `EsperarTicketAsync`, y `EnviarAsync` envía el RC con `sendSummary`; los demás métodos se agregan en la fase que los implementa (7–8), sin stubs. `GenerarAsync` no regenera un documento cuyo historial tenga un estado distinto de `Generado` o `ErrorValidacionLocal` (`PCPE-3101`): cambiaría el valor resumen de lo enviado a SUNAT.
 
 ## 7. Cálculo tributario
 
@@ -382,7 +388,7 @@ Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → seri
 Obligatorios, serie vs tipo (F/B/T/V…), tipo de documento del cliente (factura → 6; boleta > S/ 700 → identificación), fechas, plazos (`FechaLimiteEnvio` vencida → error), NRUS, longitud de campos, código de producto 8 dígitos (00000000 y 99999999 se aceptan, como excepción del Excel, 3496), una sola referencia en notas. Ante diferencias con el Excel de validación, prevalece el Excel (§9.4).
 
 ### 9.2 Esquema
-`XmlSchemaSet` compilado una vez desde `recursos\XSD` (embebidos, enlazados sin copiar), con resolutor local para los `import` (ninguna URI externa se resuelve). El xmldsig de UBL trae un DOCTYPE con entidades internas: se lee con `DtdProcessing.Parse` y se carga primero. Se valida el XML **sin firmar** (la firma no altera la estructura validada); como `ext:ExtensionContent` exige un elemento, el `ext:UBLExtensions` vacío preparado para la firma se excluye de la validación (única exclusión). Los errores se devuelven como `PCPE-2001` con la ruta del elemento.
+`XmlSchemaSet` compilado una vez desde `recursos\XSD` (embebidos, enlazados sin copiar), con resolutor local para los `import` (ninguna URI externa se resuelve). El resumen diario (UBL 2.0) usa un **segundo conjunto** con `UBLPE-SummaryDocuments-1.0.xsd` y sus `import` de `recursos\XSD\2.0\common` (Fase 6): UBL 2.0 y 2.1 comparten los namespaces `cac`/`cbc` y no pueden compilarse juntos, así que se elige por el elemento raíz. Solo se carga el documento principal porque `UBLPE-SunatAggregateComponents` 1.0 y 1.1 comparten el namespace (el XSD de SUNAT importa el 1.0, que ya trae cliente, referencia y estado en las líneas). Los 2 RC dorados lo pasan. El xmldsig de UBL trae un DOCTYPE con entidades internas: se lee con `DtdProcessing.Parse` y se carga primero. Se valida el XML **sin firmar** (la firma no altera la estructura validada); como `ext:ExtensionContent` exige un elemento, el `ext:UBLExtensions` vacío preparado para la firma se excluye de la validación (única exclusión). Los errores se devuelven como `PCPE-2001` con la ruta del elemento.
 
 ### 9.3 Reglas SUNAT — XSL con emulación DataPower
 
@@ -443,9 +449,20 @@ Reglas implementadas para 01/03 (Fase 3):
 | `CodigoProducto` (3496) | 01/03: 155 | Formato de 8 dígitos: observación hasta el 31/12/2026, error desde el 01/01/2027 |
 | `ContratoColaboracion` (3497–3502) | 01: 916–921, 923–928; 03: 822–827, 829–834 | Desde el 01/01/2027 |
 
+Reglas implementadas para el RC (Fase 6; todas desde el 01/01/2027, con las filas posteriores a la XSL clasificadas en `ajustes-xsl.json`):
+
+| Regla | Filas del Excel (RC) | Motivo |
+|---|---|---|
+| `TasaIgvResumen` (2992, 3504, 3102) | 122–125, 162–164 | Tasa obligatoria en 1000 y 9996: 10.5 o 18 en boletas; 10, 10.5 o 18 en notas; hasta 3 enteros y 5 decimales |
+| `IgvResumen` (4019, observación) | 118, 119, 158, 159 | IGV = (gravado + ISC) × tasa e IGV de gratuitas = gratuitas gravadas (06) × tasa, ±5, con alguna de las tasas vigentes |
+| `RazonSocialAdquiriente` (2022) | 48 | Razón social del adquiriente de 3 a 250 caracteres, sin saltos de línea |
+| `NombreTributoGratuito` (3051) | 169 | Nombre del tributo 9996 = «GRA» (la XSL solo valida 3051 para el IVAP) |
+
+El resto de filas 2027 del RC (2048, 2344, 2268, 2269, 2271, 2355) ya las cumple la XSL para todos los tributos; la 4443 (plazo) la informa `ValidadorResumen` como advertencia (`PCPE-1318`). **[verificar]** 2048 desde 2027: el Excel dice «diferente de cero» para el total del IGV, pero el dorado aceptado informa IGV 0.00 en una boleta exonerada; se mantiene así hasta confirmarlo con SUNAT en enero de 2027.
+
 Sin regla C#: 2108/1079 (plazos, `ValidadorModelo`), 2369, 3461, 4332 y 4337 (ya en la XSL), 1086, 2529, 4439 y 3496 fila 156 (requieren padrones o listados de SUNAT).
 
-Pendiente para las fases de cada documento: NC/ND con documentos 28 y 56 (ERR-2205, 2207, 2208, 2209, 2885, 3209), una referencia por NC (3261) / ND (3194), NC motivo 03 sin variación de importes, ND motivo 13 penalidades con IGV 0 (3507), serie F/B coherente con el documento modificado, catálogos 09/10 con los códigos 2027 (Fase 7); **Resumen diario**: gratuitas desagregadas, «Tasa del IGV» (ERR-2992, 3504, 3102), IGV de gratuitas y razón social del adquiriente (ERR-2022 pasa de OBS a ERROR) (Fase 6). Los códigos se toman de `reglas-cpe.json`; los que no figuren en el Excel 26.08.2026 se marcan **[verificar]**.
+Pendiente para las fases de cada documento: NC/ND con documentos 28 y 56 (ERR-2205, 2207, 2208, 2209, 2885, 3209), una referencia por NC (3261) / ND (3194), NC motivo 03 sin variación de importes, ND motivo 13 penalidades con IGV 0 (3507), serie F/B coherente con el documento modificado, catálogos 09/10 con los códigos 2027 (Fase 7); Los códigos se toman de `reglas-cpe.json`; los que no figuren en el Excel 26.08.2026 se marcan **[verificar]**.
 
 ## 10. Firma digital
 
@@ -510,7 +527,7 @@ No usa ping (ICMP suele estar bloqueado). Se puede desactivar por opción.
 - **Siguiente `EnviarAsync` del mismo documento**: antes de reenviar se lee el último intento del historial (`LOG`).
   - Si fue `RespuestaIncierta` o un fault de *constancia o ticket* (o del resto de transitorios), primero se consulta con `getStatusCdr`. Si SUNAT ya lo tiene, se devuelve ese estado y no se reenvía.
   - Si fue un fault de *disponibilidad*, se reenvía directamente.
-  - En el RC y la RA, que no tienen `getStatusCdr`, el ticket registrado se consulta con `getStatus` antes de reenviar.
+  - En el RC y la RA, que no tienen `getStatusCdr`, el ticket registrado se consulta con `getStatus` antes de reenviar (Fase 6): si hay ticket no se reenvía, salvo que SUNAT responda que no existe (0127). Sin ticket (respuesta incierta o servicio no disponible) se reenvía el mismo ZIP; si SUNAT ya lo tenía responde que el identificador ya fue presentado (2223, **[verificar]** con el primer caso real) y el resultado se devuelve tal cual.
   - Donde `getStatusCdr` no existe (beta, boletas, series que no empiezan con F: códigos 0009/0010 de la consulta), se reenvía **el mismo ZIP** de ENVIO sin regenerarlo; si SUNAT ya lo tenía responde 1033 (decidido con el desarrollador el 23/10/2026).
   - Los grupos *disponibilidad* y *constancia* son datos (`grupo` en `tools/GeneradorRecursos/Datos/errores-transitorios.json` → `grupoTransitorio` en `errores-sunat.json`).
   - Una cancelación del llamador durante la llamada se registra como `RespuestaIncierta` (SUNAT pudo haber recibido el documento) y luego se propaga la cancelación.
@@ -537,7 +554,13 @@ Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la con
 
 ## 16. Tickets
 
-`ConsultorTicket` común a SOAP y GRE: espera progresiva configurable (por defecto 2, 4, 8, 15, 30 s; máximo 5 intentos por llamada a `EsperarTicketAsync`); `98` → `EnProceso` con ticket; `0` → CDR; `99` → errores. El ticket siempre queda en el historial para consultas posteriores (otro proceso u otro día).
+Espera progresiva configurable (por defecto 2, 4, 8, 15, 30 s; máximo 5 consultas por llamada a `EsperarTicketAsync`, con `TimeProvider`); `98` → `EnProceso` con ticket; `0` → CDR; `99` → rechazado (con o sin CDR). Los estados son datos (`estados-ticket.json`). Cada consulta (`ConsultarTicketAsync`) reintenta hasta 3 veces ante faults transitorios o fallas de red; si se agotan las esperas se devuelve `EnProceso` con el ticket. El ticket siempre queda en el historial y `ConsultarTicketAsync` sin ticket lo toma de ahí, así se consulta desde otro proceso u otro día. En la Fase 6 lo implementa `EnvioResumenes` (SOAP); en la Fase 10 se evalúa extraerlo para la GRE.
+
+**Resumen diario (Fase 6, decidido con el desarrollador el 23/10/2026)**:
+- Generación: bloqueo del día por RUC (`RUC-RC-yyyyMMdd`); correlativo = mayor `n` de ENVIO y LOG del periodo + 1; lotes de 500 con `LineID` 1…n. Un error del modelo detiene todo; un lote con errores no se escribe ni impide los demás.
+- Validación del modelo (`ValidadorResumen`, `PCPE-13xx`): tipo y serie, estado (Cat. 19), fechas (2671), repetidos (3094, 3095, 3096), cliente para importes > S/ 700 (2514), notas con boleta modificada (2583/2582), importes no negativos y, contra el historial de cada documento, no adicionar lo que SUNAT ya tiene o procesa (2282) ni modificar o anular lo que no aceptó (2663). Fuera de plazo se envía con la advertencia `PCPE-1318` (SUNAT observa 4443); la anulación fuera de plazo se bloquea (`PCPE-1313`, 2957).
+- Mapeo: un `BillingPayment` por tipo de valor de venta (Cat. 11) distinto de cero; gratuitas en 05 o desagregadas en 06–09 según la vigencia del Cat. 11 a la fecha de generación (= recepción); IGV 1000 siempre con su tasa; ISC, ICBPER y otros cargos solo si son mayores que cero; 9996 con el IGV de gratuitas cuando rigen las gratuitas desagregadas.
+- El resultado del resumen se registra también en el historial de cada documento informado: `EnProceso` al recibir el ticket, `Aceptado`/`AceptadoConObservaciones` con el CDR y, si el resumen se rechaza, las boletas adicionadas vuelven a `Generado` (se pueden informar en otro RC); las modificadas o anuladas conservan su estado y suman el intento.
 
 ## 17. GRE — API REST con OAuth2
 
@@ -551,7 +574,7 @@ Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la con
 
 - `AlmacenCpe` es el único componente que compone rutas (`Path.Combine`): `{RutaBase}\{CARPETA}\{yyyy}\{MM}\{archivo}`; `CERT\{archivo.pfx}` sin periodo. Crea carpetas bajo demanda. **Sin subcarpetas por día.**
 - Escrituras atómicas (temporal en la misma carpeta + `File.Move`).
-- `RegistroHistorial`: `LOG\yyyy\MM\{nombre}.json` con `{ referencia, estadoActual, ticket, intentos: [ { fecha, operacion, canal, endpoint, duracionMs, estado, codigo, descripcion, http, ticket } ] }`. Serialización con `JsonSerializerContext` generado. Nunca contiene credenciales. Acceso serializado por documento.
+- `RegistroHistorial`: `LOG\yyyy\MM\{nombre}.json` con `{ referencia, estadoActual, ticket, intentos: [ { fecha, operacion, canal, endpoint, duracionMs, estado, codigo, descripcion, http, ticket } ], documentos }`; `documentos` (solo en el RC) lista las boletas y notas informadas con su estado del ítem, para registrar el resultado del resumen en el historial de cada una (§16). Serialización con `JsonSerializerContext` generado. Nunca contiene credenciales. Acceso serializado por documento.
 
 ## 19. Fecha y hora
 

@@ -35,6 +35,7 @@ internal static class RecursosEmbebidos
 [JsonSerializable(typeof(ArchivoAjustesXsl))]
 [JsonSerializable(typeof(ArchivoEstadosConsultaCdr))]
 [JsonSerializable(typeof(ArchivoMensajesUsuario))]
+[JsonSerializable(typeof(ArchivoEstadosTicket))]
 internal sealed partial class DatosJson : JsonSerializerContext;
 
 internal sealed record ArchivoCatalogos(IReadOnlyDictionary<string, DatosCatalogo> Catalogos);
@@ -97,6 +98,24 @@ internal enum ResultadoConsultaCdr
 }
 
 /// <summary>Mensajes para el cajero: por estado y, con prioridad, por código.</summary>
+internal sealed record ArchivoEstadosTicket(IReadOnlyList<EstadoTicket> Estados);
+
+/// <summary>Estado del ticket que devuelve <c>getStatus</c> (<c>statusCode</c>).</summary>
+internal sealed record EstadoTicket(string Codigo, string Descripcion, ResultadoTicket Resultado);
+
+/// <summary>Significado de un estado del ticket.</summary>
+internal enum ResultadoTicket
+{
+    /// <summary>Procesado: el CDR trae el resultado.</summary>
+    Procesado,
+
+    /// <summary>SUNAT aún lo procesa.</summary>
+    EnProceso,
+
+    /// <summary>Procesado con errores: rechazado (con CDR) o error del servicio (sin CDR).</summary>
+    ConErrores,
+}
+
 internal sealed record ArchivoMensajesUsuario(IReadOnlyDictionary<string, string> Estados, IReadOnlyDictionary<string, string> Codigos);
 
 internal sealed record ArchivoErroresLocales(IReadOnlyList<DatosErrorLocal> Errores);

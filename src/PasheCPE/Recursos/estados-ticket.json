@@ -1,0 +1,8 @@
+{
+  "fuente": "Manual del programador de SUNAT (billService: getStatus). Estados del ticket de sendSummary (resumen diario y comunicación de baja).",
+  "estados": [
+    { "codigo": "0", "descripcion": "Procesó correctamente.", "resultado": "Procesado" },
+    { "codigo": "98", "descripcion": "En proceso.", "resultado": "EnProceso" },
+    { "codigo": "99", "descripcion": "Proceso con errores.", "resultado": "ConErrores" }
+  ]
+}

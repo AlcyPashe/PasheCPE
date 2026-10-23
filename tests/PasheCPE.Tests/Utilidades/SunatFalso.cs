@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace PasheCPE.Tests.Utilidades;
 
 /// <summary>
-/// SUNAT falso: un <see cref="HttpMessageHandler"/> que responde lo programado por operación (sendBill, getStatusCdr)
+/// SUNAT falso: un <see cref="HttpMessageHandler"/> que responde lo programado por operación (sendBill, sendSummary…)
 /// y guarda cada solicitud. Sin respuesta programada falla la prueba: ninguna prueba llega a la red.
 /// </summary>
 internal sealed partial class SunatFalso : HttpMessageHandler

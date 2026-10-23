@@ -98,7 +98,7 @@ Mostrar al cajero `r.Envio.MensajeUsuario`.
 | `SinConexionInternet`, `ServicioNoDisponible` | Dejar pendiente; reintentar con `EnviarAsync` antes de `FechaLimiteEnvio` |
 | `RespuestaIncierta` | No reenviar; llamar a `ConsultarCdrAsync` |
 | `ErrorServicio` | Revisar credenciales, perfil SOL o configuración (alertar al administrador) |
-| `EnProceso` | Guardar el ticket; consultar con `ConsultarTicketAsync` |
+| `EnProceso` | Resumen diario: guardar el ticket y consultarlo con `ConsultarTicketAsync` (la referencia es la del RC). Boleta informada en un resumen: esperar al resultado de su RC |
 
 Tabla sugerida en SQL Server (la crea el sistema de ventas, no la librería):
 
@@ -143,11 +143,17 @@ public sealed class ReenvioCpe(IServicioCpe cpe, IHistorialCpe historial, IEmiso
             await foreach (var h in historial.ListarPendientesAsync(hoy.Year, hoy.Month, ct))
             {
                 var emisor = await emisores.ObtenerAsync(h.Referencia.Ruc, ct);
+                var esResumen = h.Referencia.TipoDocumento == ReferenciaCpe.TipoResumenDiario;
+                if (!esResumen && EsBoletaDelResumen(h.Referencia)) // del sistema de ventas: 03 o nota B con ModoEnvioBoletas = ResumenDiario
+                {
+                    continue; // la informa el resumen diario y se actualiza al consultar su RC
+                }
+
                 _ = h.EstadoActual switch
                 {
-                    EstadoCpe.EnProceso         => await cpe.ConsultarTicketAsync(emisor, h.Referencia, h.Ticket!, ct),
-                    EstadoCpe.RespuestaIncierta => await cpe.ConsultarCdrAsync(emisor, h.Referencia, ct),
-                    _                           => await cpe.EnviarAsync(emisor, h.Referencia, ct)
+                    EstadoCpe.EnProceso when esResumen => await cpe.ConsultarTicketAsync(emisor, h.Referencia, ct: ct),
+                    EstadoCpe.RespuestaIncierta when !esResumen => await cpe.ConsultarCdrAsync(emisor, h.Referencia, ct),
+                    _ => await cpe.EnviarAsync(emisor, h.Referencia, ct) // el RC con ticket se consulta, no se reenvía
                 };
                 // actualizar la BD con el resultado
             }
@@ -158,7 +164,26 @@ public sealed class ReenvioCpe(IServicioCpe cpe, IHistorialCpe historial, IEmiso
 
 ## 6. Boletas
 
-Con `ModoEnvioBoletas = ResumenDiario`: emitir con `GenerarAsync` y, al cierre del día (o al día siguiente, dentro de 7 días), enviar `GenerarResumenAsync` + `EnviarAsync` + `EsperarTicketAsync`. La librería arma lotes de 500 y asigna correlativos.
+Con `ModoEnvioBoletas = ResumenDiario`: emitir con `GenerarAsync` (se imprime con QR y valor resumen) y, al cierre del día (o al día siguiente, dentro de 7 días), informar las boletas en el resumen diario:
+
+```csharp
+// Las líneas se arman con el XML firmado de cada boleta (FIRMA): lo informado coincide con lo firmado.
+var documentos = boletasDelDia.Select(b => new DocumentoResumenCpe { TipoDocumento = "03", Serie = b.Serie, Numero = b.Numero }).ToList();
+foreach (var rc in await cpe.GenerarResumenAsync(emisor, fecha, documentos, ct))   // un resultado por lote de 500
+{
+    if (!rc.Exito) { /* errores del modelo o de SUNAT (XSL): corregir y volver a generar */ continue; }
+    var envio = await cpe.EnviarAsync(emisor, rc.Referencia, ct);                  // sendSummary → EnProceso con ticket
+    var final = await cpe.EsperarTicketAsync(emisor, rc.Referencia, ct: ct);        // 2, 4, 8, 15, 30 s
+    // final.Estado: Aceptado / AceptadoConObservaciones / Rechazado, o EnProceso (consultar más tarde)
+}
+```
+
+- También se puede pasar un `ResumenDiarioCpe` con los totales de cada línea (boletas emitidas por otro sistema).
+- Estado del ítem: 1 adicionar, 2 modificar, 3 anular (la anulación de una boleta aceptada se hace con el resumen, dentro de los 7 días).
+- La librería asigna los correlativos del día (`RUC-RC-yyyyMMdd-n`) y divide en lotes de 500 líneas.
+- El resultado del resumen queda también en el historial de cada boleta: `EnProceso`, luego `Aceptado`; si el resumen se rechaza, las boletas vuelven a `Generado` para incluirlas en otro resumen.
+- El ticket queda en el historial del RC: `ConsultarTicketAsync(emisor, referenciaRc)` sin ticket lo toma de ahí, desde otro proceso u otro día.
+- Un resumen fuera de plazo se envía con la advertencia `PCPE-1318` (SUNAT lo acepta con la observación 4443).
 
 ## 7. Guías de remisión
 

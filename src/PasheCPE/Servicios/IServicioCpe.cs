@@ -2,7 +2,8 @@ namespace PasheCPE;
 
 /// <summary>
 /// Comprobantes de pago electrónicos (TRD §6). En esta versión: generación, validación, envío por sendBill y consulta
-/// del CDR de facturas y boletas; las notas, el resumen diario y la baja se agregan en las versiones siguientes.
+/// del CDR de facturas y boletas, y el resumen diario (sendSummary y ticket); las notas y la baja se agregan en las
+/// versiones siguientes.
 /// </summary>
 public interface IServicioCpe
 {
@@ -14,19 +15,50 @@ public interface IServicioCpe
     /// </summary>
     Task<ResultadoGeneracion> GenerarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default);
 
+    /// <summary>
+    /// Genera el resumen diario de boletas y sus notas (RC) con los totales indicados: valida el modelo y el historial de
+    /// cada documento, asigna los correlativos del día, divide en lotes de 500 líneas y, por cada lote, escribe el XML
+    /// (DATA), lo valida (XSD, XSL de SUNAT y reglas complementarias), lo firma (FIRMA), arma el ZIP (ENVIO) y registra
+    /// el historial (LOG). Devuelve un resultado por lote; no lanza por errores de validación ni de certificado.
+    /// </summary>
+    Task<IReadOnlyList<ResultadoGeneracion>> GenerarResumenAsync(EmisorCpe emisor, ResumenDiarioCpe resumen, CancellationToken ct = default);
+
+    /// <summary>
+    /// Igual, pero arma cada línea leyendo el XML firmado (FIRMA) de las boletas o notas ya generadas por PasheCPE, que
+    /// deben ser de la fecha indicada: lo informado coincide con lo firmado.
+    /// </summary>
+    Task<IReadOnlyList<ResultadoGeneracion>> GenerarResumenAsync(EmisorCpe emisor, DateOnly fechaReferencia, IReadOnlyList<DocumentoResumenCpe> documentos, CancellationToken ct = default);
+
     /// <summary>Solo la validación local (nivel 1) de la factura o boleta, sin escribir archivos.</summary>
     Task<ResultadoValidacion> ValidarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default);
 
     /// <summary>
-    /// Envía el documento ya generado (ZIP de ENVIO) con sendBill; nunca lo regenera. Si el historial tiene un resultado
-    /// definitivo lo devuelve sin llamar a SUNAT; si el último envío quedó incierto, primero consulta su estado. Nunca
-    /// lanza por respuestas de SUNAT ni por fallas de red: el estado viene en <see cref="ResultadoEnvio.Estado"/>.
-    /// Las boletas solo se envían así con <see cref="ModoEnvioBoletas.Individual"/>.
+    /// Envía el documento ya generado (ZIP de ENVIO) con sendBill o, si es un resumen diario (RC), con sendSummary;
+    /// nunca lo regenera. Si el historial tiene un resultado definitivo lo devuelve sin llamar a SUNAT; si el último
+    /// envío quedó incierto, primero consulta su estado (getStatusCdr, o el ticket del resumen con getStatus). Nunca
+    /// lanza por respuestas de SUNAT ni por fallas de red: el estado viene en <see cref="ResultadoEnvio.Estado"/>; el
+    /// resumen queda <see cref="EstadoCpe.EnProceso"/> con su <see cref="ResultadoEnvio.Ticket"/>. Las boletas solo se
+    /// envían con sendBill con <see cref="ModoEnvioBoletas.Individual"/>.
     /// </summary>
     Task<ResultadoEnvio> EnviarAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default);
 
     /// <summary>Genera y envía. Si la generación falla, <c>Envio.Estado = ErrorValidacionLocal</c> y no se envía.</summary>
     Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default);
+
+    /// <summary>
+    /// Consulta una vez (con hasta 3 reintentos ante fallas transitorias) el ticket del resumen con getStatus: 98 en
+    /// proceso, 0 con el CDR (aceptado u observado), 99 rechazado. Guarda el CDR en RPTA y registra el resultado en el
+    /// historial del resumen y en el de cada documento informado. Sin <paramref name="ticket"/> usa el último ticket del
+    /// historial, así se puede consultar desde otro proceso u otro día.
+    /// </summary>
+    Task<ResultadoEnvio> ConsultarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default);
+
+    /// <summary>
+    /// Espera y consulta el ticket con la espera progresiva de <see cref="OpcionesTickets.EsperasSegundos"/> (por defecto
+    /// 2, 4, 8, 15 y 30 s) mientras siga en proceso. Si se agotan las esperas devuelve <see cref="EstadoCpe.EnProceso"/>
+    /// con el ticket, que queda en el historial para consultarlo después.
+    /// </summary>
+    Task<ResultadoEnvio> EsperarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default);
 
     /// <summary>
     /// Consulta el estado y el CDR en SUNAT (getStatusCdr) y guarda el CDR en RPTA. Solo producción, y solo facturas y

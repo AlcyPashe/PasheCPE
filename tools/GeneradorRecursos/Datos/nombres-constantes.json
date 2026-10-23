@@ -531,6 +531,48 @@
       ]
     },
     {
+      "catalogo": "11",
+      "clase": "TipoValorVenta",
+      "constantes": [
+        {
+          "codigo": "01",
+          "nombre": "Gravado"
+        },
+        {
+          "codigo": "02",
+          "nombre": "Exonerado"
+        },
+        {
+          "codigo": "03",
+          "nombre": "Inafecto"
+        },
+        {
+          "codigo": "04",
+          "nombre": "Exportacion"
+        },
+        {
+          "codigo": "05",
+          "nombre": "Gratuitas"
+        },
+        {
+          "codigo": "06",
+          "nombre": "GratuitasGravadas"
+        },
+        {
+          "codigo": "07",
+          "nombre": "GratuitasExoneradas"
+        },
+        {
+          "codigo": "08",
+          "nombre": "GratuitasInafectas"
+        },
+        {
+          "codigo": "09",
+          "nombre": "GratuitasExportacion"
+        }
+      ]
+    },
+    {
       "catalogo": "19",
       "clase": "EstadoItemResumen",
       "constantes": [

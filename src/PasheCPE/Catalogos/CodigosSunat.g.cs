@@ -425,6 +425,40 @@ public static class TipoPrecio
     public const string TarifasReguladas = "03";
 }
 
+/// <summary>Catálogo N.° 11 de SUNAT: Códigos de tipo de valor de venta (Resumen diario de boletas y notas).</summary>
+public static class TipoValorVenta
+{
+    /// <summary>Número del catálogo SUNAT.</summary>
+    public const string NumeroCatalogo = "11";
+
+    /// <summary><c>01</c>: Gravado</summary>
+    public const string Gravado = "01";
+
+    /// <summary><c>02</c>: Exonerado</summary>
+    public const string Exonerado = "02";
+
+    /// <summary><c>03</c>: Inafecto</summary>
+    public const string Inafecto = "03";
+
+    /// <summary><c>04</c>: Exportación</summary>
+    public const string Exportacion = "04";
+
+    /// <summary><c>05</c>: Gratuitas Vigente hasta el 31/12/2026.</summary>
+    public const string Gratuitas = "05";
+
+    /// <summary><c>06</c>: Gratuitas-Gravada Vigente desde el 01/01/2027.</summary>
+    public const string GratuitasGravadas = "06";
+
+    /// <summary><c>07</c>: Gratuitas-Exoneradas Vigente desde el 01/01/2027.</summary>
+    public const string GratuitasExoneradas = "07";
+
+    /// <summary><c>08</c>: Gratuitas-Inafectas Vigente desde el 01/01/2027.</summary>
+    public const string GratuitasInafectas = "08";
+
+    /// <summary><c>09</c>: Gratuitas-Exportación Vigente desde el 01/01/2027.</summary>
+    public const string GratuitasExportacion = "09";
+}
+
 /// <summary>Catálogo N.° 19 de SUNAT: Código de estado del ítem (resumen diario).</summary>
 public static class EstadoItemResumen
 {

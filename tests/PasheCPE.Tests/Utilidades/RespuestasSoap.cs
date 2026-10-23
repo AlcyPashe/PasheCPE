@@ -12,6 +12,8 @@ internal static class RespuestasSoap
 {
     public const string SendBill = "sendBill";
     public const string GetStatusCdr = "getStatusCdr";
+    public const string SendSummary = "sendSummary";
+    public const string GetStatus = "getStatus";
 
     public static string ConCdr(byte[] cdrZip) =>
         $"""<?xml version="1.0" encoding="UTF-8"?><soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/"><soap-env:Header/><soap-env:Body><br:sendBillResponse xmlns:br="http://service.sunat.gob.pe"><applicationResponse>{Convert.ToBase64String(cdrZip)}</applicationResponse></br:sendBillResponse></soap-env:Body></soap-env:Envelope>""";
@@ -21,6 +23,18 @@ internal static class RespuestasSoap
 
     public static string StatusCdr(string codigo, string mensaje, byte[]? cdrZip = null) =>
         $"""<?xml version="1.0" encoding="UTF-8"?><soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/"><soap-env:Header/><soap-env:Body><ns2:getStatusCdrResponse xmlns:ns2="http://service.sunat.gob.pe"><statusCdr>{(cdrZip is null ? string.Empty : $"<content>{Convert.ToBase64String(cdrZip)}</content>")}<statusCode>{codigo}</statusCode><statusMessage>{mensaje}</statusMessage></statusCdr></ns2:getStatusCdrResponse></soap-env:Body></soap-env:Envelope>""";
+
+    /// <summary>Respuesta de sendSummary con el ticket.</summary>
+    public static string Ticket(string ticket) =>
+        $"""<?xml version="1.0" encoding="UTF-8"?><soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/"><soap-env:Header/><soap-env:Body><br:sendSummaryResponse xmlns:br="http://service.sunat.gob.pe"><ticket>{ticket}</ticket></br:sendSummaryResponse></soap-env:Body></soap-env:Envelope>""";
+
+    /// <summary>Respuesta de getStatus: estado del ticket (0, 98, 99) y el CDR, si lo hay.</summary>
+    public static string Status(string codigo, byte[]? cdrZip = null) =>
+        $"""<?xml version="1.0" encoding="UTF-8"?><soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/"><soap-env:Header/><soap-env:Body><br:getStatusResponse xmlns:br="http://service.sunat.gob.pe"><status>{(cdrZip is null ? string.Empty : $"<content>{Convert.ToBase64String(cdrZip)}</content>")}<statusCode>{codigo}</statusCode></status></br:getStatusResponse></soap-env:Body></soap-env:Envelope>""";
+
+    /// <summary>CDR dorado real de un resumen diario aceptado.</summary>
+    public static byte[] CdrDoradoResumen() =>
+        File.ReadAllBytes(Path.Combine(LectorDorado.Carpeta("RC-Resumen"), "R-20611619767-RC-20261022-7.zip"));
 
     /// <summary>CDR dorado real: aceptado, sin notas, con la carpeta dummy/.</summary>
     public static byte[] CdrDoradoAceptado() =>

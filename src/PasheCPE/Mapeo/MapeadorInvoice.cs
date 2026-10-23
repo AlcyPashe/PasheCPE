@@ -152,9 +152,12 @@ internal sealed class MapeadorInvoice(CatalogosSunat catalogos, IOptions<Opcione
         };
     }
 
-    private Signature Firma(EmisorCpe emisor)
+    private Signature Firma(EmisorCpe emisor) => Firma(emisor, opciones.Value.IdFirma);
+
+    /// <summary>cac:Signature: identifica al firmante y apunta a la firma <c>#IdFirma</c> (también lo usa el resumen diario).</summary>
+    internal static Signature Firma(EmisorCpe emisor, string idFirma)
     {
-        var idFirma = opciones.Value.IdFirma;
+        ArgumentNullException.ThrowIfNull(emisor);
         return new Signature
         {
             ID = Id(idFirma),

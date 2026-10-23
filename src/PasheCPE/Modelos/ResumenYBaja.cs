@@ -60,6 +60,9 @@ public sealed record LineaResumenCpe
     /// <summary>Operaciones gratuitas inafectas (desagregadas desde 2027).</summary>
     public decimal TotalGratuitoInafecto { get; init; }
 
+    /// <summary>Exportaciones gratuitas (desagregadas desde 2027).</summary>
+    public decimal TotalGratuitoExportacion { get; init; }
+
     /// <summary>Otros cargos.</summary>
     public decimal OtrosCargos { get; init; }
 
@@ -80,6 +83,25 @@ public sealed record LineaResumenCpe
 
     /// <summary>Importe total.</summary>
     public required decimal ImporteTotal { get; init; }
+}
+
+/// <summary>
+/// Boleta o nota ya generada por PasheCPE que se informa en el resumen diario: la librería arma la línea leyendo su XML
+/// firmado (FIRMA), así lo informado coincide con lo firmado.
+/// </summary>
+public sealed record DocumentoResumenCpe
+{
+    /// <summary>Tipo de documento: 03, 07 u 08.</summary>
+    public required string TipoDocumento { get; init; }
+
+    /// <summary>Serie del documento.</summary>
+    public required string Serie { get; init; }
+
+    /// <summary>Número del documento.</summary>
+    public required long Numero { get; init; }
+
+    /// <summary>Estado del ítem (catálogo N.° 19): <see cref="EstadoItemResumen"/>; por defecto, adicionar.</summary>
+    public string Estado { get; init; } = EstadoItemResumen.Adicionar;
 }
 
 /// <summary>Comunicación de baja (RA) de comprobantes aceptados.</summary>

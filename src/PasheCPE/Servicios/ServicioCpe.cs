@@ -15,11 +15,14 @@ namespace PasheCPE.Servicios;
 /// Fachada de comprobantes (<see cref="IServicioCpe"/>). Pipeline de generación (TRD §6): historial → XML validado en
 /// DATA (<see cref="GeneradorInvoice"/>) → certificado → firma (FIRMA) → ZIP (ENVIO) → QR → historial (LOG). Cada
 /// etapa persiste su archivo y el resultado devuelve todas las rutas; con un error se detiene sin escribir las
-/// siguientes. El envío y la consulta los hace <see cref="EnvioComprobantes"/>.
+/// siguientes. El resumen diario lo genera <see cref="GeneracionResumenes"/>; el envío y la consulta los hacen
+/// <see cref="EnvioComprobantes"/> (sendBill, getStatusCdr) y <see cref="EnvioResumenes"/> (sendSummary, getStatus).
 /// </summary>
 internal sealed class ServicioCpe(
     GeneradorInvoice generador,
+    GeneracionResumenes resumenes,
     EnvioComprobantes envio,
+    EnvioResumenes envioResumenes,
     ProveedorCertificados certificados,
     FirmadorXml firmador,
     ConstructorContenidoQr qr,
@@ -97,8 +100,25 @@ internal sealed class ServicioCpe(
         };
     }
 
-    public Task<ResultadoEnvio> EnviarAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default) =>
-        envio.EnviarAsync(emisor, referencia, ct);
+    public Task<IReadOnlyList<ResultadoGeneracion>> GenerarResumenAsync(EmisorCpe emisor, ResumenDiarioCpe resumen, CancellationToken ct = default) =>
+        resumenes.GenerarAsync(emisor, resumen, ct);
+
+    public Task<IReadOnlyList<ResultadoGeneracion>> GenerarResumenAsync(EmisorCpe emisor, DateOnly fechaReferencia, IReadOnlyList<DocumentoResumenCpe> documentos, CancellationToken ct = default) =>
+        resumenes.GenerarAsync(emisor, fechaReferencia, documentos, ct);
+
+    public Task<ResultadoEnvio> EnviarAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(referencia);
+        return referencia.TipoDocumento == ReferenciaCpe.TipoResumenDiario
+            ? envioResumenes.EnviarAsync(emisor, referencia, ct)
+            : envio.EnviarAsync(emisor, referencia, ct);
+    }
+
+    public Task<ResultadoEnvio> ConsultarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default) =>
+        envioResumenes.ConsultarTicketAsync(emisor, referencia, ticket, ct);
+
+    public Task<ResultadoEnvio> EsperarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default) =>
+        envioResumenes.EsperarTicketAsync(emisor, referencia, ticket, ct);
 
     public Task<ResultadoEnvio> ConsultarCdrAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default) =>
         envio.ConsultarCdrAsync(emisor, referencia, ct);

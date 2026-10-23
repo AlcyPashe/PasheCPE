@@ -1,4 +1,3 @@
-using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PasheCPE.Almacenamiento;
@@ -30,11 +29,10 @@ internal sealed class EnvioComprobantes(
     LectorRespuestaSoap lectorSoap,
     LectorCdr lectorCdr,
     ClasificadorRespuesta clasificador,
-    VerificadorConectividad conectividad,
+    SoporteEnvio soporte,
     CatalogoEndpoints endpoints,
     CatalogoErrores errores,
     CatalogoRespuestas respuestas,
-    AlmacenCpe almacen,
     RegistroHistorial historial,
     BloqueoDocumentos bloqueos,
     TablaPlazos plazos,
@@ -48,23 +46,23 @@ internal sealed class EnvioComprobantes(
     {
         ArgumentNullException.ThrowIfNull(emisor);
         ArgumentNullException.ThrowIfNull(referencia);
-        var contexto = new ContextoEnvio(referencia, OperacionSoap.SendBill, Rutas(referencia));
+        var contexto = new ContextoEnvio(referencia, OperacionSoap.SendBill, soporte.Rutas(referencia));
         if (referencia.TipoDocumento is not (TipoDocumentoSunat.Factura or TipoDocumentoSunat.BoletaDeVenta or TipoDocumentoSunat.NotaDeCredito or TipoDocumentoSunat.NotaDeDebito))
         {
-            return Local(contexto, "PCPE-4007", referencia.NombreArchivo);
+            return soporte.Local(contexto, "PCPE-4007", referencia.NombreArchivo);
         }
 
         if (EsBoleta(referencia) && opciones.Value.ModoEnvioBoletas == ModoEnvioBoletas.ResumenDiario)
         {
-            return Local(contexto, "PCPE-4002", referencia.NombreArchivo);
+            return soporte.Local(contexto, "PCPE-4002", referencia.NombreArchivo);
         }
 
         if (!File.Exists(contexto.Rutas.Zip))
         {
-            return Local(contexto, "PCPE-4001", NombreArchivoCpe.Zip(referencia));
+            return soporte.Local(contexto, "PCPE-4001", NombreArchivoCpe.Zip(referencia));
         }
 
-        var (servicio, errorConfiguracion) = Preparar(emisor, contexto, ServicioSunat.Comprobantes);
+        var (servicio, errorConfiguracion) = soporte.Preparar(emisor, contexto, ServicioSunat.Comprobantes);
         if (errorConfiguracion is not null)
         {
             return errorConfiguracion;
@@ -74,10 +72,10 @@ internal sealed class EnvioComprobantes(
         var previo = await historial.ObtenerAsync(referencia, ct).ConfigureAwait(false);
         if (previo?.EstadoActual is EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.Rechazado)
         {
-            return Completar(clasificador.DesdeHistorial(contexto, previo), referencia);
+            return soporte.Completar(clasificador.DesdeHistorial(contexto, previo), referencia);
         }
 
-        if (await Conectividad(emisor, contexto, servicio!.Url, ct).ConfigureAwait(false) is { } sinConexion)
+        if (await soporte.ConectividadAsync(emisor, contexto, servicio!.Url, ct).ConfigureAwait(false) is { } sinConexion)
         {
             return sinConexion;
         }
@@ -98,7 +96,7 @@ internal sealed class EnvioComprobantes(
 
         if (plazos.FechaLimite(referencia.TipoDocumento, null, referencia.Fecha) is { } limite && limite < reloj.HoyLima())
         {
-            return Local(contexto, "PCPE-4006", referencia.NombreArchivo, limite.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture));
+            return soporte.Local(contexto, "PCPE-4006", referencia.NombreArchivo, limite.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture));
         }
 
         var resultado = await SendBillAsync(emisor, contexto, servicio!, ct).ConfigureAwait(false);
@@ -114,8 +112,8 @@ internal sealed class EnvioComprobantes(
     {
         ArgumentNullException.ThrowIfNull(emisor);
         ArgumentNullException.ThrowIfNull(referencia);
-        var contexto = new ContextoEnvio(referencia, OperacionSoap.GetStatusCdr, Rutas(referencia));
-        if (Preparar(emisor, contexto, ServicioSunat.Comprobantes) is { Error: { } errorConfiguracion })
+        var contexto = new ContextoEnvio(referencia, OperacionSoap.GetStatusCdr, soporte.Rutas(referencia));
+        if (soporte.Preparar(emisor, contexto, ServicioSunat.Comprobantes) is { Error: { } errorConfiguracion })
         {
             return errorConfiguracion;
         }
@@ -130,7 +128,7 @@ internal sealed class EnvioComprobantes(
 
         using var bloqueo = await bloqueos.AdquirirAsync(referencia.NombreArchivo, ct).ConfigureAwait(false);
         var previo = await historial.ObtenerAsync(referencia, ct).ConfigureAwait(false);
-        if (await Conectividad(emisor, contexto, consulta.Url, ct).ConfigureAwait(false) is { } sinConexion)
+        if (await soporte.ConectividadAsync(emisor, contexto, consulta.Url, ct).ConfigureAwait(false) is { } sinConexion)
         {
             return sinConexion;
         }
@@ -198,7 +196,7 @@ internal sealed class EnvioComprobantes(
 
         var contenido = lectorSoap.Leer(soap.Cuerpo);
         ResultadoEnvio resultado;
-        if (contenido?.ApplicationResponse is { } cdrBase64 && TryBase64(cdrBase64) is { } cdrZip)
+        if (contenido?.ApplicationResponse is { } cdrBase64 && SoporteEnvio.TryBase64(cdrBase64) is { } cdrZip)
         {
             var (cdr, ruta) = await lectorCdr.GuardarYLeerAsync(referencia, cdrZip, ct).ConfigureAwait(false);
             var conCdr = contexto with { Rutas = contexto.Rutas with { Cdr = ruta } };
@@ -211,11 +209,11 @@ internal sealed class EnvioComprobantes(
         else
         {
             resultado = clasificador.DesdeRed(contexto, soap, idempotente: false);
-            InvalidarConectividad(servicio.Url, soap);
+            soporte.InvalidarConectividad(servicio.Url, soap);
         }
 
         actividad?.SetTag("pashecpe.estado", resultado.Estado.ToString());
-        return await RegistrarAsync(emisor, referencia, resultado, resultado.Estado, ct).ConfigureAwait(false);
+        return await soporte.RegistrarAsync(emisor, referencia, resultado, resultado.Estado, ct).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -236,7 +234,7 @@ internal sealed class EnvioComprobantes(
             var soap = await cliente.LlamarAsync(consulta.Url, OperacionSoap.GetStatusCdr, consulta.SoapAction, sobre, ct).ConfigureAwait(false);
             var (resultado, noExiste) = await InterpretarConsultaAsync(contextoConsulta, soap, estadoSinCambio, ct).ConfigureAwait(false);
             var concluyente = !noExiste && resultado.Estado is not (EstadoCpe.ServicioNoDisponible or EstadoCpe.ErrorServicio);
-            resultado = await RegistrarAsync(emisor, referencia, resultado, concluyente ? resultado.Estado : estadoSinCambio, ct).ConfigureAwait(false);
+            resultado = await soporte.RegistrarAsync(emisor, referencia, resultado, concluyente ? resultado.Estado : estadoSinCambio, ct).ConfigureAwait(false);
             if (resultado.Estado != EstadoCpe.ServicioNoDisponible || intento >= esperas.Esperas.Count)
             {
                 return (resultado, noExiste);
@@ -257,11 +255,11 @@ internal sealed class EnvioComprobantes(
 
         if (contenido?.StatusCdr is not { } estado)
         {
-            InvalidarConectividad(soap.Endpoint, soap);
+            soporte.InvalidarConectividad(soap.Endpoint, soap);
             return (clasificador.DesdeRed(contexto, soap, idempotente: true), false);
         }
 
-        if (estado.ContenidoBase64 is { } cdrBase64 && TryBase64(cdrBase64) is { } cdrZip)
+        if (estado.ContenidoBase64 is { } cdrBase64 && SoporteEnvio.TryBase64(cdrBase64) is { } cdrZip)
         {
             var (cdr, ruta) = await lectorCdr.GuardarYLeerAsync(contexto.Referencia, cdrZip, ct).ConfigureAwait(false);
             if (cdr is not null)
@@ -278,144 +276,7 @@ internal sealed class EnvioComprobantes(
         return (clasificador.DesdeConsulta(contexto, soap, consulta, estado.Mensaje, estadoSinCambio), consulta.Resultado == ResultadoConsultaCdr.NoExiste);
     }
 
-    /// <summary>Credenciales SOAP y endpoint del servicio; un error de configuración no llama a SUNAT.</summary>
-    private (EndpointCpe? Endpoint, ResultadoEnvio? Error) Preparar(EmisorCpe emisor, ContextoEnvio contexto, ServicioSunat servicio)
-    {
-        if (emisor.CredencialesSoap is not { Usuario.Length: > 0, Clave.Length: > 0 })
-        {
-            return (null, Local(contexto, "PCPE-4003", emisor.Canal.Clave));
-        }
-
-        var endpoint = endpoints.Obtener(emisor.Canal, opciones.Value.Ambiente, servicio);
-        return endpoint is null
-            ? (null, Local(contexto, "PCPE-4004", servicio.ToString(), emisor.Canal.Clave, opciones.Value.Ambiente))
-            : (endpoint, null);
-    }
-
-    /// <summary>Verificación previa: sin Internet o servicio caído se registra en el historial y no se llama a SUNAT.</summary>
-    private async Task<ResultadoEnvio?> Conectividad(EmisorCpe emisor, ContextoEnvio contexto, string url, CancellationToken ct)
-    {
-        if (!opciones.Value.Conectividad.Verificar || !Uri.TryCreate(url, UriKind.Absolute, out var uri))
-        {
-            return null;
-        }
-
-        var estado = await conectividad.VerificarHostAsync(uri.Host, ct).ConfigureAwait(false);
-        if (estado.Disponibilidad == Disponibilidad.Disponible)
-        {
-            return null;
-        }
-
-        var resultado = clasificador.DesdeConectividad(contexto, estado);
-        return await RegistrarAsync(emisor, contexto.Referencia, resultado, resultado.Estado, ct).ConfigureAwait(false);
-    }
-
-    private void InvalidarConectividad(string url, RespuestaSoap soap)
-    {
-        if (soap.Falla != FallaRed.Ninguna && Uri.TryCreate(url, UriKind.Absolute, out var uri))
-        {
-            conectividad.Invalidar(uri.Host);
-        }
-    }
-
-    private async Task<ResultadoEnvio> RegistrarAsync(EmisorCpe emisor, ReferenciaCpe referencia, ResultadoEnvio resultado, EstadoCpe estadoActual, CancellationToken ct)
-    {
-        var intento = new IntentoEnvio
-        {
-            Fecha = resultado.FechaProceso,
-            Operacion = resultado.Tecnico?.Operacion ?? OperacionSoap.SendBill,
-            Canal = emisor.Canal.Clave,
-            Endpoint = resultado.Tecnico?.Endpoint,
-            DuracionMs = resultado.Tecnico?.DuracionMs ?? 0,
-            Estado = resultado.Estado,
-            Codigo = resultado.Codigo,
-            Descripcion = resultado.Descripcion,
-            Http = resultado.Tecnico?.Http,
-            Ticket = resultado.Ticket,
-        };
-
-        // El historial registra el intento aunque la llamada se haya cancelado: SUNAT pudo haber recibido el documento.
-        var registrado = await historial.RegistrarAsync(referencia, estadoActual, intento, CancellationToken.None).ConfigureAwait(false);
-        Telemetria.RegistrarEnvio(intento.Operacion, resultado.Estado, intento.DuracionMs);
-        if (resultado.Estado is EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.EnProceso or EstadoCpe.Generado)
-        {
-            RegistroEventos.EnvioResultado(registro, intento.Operacion, referencia.NombreArchivo, resultado.Estado, resultado.Codigo, resultado.Descripcion);
-        }
-        else
-        {
-            RegistroEventos.EnvioFallido(registro, intento.Operacion, referencia.NombreArchivo, resultado.Estado, resultado.Codigo, resultado.Descripcion);
-        }
-
-        ct.ThrowIfCancellationRequested();
-        return Completar(resultado with { Historial = registrado.Intentos }, referencia);
-    }
-
-    /// <summary>Rutas existentes del documento, historial y valor resumen del XML firmado.</summary>
-    private ResultadoEnvio Completar(ResultadoEnvio resultado, ReferenciaCpe referencia)
-    {
-        var rutas = Rutas(referencia);
-        return resultado with
-        {
-            Rutas = rutas with { Cdr = resultado.Rutas.Cdr ?? rutas.Cdr },
-            ValorResumen = resultado.ValorResumen ?? ValorResumen(rutas.XmlFirmado),
-        };
-    }
-
-    private ResultadoEnvio Local(ContextoEnvio contexto, string codigo, params object?[] argumentos) =>
-        clasificador.Local(contexto, EstadoCpe.ErrorValidacionLocal, errores.Local(codigo, OrigenError.Modelo, null, null, argumentos));
-
-    private RutasCpe Rutas(ReferenciaCpe referencia)
-    {
-        string? Existente(CarpetaCpe carpeta, string archivo)
-        {
-            var ruta = almacen.Ruta(carpeta, referencia, archivo);
-            return File.Exists(ruta) ? ruta : null;
-        }
-
-        return new RutasCpe
-        {
-            Xml = Existente(CarpetaCpe.Data, NombreArchivoCpe.Xml(referencia)),
-            XmlFirmado = Existente(CarpetaCpe.Firma, NombreArchivoCpe.Xml(referencia)),
-            Zip = almacen.Ruta(CarpetaCpe.Envio, referencia, NombreArchivoCpe.Zip(referencia)),
-            Cdr = Existente(CarpetaCpe.Rpta, NombreArchivoCpe.Cdr(referencia)),
-            Qr = Existente(CarpetaCpe.Qr, NombreArchivoCpe.Qr(referencia)),
-            Pdf = Existente(CarpetaCpe.Repo, NombreArchivoCpe.Pdf(referencia)),
-            Historial = historial.Ruta(referencia),
-        };
-    }
-
     private static bool EsBoleta(ReferenciaCpe referencia) =>
         referencia.TipoDocumento == TipoDocumentoSunat.BoletaDeVenta
         || ((referencia.TipoDocumento is TipoDocumentoSunat.NotaDeCredito or TipoDocumentoSunat.NotaDeDebito) && referencia.Serie?.StartsWith('B') == true);
-
-    /// <summary>DigestValue del XML firmado (FIRMA), leído con XmlReader.</summary>
-    private static string? ValorResumen(string? rutaFirmado)
-    {
-        if (rutaFirmado is null || !File.Exists(rutaFirmado))
-        {
-            return null;
-        }
-
-        try
-        {
-            using var lector = XmlReader.Create(rutaFirmado, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null });
-            return lector.ReadToFollowing("DigestValue", System.Security.Cryptography.Xml.SignedXml.XmlDsigNamespaceUrl) ? lector.ReadElementContentAsString() : null;
-        }
-        catch (Exception ex) when (ex is XmlException or IOException)
-        {
-            return null;
-        }
-    }
-
-    private static byte[]? TryBase64(string texto)
-    {
-        try
-        {
-            return Convert.FromBase64String(texto);
-        }
-        catch (FormatException)
-        {
-            return null;
-        }
-    }
 }

@@ -89,6 +89,40 @@ public sealed class SoapTests : IDisposable
         Assert.Equal(new EstadoCdrSoap("0001", "La constancia existe", "CQk="), contenido.StatusCdr);
     }
 
+    [Fact]
+    public void SendSummaryYGetStatus_SobresConElArchivoYElTicketEscapados()
+    {
+        var envio = XDocument.Parse(ConstructorSobreSoap.SendSummary("20123456786MODDATOS", "x", "20123456786-RC-20261022-1.zip", "UEsDBA=="));
+        var consulta = XDocument.Parse(ConstructorSobreSoap.GetStatus("20123456786MODDATOS", "x", "17<29"));
+
+        var operacion = envio.Descendants(_ser + "sendSummary").Single();
+        Assert.Equal(["20123456786-RC-20261022-1.zip", "UEsDBA=="], operacion.Elements().Select(e => e.Value));
+        Assert.Equal("17<29", consulta.Descendants(_ser + "getStatus").Single().Element("ticket")!.Value);
+    }
+
+    [Fact]
+    public void Leer_RespuestaSendSummary_DevuelveElTicket()
+    {
+        var contenido = Lector.Leer(RespuestasSoap.Ticket("1729876543210"))!;
+
+        Assert.Equal("1729876543210", contenido.Ticket);
+        Assert.Null(contenido.Status);
+        Assert.Null(contenido.StatusCdr);
+    }
+
+    [Theory]
+    [InlineData("98", false)]
+    [InlineData("0", true)]
+    [InlineData("99", true)]
+    public void Leer_RespuestaGetStatus_DevuelveElEstadoYElCdr(string codigo, bool conCdr)
+    {
+        var contenido = Lector.Leer(RespuestasSoap.Status(codigo, conCdr ? [9, 9] : null))!;
+
+        Assert.Equal(new EstadoTicketSoap(codigo, conCdr ? "CQk=" : null), contenido.Status);
+        Assert.Null(contenido.StatusCdr);
+        Assert.Null(contenido.Ticket);
+    }
+
     [Theory]
     [InlineData("<html><body>502 Bad Gateway</body></html>")]
     [InlineData("no es xml")]

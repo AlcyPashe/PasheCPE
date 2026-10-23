@@ -18,7 +18,11 @@ internal sealed class RegistroHistorial(AlmacenCpe almacen, ILogger<RegistroHist
     private readonly SemaphoreSlim[] _bloqueos = [.. Enumerable.Range(0, _cantidadBloqueos).Select(_ => new SemaphoreSlim(1, 1))];
 
     /// <summary>Agrega un intento (si lo hay) y actualiza el estado actual y el ticket del documento.</summary>
-    public async Task<HistorialCpe> RegistrarAsync(ReferenciaCpe referencia, EstadoCpe estadoActual, IntentoEnvio? intento, CancellationToken ct)
+    public Task<HistorialCpe> RegistrarAsync(ReferenciaCpe referencia, EstadoCpe estadoActual, IntentoEnvio? intento, CancellationToken ct) =>
+        RegistrarAsync(referencia, estadoActual, intento, null, ct);
+
+    /// <summary>Igual, y guarda los documentos informados del resumen diario si se indican.</summary>
+    public async Task<HistorialCpe> RegistrarAsync(ReferenciaCpe referencia, EstadoCpe estadoActual, IntentoEnvio? intento, IReadOnlyList<DocumentoInformadoCpe>? documentos, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(referencia);
         var ruta = Ruta(referencia);
@@ -33,6 +37,7 @@ internal sealed class RegistroHistorial(AlmacenCpe almacen, ILogger<RegistroHist
                 EstadoActual = estadoActual,
                 Ticket = intento?.Ticket ?? actual.Ticket,
                 Intentos = intento is null ? actual.Intentos : [.. actual.Intentos, intento],
+                Documentos = documentos ?? actual.Documentos,
             };
             await AlmacenCpe.EscribirAsync(ruta, JsonSerializer.SerializeToUtf8Bytes(nuevo, HistorialJson.Default.HistorialCpe), ct).ConfigureAwait(false);
             return nuevo;

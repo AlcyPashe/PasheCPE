@@ -9,8 +9,8 @@ namespace PasheCPE.Respuestas;
 internal sealed record ContextoEnvio(ReferenciaCpe Referencia, string Operacion, RutasCpe Rutas);
 
 /// <summary>
-/// Única fuente de la tabla de clasificación (TRD §5.1): convierte un CDR, un fault, una falla de red, el resultado de
-/// la conectividad o un error local en un <see cref="ResultadoEnvio"/> completo (estado, códigos, descripción literal y
+/// Única fuente de la tabla de clasificación (TRD §5.1): convierte un CDR, un fault, una falla de red, un ticket o su
+/// estado, el resultado de la conectividad o un error local en un <see cref="ResultadoEnvio"/> completo (estado, códigos, descripción literal y
 /// del catálogo, mensaje para el cajero, reintentable, consulta de estado, fecha límite y detalle técnico).
 /// </summary>
 internal sealed class ClasificadorRespuesta(CatalogoErrores errores, CatalogoRespuestas respuestas, TablaPlazos plazos, RelojCpe reloj)
@@ -125,6 +125,35 @@ internal sealed class ClasificadorRespuesta(CatalogoErrores errores, CatalogoRes
         };
     }
 
+    /// <summary>sendSummary recibió el archivo: el ticket queda en proceso y hay que consultarlo (getStatus).</summary>
+    public ResultadoEnvio DesdeTicket(ContextoEnvio contexto, RespuestaSoap soap, string ticket)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(ticket);
+        return Crear(contexto, soap, EstadoCpe.EnProceso, null, $"Ticket {ticket}") with { Ticket = ticket, RequiereConsultaEstado = true };
+    }
+
+    /// <summary>
+    /// getStatus sin CDR adjunto: 98 → en proceso (consultar después); 99 → rechazado (proceso con errores: el resumen
+    /// no se registró y sus documentos se pueden informar en otro); 0 sin CDR o un estado desconocido (PCPE-4012) →
+    /// error de servicio. Con CDR se clasifica con <see cref="DesdeCdr"/>.
+    /// </summary>
+    public ResultadoEnvio DesdeEstadoTicket(ContextoEnvio contexto, RespuestaSoap soap, EstadoTicket? estado, string? codigo, string ticket)
+    {
+        if (estado is null)
+        {
+            return Local(contexto, EstadoCpe.ErrorServicio, errores.Local("PCPE-4012", OrigenError.Sunat, null, null, ticket, codigo)) with { Ticket = ticket };
+        }
+
+        if (estado.Resultado == ResultadoTicket.EnProceso)
+        {
+            return Crear(contexto, soap, EstadoCpe.EnProceso, estado.Codigo, estado.Descripcion) with { Ticket = ticket, RequiereConsultaEstado = true };
+        }
+
+        var error = errores.Local("PCPE-4013", OrigenError.Sunat, null, null, ticket, estado.Codigo);
+        var final = estado.Resultado == ResultadoTicket.ConErrores ? EstadoCpe.Rechazado : EstadoCpe.ErrorServicio;
+        return Crear(contexto, soap, final, estado.Codigo, error.Descripcion) with { Ticket = ticket, Errores = [error] };
+    }
+
     /// <summary>Error que impide la operación sin llamar a SUNAT (validación local, configuración, no soportado).</summary>
     public ResultadoEnvio Local(ContextoEnvio contexto, EstadoCpe estado, ErrorCpe error)
     {
@@ -151,7 +180,8 @@ internal sealed class ClasificadorRespuesta(CatalogoErrores errores, CatalogoRes
             DescripcionCatalogo = errores.Buscar(codigo)?.Descripcion,
             MensajeUsuario = respuestas.MensajeUsuario(estado, codigo),
             Rutas = contexto.Rutas,
-            FechaLimiteEnvio = plazos.FechaLimite(referencia.TipoDocumento, null, referencia.Fecha),
+            // El plazo del resumen se cuenta desde la emisión de sus documentos, que la referencia del RC no tiene.
+            FechaLimiteEnvio = referencia.Correlativo is null ? plazos.FechaLimite(referencia.TipoDocumento, null, referencia.Fecha) : null,
             Tecnico = soap is null ? null : new DetalleTecnico
             {
                 Endpoint = soap.Endpoint,

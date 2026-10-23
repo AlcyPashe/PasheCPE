@@ -69,6 +69,11 @@ internal static class SerializadorUbl
             espacios.Add("cac", EspaciosUbl.Cac);
             espacios.Add("cbc", EspaciosUbl.Cbc);
             espacios.Add("ext", EspaciosUbl.Ext);
+            if (raiz.Namespace == EspaciosUbl.SummaryDocuments)
+            {
+                espacios.Add("sac", EspaciosUbl.Sac);
+            }
+
             return (new XmlSerializer(t), espacios);
         });
 }

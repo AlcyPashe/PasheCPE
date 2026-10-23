@@ -57,6 +57,28 @@ public sealed class ValidadorEsquemaTests : IDisposable
         Assert.NotEmpty(_servicios.Obtener<ValidadorEsquema>().Validar(xml));
     }
 
+    [Theory]
+    [InlineData("20611619767-RC-20261021-11.xml")]
+    [InlineData("20611619767-RC-20261022-7.xml")]
+    public void Validar_ResumenDorado_PasaElXsdUbl20(string archivo)
+    {
+        var xml = File.ReadAllBytes(Path.Combine(Dorados.LectorDorado.Carpeta("RC-Resumen"), archivo));
+
+        Assert.Empty(_servicios.Obtener<ValidadorEsquema>().Validar(xml));
+        Assert.False(_servicios.Obtener<ValidadorEsquema>().Compilado);
+    }
+
+    [Fact]
+    public void Validar_ResumenSinLineas_DevuelveErrorDelXsdUbl20()
+    {
+        var texto = File.ReadAllText(Path.Combine(Dorados.LectorDorado.Carpeta("RC-Resumen"), "20611619767-RC-20261021-11.xml"));
+        var sinLineas = System.Text.RegularExpressions.Regex.Replace(texto, "<sac:SummaryDocumentsLine>.*</sac:SummaryDocumentsLine>", string.Empty, System.Text.RegularExpressions.RegexOptions.Singleline);
+
+        var error = Assert.Single(_servicios.Obtener<ValidadorEsquema>().Validar(Encoding.UTF8.GetBytes(sinLineas)));
+
+        Assert.StartsWith("/SummaryDocuments", error.Ruta, StringComparison.Ordinal);
+    }
+
     private async Task<byte[]> Generar()
     {
         var resultado = await _servicios.Obtener<GeneradorInvoice>().GenerarAsync(Ejemplos.Emisor(), Ejemplos.Factura(), TestContext.Current.CancellationToken);

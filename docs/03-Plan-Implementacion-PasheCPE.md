@@ -151,6 +151,14 @@
 
 **Aceptación:** pruebas de lotes, correlativos y ticket 98→0 / 99; **(manual, beta)** resumen con 2+ boletas aceptado tras el ciclo de ticket y consulta del ticket desde otro proceso.
 
+**Estado:** implementada el 23/10/2026 (668 pruebas en verde); **pendiente la prueba manual en beta** del desarrollador (casos 9 y 10 de la demo).
+- Decisiones con el desarrollador:
+  - las líneas se arman con los totales del modelo o desde el XML firmado de FIRMA (`DocumentoResumenCpe`);
+  - el resultado del RC se registra en el historial de cada boleta (rechazado → vuelve a `Generado`);
+  - fuera de plazo se envía con advertencia (4443) y la anulación fuera de plazo se bloquea (2957).
+- XSD UBL 2.0 en un segundo conjunto; la XSL del RC ya estaba integrada desde la Fase 3. Reglas 2027 del RC en C# (2992, 3504, 3102, 4019, 2022, 3051).
+- **[verificar]** en el primer uso real: `SOAPAction` de `sendSummary`/`getStatus`, el código al reenviar un RC ya presentado (2223) y, desde enero de 2027, la regla 2048 con IGV 0.00 en boletas exoneradas.
+
 ---
 
 ## Fase 7 — Notas de crédito y débito (reglas 2027)

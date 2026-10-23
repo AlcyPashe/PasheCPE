@@ -7,15 +7,18 @@ using PasheCPE.Ubl;
 namespace PasheCPE.Validacion;
 
 /// <summary>
-/// Validación contra los XSD oficiales UBL 2.1 de SUNAT (TRD §9.2), incrustados desde <c>recursos/XSD</c>. El
-/// conjunto se compila una sola vez. Se valida el XML sin firmar: el <c>ext:UBLExtensions</c> vacío (preparado para
-/// la firma) se excluye, porque el XSD exige un elemento dentro de <c>ExtensionContent</c>.
+/// Validación contra los XSD oficiales de SUNAT (TRD §9.2), incrustados desde <c>recursos/XSD</c>: UBL 2.1 para los
+/// comprobantes y guías, y UBL 2.0 para el resumen diario. Son dos conjuntos separados (comparten los namespaces
+/// <c>cac</c>/<c>cbc</c> y no pueden compilarse juntos), elegidos por el elemento raíz; cada uno se compila una sola
+/// vez. Se valida el XML sin firmar: el <c>ext:UBLExtensions</c> vacío (preparado para la firma) se excluye, porque el
+/// XSD 2.1 exige un elemento dentro de <c>ExtensionContent</c>.
 /// </summary>
 internal sealed class ValidadorEsquema(CatalogoErrores errores)
 {
     private static readonly string[] _documentos = ["Invoice", "CreditNote", "DebitNote", "DespatchAdvice", "ApplicationResponse"];
 
     private readonly Lazy<XmlSchemaSet> _esquemas = new(Compilar);
+    private readonly Lazy<XmlSchemaSet> _esquemasUbl20 = new(CompilarUbl20);
 
     /// <summary>Errores de esquema del XML (vacío si es válido). Nunca lanza por un XML inválido o mal formado.</summary>
     public IReadOnlyList<ErrorCpe> Validar(byte[] xml)
@@ -38,7 +41,7 @@ internal sealed class ValidadorEsquema(CatalogoErrores errores)
         var opciones = new XmlReaderSettings
         {
             ValidationType = ValidationType.Schema,
-            Schemas = _esquemas.Value,
+            Schemas = documento.DocumentElement?.NamespaceURI == EspaciosUbl.SummaryDocuments ? _esquemasUbl20.Value : _esquemas.Value,
             DtdProcessing = DtdProcessing.Prohibit,
             XmlResolver = null,
         };
@@ -59,10 +62,14 @@ internal sealed class ValidadorEsquema(CatalogoErrores errores)
         return encontrados;
     }
 
-    /// <summary>Compila el conjunto de XSD (precalentamiento).</summary>
-    public void Precalentar() => _ = _esquemas.Value;
+    /// <summary>Compila los conjuntos de XSD (precalentamiento).</summary>
+    public void Precalentar()
+    {
+        _ = _esquemas.Value;
+        _ = _esquemasUbl20.Value;
+    }
 
-    /// <summary>true si el conjunto de XSD ya se compiló (para pruebas).</summary>
+    /// <summary>true si el conjunto de XSD UBL 2.1 ya se compiló (para pruebas).</summary>
     internal bool Compilado => _esquemas.IsValueCreated;
 
     private ErrorCpe Error(string mensaje, string? ruta) =>
@@ -110,6 +117,22 @@ internal sealed class ValidadorEsquema(CatalogoErrores errores)
             esquemas.Add(null, lector);
         }
 
+        esquemas.Compile();
+        return esquemas;
+    }
+
+    /// <summary>
+    /// UBL 2.0 del resumen diario: solo el documento principal; sus <c>import</c> se resuelven dentro de los recursos.
+    /// No se cargan todos los comunes porque <c>UBLPE-SunatAggregateComponents</c> 1.0 y 1.1 comparten el namespace
+    /// (el XSD de SUNAT importa el 1.0, que ya trae las líneas con cliente, referencia y estado).
+    /// </summary>
+    private static XmlSchemaSet CompilarUbl20()
+    {
+        var esquemas = new XmlSchemaSet { XmlResolver = new ResolutorXsd() };
+        const string nombre = ResolutorXsd.PrefijoRecurso + "2.0.maindoc.UBLPE-SummaryDocuments-1.0.xsd";
+        using var flujo = RecursosEmbebidos.Abrir(nombre["PasheCPE.Recursos.".Length..]);
+        using var lector = XmlReader.Create(flujo, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }, ResolutorXsd.Uri(nombre).AbsoluteUri);
+        esquemas.Add(null, lector);
         esquemas.Compile();
         return esquemas;
     }

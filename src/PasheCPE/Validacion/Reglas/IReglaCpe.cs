@@ -42,6 +42,7 @@ internal sealed class DocumentoXml
         _espacios.AddNamespace("cac", EspaciosUbl.Cac);
         _espacios.AddNamespace("cbc", EspaciosUbl.Cbc);
         _espacios.AddNamespace("ext", EspaciosUbl.Ext);
+        _espacios.AddNamespace("sac", EspaciosUbl.Sac);
         TipoOperacion = Texto("/*/cbc:InvoiceTypeCode/@listID");
     }
 
