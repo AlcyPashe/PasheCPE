@@ -371,7 +371,7 @@ Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → seri
 ## 9. Validación local (nivel 1)
 
 ### 9.1 Modelo (C#)
-Obligatorios, serie vs tipo (F/B/T/V…), tipo de documento del cliente (factura → 6; boleta > S/ 700 → identificación), fechas, plazos (`FechaLimiteEnvio` vencida → error), NRUS, longitud de campos, código de producto 8 dígitos, una sola referencia en notas.
+Obligatorios, serie vs tipo (F/B/T/V…), tipo de documento del cliente (factura → 6; boleta > S/ 700 → identificación), fechas, plazos (`FechaLimiteEnvio` vencida → error), NRUS, longitud de campos, código de producto 8 dígitos (00000000 y 99999999 se aceptan, como excepción del Excel, 3496), una sola referencia en notas. Ante diferencias con el Excel de validación, prevalece el Excel (§9.4).
 
 ### 9.2 Esquema
 `XmlSchemaSet` compilado una vez desde `recursos\XSD` (embebidos, enlazados sin copiar), con resolutor local para los `import` (ninguna URI externa se resuelve). El xmldsig de UBL trae un DOCTYPE con entidades internas: se lee con `DtdProcessing.Parse` y se carga primero. Se valida el XML **sin firmar** (la firma no altera la estructura validada); como `ext:ExtensionContent` exige un elemento, el `ext:UBLExtensions` vacío preparado para la firma se excluye de la validación (única exclusión). Los errores se devuelven como `PCPE-2001` con la ruta del elemento.
@@ -418,9 +418,11 @@ Las XSL de SUNAT son XSLT 1.0 escritas para IBM DataPower. Lo que se encontró e
 
 ### 9.4 Reglas complementarias (C#) y ajustes de la XSL
 
+> **Regla de precedencia (PRD RF-07): el Excel de validación prevalece sobre las XSL.** Ante cualquier incongruencia o duda entre una XSL y el Excel de reglas de validación (`recursos\VALIDACIONES`, el más actualizado), se implementa lo que dice el Excel: el código de la XSL se suprime en `ajustes-xsl.json` y lo reemplaza una regla C# conforme al Excel, con el motivo, la fila del Excel y una prueba. Lo mismo vale para `ValidadorModelo` y para el XML que se genera: si son más estrictos o distintos que el Excel, se alinean con el Excel. Solo los dorados aceptados por SUNAT (CDR reales) pueden matizar una fila del Excel, y eso se documenta en el motivo.
+
 Las XSL son del 06/09/2022 y el Excel de reglas, del 26/08/2026: hay filas posteriores que la XSL no tiene o calcula distinto (por ejemplo, la sumatoria del IGV con la tasa MYPE de 10.5 %). Se cubren con:
 
-- **`IReglaCpe`** (`Validacion\Reglas\`): cada regla evalúa el **XML** (no el modelo, así sirve para cualquier XML) e informa la fila del Excel que no se cumple. El **código y el tipo salen de `reglas-cpe.json`**: error u observación según la vigencia a la fecha de recepción (hoy en Lima); antes de una vigencia «OBSERV → ERROR» se aplica `tipoAnterior`, y una regla sin tipo anterior no aplica antes de su vigencia. Origen `OrigenError.Reglas2027`; se activan con `Validacion.Reglas2027`.
+- **`IReglaCpe`** (`Validacion\Reglas\`): cada regla evalúa el **XML** (no el modelo, así sirve para cualquier XML) e informa la fila del Excel que no se cumple. El **código y el tipo salen de `reglas-cpe.json`**: error u observación según la vigencia a la fecha de recepción (hoy en Lima); antes de una vigencia «OBSERV → ERROR» se aplica `tipoAnterior`, y una regla sin tipo anterior no aplica antes de su vigencia. Origen `OrigenError.ReglasComplementarias`; se activan con `Validacion.Reglas2027`.
 - **`ajustes-xsl.json`**: `suprimidos` (código de la XSL que se descarta, la regla C# que lo reemplaza, las filas del Excel que lo respaldan y el motivo; solo se suprime si las reglas complementarias están activas) y `clasificacion` (cada fila de 01/03 con vigencia posterior al 06/09/2022: `reemplazada`, `nueva`, `xsl`, `modelo` o `noVerificable`, con el motivo). Una prueba falla si alguna fila queda sin clasificar, si una regla no respalda sus filas o si un código suprimido ya no está activo en la XSL. Con cada XSL nueva de SUNAT el archivo se revisa completo.
 
 Reglas implementadas para 01/03 (Fase 3):

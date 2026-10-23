@@ -66,6 +66,17 @@ public sealed class ValidadorModeloTests : IDisposable
         Assert.Equal(catalogo, error.Catalogo);
     }
 
+    [Theory]
+    [InlineData("00000000")]
+    [InlineData("99999999")]
+    public void Validar_CodigoProductoDeExcepcion_SeAcepta(string codigo)
+    {
+        // El Excel de SUNAT (3496) admite 8 ceros y 8 nueves como excepción al listado UNSPSC.
+        var factura = Ejemplos.Factura() with { Lineas = [Ejemplos.Factura().Lineas[0] with { CodigoProductoSunat = codigo }], FormaPago = FormaPagoCpe.Contado };
+
+        Assert.DoesNotContain(Validar(Ejemplos.Emisor(), factura), e => e.Codigo == "PCPE-1223");
+    }
+
     [Fact]
     public void Validar_SerieDeFacturaEnBoleta_DevuelveError() =>
         Assert.Contains(Validar(Ejemplos.Emisor(), Boleta(10m) with { Serie = "F001" }), e => e.Codigo == "PCPE-1204");
@@ -190,7 +201,7 @@ public sealed class ValidadorModeloTests : IDisposable
             "Cantidad" => ConLinea(linea with { Cantidad = 0 }),
             "ImporteNegativo" => ConLinea(linea with { ImporteUnitario = -1 }),
             "Descripcion" => ConLinea(linea with { Descripcion = " " }),
-            "CodigoProducto" => ConLinea(linea with { CodigoProductoSunat = "00000000" }),
+            "CodigoProducto" => ConLinea(linea with { CodigoProductoSunat = "5022120" }),
             "Gtin" => ConLinea(linea with { Gtin = "123" }),
             "BolsasDistintasDeLaCantidad" => ConLinea(linea with { BolsasIcbper = 3 }),
             "GratuitoIncoherente" => ConLinea(linea with { EsGratuito = true, Afectacion = AfectacionIgv.GravadoOneroso }),

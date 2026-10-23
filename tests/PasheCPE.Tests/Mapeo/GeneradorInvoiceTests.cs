@@ -57,7 +57,7 @@ public sealed class GeneradorInvoiceTests : IDisposable
         var resultado = await servicios.Obtener<GeneradorInvoice>().GenerarAsync(Ejemplos.Emisor(), Ejemplos.Factura(), TestContext.Current.CancellationToken);
 
         var error = Assert.Single(resultado.Errores);
-        Assert.Equal(("3291", OrigenError.Reglas2027), (error.Codigo, error.Origen));
+        Assert.Equal(("3291", OrigenError.ReglasComplementarias), (error.Codigo, error.Origen));
         Assert.NotNull(resultado.Xml);
         Assert.Null(resultado.Ruta);
         Assert.False(Directory.Exists(Path.Combine(servicios.Almacen.Ruta, "DATA")));

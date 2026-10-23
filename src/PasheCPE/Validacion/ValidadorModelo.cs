@@ -247,7 +247,8 @@ internal sealed partial class ValidadorModelo(
             }
 
             catalogo("03", linea.Unidad, ruta + ".Unidad");
-            if (linea.CodigoProductoSunat is { } producto && (!OchoDigitos().IsMatch(producto) || producto is "00000000" or "99999999"))
+            // El Excel de SUNAT (3496) acepta 00000000 y 99999999 como excepción al listado UNSPSC.
+            if (linea.CodigoProductoSunat is { } producto && !OchoDigitos().IsMatch(producto))
             {
                 lista.Add(local("PCPE-1223", ruta + ".CodigoProductoSunat", [producto, numero]));
             }

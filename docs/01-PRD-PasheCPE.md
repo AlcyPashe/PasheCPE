@@ -95,8 +95,10 @@ Reglas por régimen: el `NRUS` solo emite boletas y sus notas (y GRE); `RER`, `R
 **RF-07 — Validación en tres capas, antes de enviar:**
 1. **Modelo** (C#): datos obligatorios, coherencia de serie/tipo, documento de identidad del cliente (factura → RUC; boleta > S/ 700 → identificación), fechas y plazos, NRUS solo boletas.
 2. **Esquema**: el XML generado contra los XSD oficiales.
-3. **Reglas SUNAT**: las XSL oficiales de `recursos\XSL` (actualizadas al 06/09/2022), ejecutadas con **emulación de las extensiones IBM DataPower** (`dp:`) y EXSLT, más un **conjunto complementario de reglas 2027** (R.S. 000048-2026) implementado en C#.
+3. **Reglas SUNAT**: las XSL oficiales de `recursos\XSL` (actualizadas al 06/09/2022), ejecutadas con **emulación de las extensiones IBM DataPower** (`dp:`) y EXSLT, más un **conjunto de reglas complementarias** en C#: las filas del Excel de validación que las XSL no tienen o calculan distinto, incluidas las de 2027 (R.S. 000048-2026).
 El resultado indica código SUNAT, descripción y ubicación de cada error; un documento con errores no se envía.
+
+**Precedencia: el Excel de validación prevalece sobre las XSL.** Ante cualquier incongruencia o duda entre las XSL y el Excel de reglas de validación de SUNAT (`recursos\VALIDACIONES`), manda lo que dice el Excel, porque es el más actualizado. La diferencia se resuelve suprimiendo el código de la XSL y reemplazándolo por una regla C# conforme al Excel, con su motivo y la fila del Excel que lo respalda (TRD §9.4). Lo mismo aplica a la validación del modelo y al XML que genera la librería.
 
 **RF-08 — Reglas vigentes al 01/01/2027.** Se implementan solo las reglas de la R.S. 000048-2026 (postergada por la R.S. 000143-2026): una NC/ND modifica un único comprobante; NC motivo 03 corrige descripción o código de producto sin cambiar importes; ND motivo 13 (penalidades, inafectas); ND motivo 03 "Otros conceptos"; series F/B coherentes con el documento modificado; código de producto de 8 dígitos; catálogos 09 y 10 actualizados.
 
@@ -199,7 +201,7 @@ Solo hasta el mes: **sin subcarpetas por día**. El periodo es el de la **fecha 
 
 | Riesgo | Mitigación |
 |---|---|
-| XSL de 2022 no contienen las reglas 2027 | Capa complementaria de reglas 2027 en C#, versionada y probada |
+| XSL de 2022 desactualizadas frente al Excel de validación (reglas 2024–2027, tasa MYPE de 10.5 %) | Prevalece el Excel: capa de reglas complementarias en C# y ajustes declarativos de la XSL (`ajustes-xsl.json`), versionados y probados |
 | XSL dependen de `validate_utils.xsl`, `error_utils.xsl` y catálogos XML no publicados por SUNAT | Implementación propia de esas plantillas y catálogos generados desde el Anexo 8 |
 | `XslCompiledTransform` no soporta elementos de extensión DataPower | Las plantillas utilitarias propias no los usan; `dp:variable` y EXSLT se emulan como funciones de extensión |
 | No hay XSL oficial para GRE transportista | XSD + reglas C#; revisar publicaciones de SUNAT |

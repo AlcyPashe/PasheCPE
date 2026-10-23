@@ -88,8 +88,11 @@ public enum OrigenError
     /// <summary>Reglas de las XSL oficiales de SUNAT.</summary>
     XslSunat,
 
-    /// <summary>Reglas complementarias vigentes desde 2027.</summary>
-    Reglas2027,
+    /// <summary>
+    /// Reglas complementarias en C#: filas del Excel de validación de SUNAT que las XSL (06/09/2022) no tienen o
+    /// calculan distinto, incluidas las vigentes desde 2027.
+    /// </summary>
+    ReglasComplementarias,
 
     /// <summary>Respuesta de SUNAT u OSE.</summary>
     Sunat,

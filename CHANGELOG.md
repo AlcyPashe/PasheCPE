@@ -43,6 +43,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 - 22/10/2026 — Fase 0: repositorio git (`main`, remoto `origin`), solución `PasheCPE.slnx` con `src/PasheCPE`, `src/PasheCPE.Pdf`, `tests/PasheCPE.Tests`, `tests/PasheCPE.Pdf.Tests` y `samples/PasheCPE.Demo`; `Directory.Packages.props` (CPM) con las dependencias del TRD §1; `src/` y `tests/Directory.Build.props`; metadatos NuGet (licencia propietaria `LICENSE.txt`, README, Source Link del SDK, PDB embebido); pruebas de humo de los dos ensamblados; `tests/Datos/`.
 
 ### Cambiado
+- 22/10/2026 — `OrigenError.Reglas2027` pasa a `OrigenError.ReglasComplementarias`: incluye reglas del Excel de 2022 a 2027, no solo las de 2027.
+- 22/10/2026 — `ValidadorModelo` acepta los códigos de producto `00000000` y `99999999`, que el Excel de SUNAT admite como excepción (3496); `PCPE-1223` solo exige 8 dígitos.
+- 22/10/2026 — PRD RF-07 y TRD §9.1/§9.4: ante incongruencias o dudas entre las XSL y el Excel de validación, prevalece el Excel (el más actualizado).
 - 22/10/2026 — Fase 3: las XSL de SUNAT encontraron 4 defectos del XML de la Fase 2 que SUNAT habría rechazado:
   - con descuento de línea, el precio de referencia es (valor de venta + tributos) ÷ cantidad (3270);
   - el ISC de monto fijo informa su tasa equivalente (2992/3108);

@@ -23,7 +23,7 @@
     { "codigo": "PCPE-1220","descripcion": "La línea {0} debe tener una cantidad mayor que cero." },
     { "codigo": "PCPE-1221", "descripcion": "La línea {0} no puede tener un importe unitario negativo." },
     { "codigo": "PCPE-1222", "descripcion": "La descripción de la línea {0} debe tener entre 1 y 500 caracteres." },
-    { "codigo": "PCPE-1223", "descripcion": "El código de producto SUNAT '{0}' de la línea {1} debe tener 8 dígitos y no puede ser 00000000 ni 99999999." },
+    { "codigo": "PCPE-1223", "descripcion": "El código de producto SUNAT '{0}' de la línea {1} debe tener 8 dígitos." },
     { "codigo": "PCPE-1224", "descripcion": "El GTIN '{0}' de la línea {1} debe tener 8, 12, 13 o 14 dígitos." },
     { "codigo": "PCPE-1225", "descripcion": "La línea {0} está marcada como gratuita, pero su afectación {1} no es de transferencia gratuita (11 a 16, 21 o 31 a 37)." },
     { "codigo": "PCPE-1226", "descripcion": "La afectación {0} de la línea {1} (IVAP) aún no está soportada." },

@@ -97,7 +97,7 @@ internal sealed class ValidadorSunat(
             var fila = excel.Obtener(referencia.TipoDocumento, hallazgo.Fila);
             if (ReglasExcelSunat.TipoVigente(fila, hoy) is { } tipo)
             {
-                agregar(fila.Codigo, tipo == "error", hallazgo.Ruta, hallazgo.Detalle, OrigenError.Reglas2027, fila.Mensaje);
+                agregar(fila.Codigo, tipo == "error", hallazgo.Ruta, hallazgo.Detalle, OrigenError.ReglasComplementarias, fila.Mensaje);
             }
         }
     }
