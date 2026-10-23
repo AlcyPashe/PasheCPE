@@ -5,6 +5,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <IsTestProject>true</IsTestProject>
+    <!-- UseAppHost no se puede desactivar aquí: xunit.v3.core.mtp-off lo fuerza a true y falla la compilación si es false
+         (cada proyecto de prueba de xUnit v3 es un ejecutable). Si el antivirus bloquea los .Tests.exe, excluir tests\*\bin. -->
   </PropertyGroup>
 
   <ItemGroup>
