@@ -17,6 +17,9 @@ internal sealed class ClasificadorRespuesta(CatalogoErrores errores, CatalogoRes
 {
     public const string CodigoRegistradoPreviamente = "1033";
 
+    /// <summary>Estado del ticket en proceso; su mensaje para el cajero es el del resumen.</summary>
+    public const string CodigoTicketEnProceso = "98";
+
     /// <summary>CDR: 0 aceptado (con notas, con observaciones), 2000–3999 rechazado, 98 en proceso, 99 rechazado.</summary>
     public ResultadoEnvio DesdeCdr(ContextoEnvio contexto, RespuestaSoap? soap, CdrLeido cdr)
     {
@@ -129,7 +132,12 @@ internal sealed class ClasificadorRespuesta(CatalogoErrores errores, CatalogoRes
     public ResultadoEnvio DesdeTicket(ContextoEnvio contexto, RespuestaSoap soap, string ticket)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ticket);
-        return Crear(contexto, soap, EstadoCpe.EnProceso, null, $"Ticket {ticket}") with { Ticket = ticket, RequiereConsultaEstado = true };
+        return Crear(contexto, soap, EstadoCpe.EnProceso, null, $"Ticket {ticket}") with
+        {
+            Ticket = ticket,
+            RequiereConsultaEstado = true,
+            MensajeUsuario = respuestas.MensajeUsuario(EstadoCpe.EnProceso, CodigoTicketEnProceso),
+        };
     }
 
     /// <summary>

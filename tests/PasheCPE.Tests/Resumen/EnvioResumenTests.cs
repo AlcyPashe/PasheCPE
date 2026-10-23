@@ -24,6 +24,7 @@ public sealed class EnvioResumenTests : IDisposable
         var resultado = await Servicio(_servicios).EnviarAsync(emisor, resumen, Ct);
 
         Assert.Equal((EstadoCpe.EnProceso, _ticket, true), (resultado.Estado, resultado.Ticket, resultado.RequiereConsultaEstado));
+        Assert.StartsWith("SUNAT está procesando el resumen", resultado.MensajeUsuario, StringComparison.Ordinal);
         var solicitud = Assert.Single(_servicios.Sunat.Solicitudes);
         Assert.Equal("\"urn:sendSummary\"", solicitud.SoapAction);
         Assert.Contains("<fileName>20123456786-RC-20261022-1.zip</fileName>", solicitud.Cuerpo, StringComparison.Ordinal);

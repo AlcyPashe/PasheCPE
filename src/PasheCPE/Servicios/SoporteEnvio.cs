@@ -24,7 +24,7 @@ internal sealed class SoporteEnvio(
     AlmacenCpe almacen,
     RegistroHistorial historial,
     IOptions<OpcionesPasheCpe> opciones,
-    ILogger<EnvioComprobantes> registro)
+    ILogger<SoporteEnvio> registro)
 {
     /// <summary>Credenciales SOAP y endpoint del servicio; un error de configuración no llama a SUNAT.</summary>
     public (EndpointCpe? Endpoint, ResultadoEnvio? Error) Preparar(EmisorCpe emisor, ContextoEnvio contexto, ServicioSunat servicio)
@@ -78,11 +78,11 @@ internal sealed class SoporteEnvio(
         Telemetria.RegistrarEnvio(intento.Operacion, resultado.Estado, intento.DuracionMs);
         if (resultado.Estado is EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.EnProceso or EstadoCpe.Generado)
         {
-            RegistroEventos.EnvioResultado(registro, intento.Operacion, referencia.NombreArchivo, resultado.Estado, resultado.Codigo, resultado.Descripcion);
+            RegistroEventos.EnvioResultado(registro, intento.Operacion, referencia.NombreArchivo, resultado.Estado, resultado.Codigo ?? string.Empty, resultado.Descripcion);
         }
         else
         {
-            RegistroEventos.EnvioFallido(registro, intento.Operacion, referencia.NombreArchivo, resultado.Estado, resultado.Codigo, resultado.Descripcion);
+            RegistroEventos.EnvioFallido(registro, intento.Operacion, referencia.NombreArchivo, resultado.Estado, resultado.Codigo ?? string.Empty, resultado.Descripcion);
         }
 
         ct.ThrowIfCancellationRequested();

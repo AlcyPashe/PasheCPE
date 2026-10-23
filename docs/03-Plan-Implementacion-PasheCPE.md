@@ -151,13 +151,18 @@
 
 **Aceptación:** pruebas de lotes, correlativos y ticket 98→0 / 99; **(manual, beta)** resumen con 2+ boletas aceptado tras el ciclo de ticket y consulta del ticket desde otro proceso.
 
-**Estado:** implementada el 23/10/2026 (668 pruebas en verde); **pendiente la prueba manual en beta** del desarrollador (casos 9 y 10 de la demo).
+**Estado:** completada el 23/10/2026 (668 pruebas en verde). Prueba manual en beta del desarrollador (RUC 20493400364, MODDATOS):
+- Boletas B001-1 (gravada) y B001-2 (exonerada) generadas sin enviar; `RC-20261023-1` armado desde FIRMA, ticket `1792782486619` y aceptado en la primera consulta (2 s), con el CDR en `RPTA`; ambas boletas quedaron `Aceptado` en su historial.
+- `SOAPAction: "urn:sendSummary"` y `"urn:getStatus"` confirmados en beta.
+- La consulta del ticket (caso 10) lo tomó del historial; como el resumen ya estaba aceptado, se respondió desde el historial sin llamar a SUNAT. La consulta real desde otro proceso con el resumen en proceso queda cubierta por la prueba automática (beta resuelve el ticket en segundos).
+- B001-3, aceptada individualmente en la Fase 5, no se regeneró (`PCPE-3101`), como corresponde.
+- Ajustes tras la prueba: mensaje al cajero propio del resumen al recibir el ticket, categoría de log `SoporteEnvio` y sin «(null)» cuando la respuesta no trae código.
 - Decisiones con el desarrollador:
   - las líneas se arman con los totales del modelo o desde el XML firmado de FIRMA (`DocumentoResumenCpe`);
   - el resultado del RC se registra en el historial de cada boleta (rechazado → vuelve a `Generado`);
   - fuera de plazo se envía con advertencia (4443) y la anulación fuera de plazo se bloquea (2957).
 - XSD UBL 2.0 en un segundo conjunto; la XSL del RC ya estaba integrada desde la Fase 3. Reglas 2027 del RC en C# (2992, 3504, 3102, 4019, 2022, 3051).
-- **[verificar]** en el primer uso real: `SOAPAction` de `sendSummary`/`getStatus`, el código al reenviar un RC ya presentado (2223) y, desde enero de 2027, la regla 2048 con IGV 0.00 en boletas exoneradas.
+- **[verificar]** en el primer uso real: el código al reenviar un RC ya presentado (2223) y, desde enero de 2027, la regla 2048 con IGV 0.00 en boletas exoneradas.
 
 ---
 
