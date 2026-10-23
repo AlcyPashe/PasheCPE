@@ -4,6 +4,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>PasheCPE.GeneradorRecursos</RootNamespace>
+    <!-- Sin .exe propio: dotnet run lo ejecuta con dotnet.exe (firmado por Microsoft), así el antivirus no lo bloquea. -->
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>

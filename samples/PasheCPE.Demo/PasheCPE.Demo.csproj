@@ -3,6 +3,8 @@
   <!-- Envíos reales a beta/producción: solo los ejecuta el desarrollador, manualmente. Credenciales en user-secrets (Fase 5). -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <!-- Sin .exe propio: dotnet run lo ejecuta con dotnet.exe (firmado por Microsoft), así el antivirus no lo bloquea. -->
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>
