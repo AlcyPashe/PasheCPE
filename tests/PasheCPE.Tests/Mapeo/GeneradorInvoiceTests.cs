@@ -3,6 +3,7 @@ using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PasheCPE.Mapeo;
 using PasheCPE.Tests.Utilidades;
+using PasheCPE.Validacion;
 using PasheCPE.Validacion.Reglas;
 
 namespace PasheCPE.Tests.Mapeo;
@@ -82,6 +83,54 @@ public sealed class GeneradorInvoiceTests : IDisposable
         var resultado = await _servicios.Obtener<GeneradorInvoice>().GenerarAsync(caso.Emisor, caso.Comprobante, TestContext.Current.CancellationToken);
 
         Assert.Contains("schemeName=\"Codigo de detraccion\"", Encoding.UTF8.GetString(resultado.Xml!), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task GenerarAsync_ValidacionDeModeloDesactivada_NoAplicaLasReglasDelModelo()
+    {
+        // Factura a un cliente con DNI: el modelo la rechaza (PCPE-1210). Sin esa capa, el error lo detecta la XSL de SUNAT.
+        using var servicios = new ServiciosPrueba(o => o.Validacion.Modelo = false);
+        var factura = Ejemplos.Factura() with { Cliente = new ClienteCpe { TipoDocumento = TipoDocumentoIdentidad.Dni, NumeroDocumento = "12345678", RazonSocial = "CLIENTE" } };
+
+        var conModelo = await _servicios.Obtener<GeneradorInvoice>().GenerarAsync(Ejemplos.Emisor(), factura, TestContext.Current.CancellationToken);
+        var sinModelo = await servicios.Obtener<GeneradorInvoice>().GenerarAsync(Ejemplos.Emisor(), factura, TestContext.Current.CancellationToken);
+
+        Assert.Contains(conModelo.Errores, e => e.Codigo == "PCPE-1210");
+        Assert.DoesNotContain(sinModelo.Errores, e => e.Origen == OrigenError.Modelo);
+        Assert.NotNull(sinModelo.Xml);
+    }
+
+    [Fact]
+    public async Task GenerarAsync_ValidacionDeEsquemaDesactivada_NoCompilaNiValidaLosXsd()
+    {
+        using var servicios = new ServiciosPrueba(o => o.Validacion.Esquema = false);
+
+        var resultado = await servicios.Obtener<GeneradorInvoice>().GenerarAsync(Ejemplos.Emisor(), Ejemplos.Factura(), TestContext.Current.CancellationToken);
+
+        Assert.True(resultado.Exito);
+        Assert.False(servicios.Obtener<ValidadorEsquema>().Compilado);
+
+        // Con la opción activa (por defecto), la misma generación sí compila y aplica los XSD.
+        await _servicios.Obtener<GeneradorInvoice>().GenerarAsync(Ejemplos.Emisor(), Ejemplos.Factura(), TestContext.Current.CancellationToken);
+        Assert.True(_servicios.Obtener<ValidadorEsquema>().Compilado);
+    }
+
+    [Fact]
+    public async Task GenerarAsync_SinValidacionLocal_GeneraLoQueSunatRechazara()
+    {
+        using var servicios = new ServiciosPrueba(o =>
+        {
+            o.Validacion.Modelo = false;
+            o.Validacion.Esquema = false;
+            o.Validacion.XslSunat = false;
+            o.Validacion.ReglasComplementarias = false;
+        });
+        var factura = Ejemplos.Factura() with { Cliente = new ClienteCpe { TipoDocumento = TipoDocumentoIdentidad.Dni, NumeroDocumento = "12345678", RazonSocial = "CLIENTE" } };
+
+        var resultado = await servicios.Obtener<GeneradorInvoice>().GenerarAsync(Ejemplos.Emisor(), factura, TestContext.Current.CancellationToken);
+
+        Assert.True(resultado.Exito);
+        Assert.True(File.Exists(resultado.Ruta));
     }
 
     /// <summary>Regla que siempre informa la fila 351 de la factura (3291), para probar que un error impide escribir.</summary>

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using PasheCPE.Almacenamiento;
 using PasheCPE.Empaquetado;
 using PasheCPE.Serializacion;
@@ -21,7 +22,8 @@ internal sealed record XmlGenerado(
 /// <summary>
 /// Factura o boleta → XML sin firmar en <c>DATA\yyyy\MM</c>: valida el modelo → calcula → mapea → serializa → valida
 /// el XSD → valida las XSL de SUNAT y las reglas complementarias → escribe. Con cualquier error no escribe nada; las
-/// observaciones de SUNAT van a las advertencias. La firma, el ZIP y el QR los agrega <c>ServicioCpe</c>.
+/// observaciones de SUNAT van a las advertencias. La firma, el ZIP y el QR los agrega <c>ServicioCpe</c>. Cada capa
+/// respeta su opción (<see cref="OpcionesValidacion"/>); los errores del cálculo y de los totales bloquean siempre.
 /// </summary>
 internal sealed class GeneradorInvoice(
     ValidadorModelo validador,
@@ -30,7 +32,8 @@ internal sealed class GeneradorInvoice(
     ValidadorEsquema esquema,
     ValidadorSunat sunat,
     AlmacenCpe almacen,
-    Tiempo.RelojCpe reloj)
+    Tiempo.RelojCpe reloj,
+    IOptions<OpcionesPasheCpe> opciones)
 {
     /// <summary>Referencia del comprobante: la fecha de emisión, o hoy en Lima si no se indica.</summary>
     public ReferenciaCpe Referencia(EmisorCpe emisor, ComprobanteCpe cpe)
@@ -58,8 +61,9 @@ internal sealed class GeneradorInvoice(
     public XmlGenerado Construir(EmisorCpe emisor, ComprobanteCpe cpe)
     {
         var referencia = Referencia(emisor, cpe);
+        var validacion = opciones.Value.Validacion;
 
-        var errores = validador.Validar(emisor, cpe);
+        var errores = validacion.Modelo ? validador.Validar(emisor, cpe) : [];
         if (errores.Count > 0)
         {
             return new XmlGenerado(referencia, null, null, errores, [], null);
@@ -73,17 +77,17 @@ internal sealed class GeneradorInvoice(
         }
 
         var xml = SerializadorUbl.Serializar(mapeador.Mapear(calculo));
-        errores = esquema.Validar(xml);
+        errores = validacion.Esquema ? esquema.Validar(xml) : [];
         if (errores.Count > 0)
         {
             return new XmlGenerado(referencia, xml, null, errores, calculo.Advertencias, calculo);
         }
 
-        var validacion = sunat.Validar(xml, referencia);
-        IReadOnlyList<ObservacionCpe> advertencias = [.. calculo.Advertencias, .. validacion.Observaciones];
-        if (validacion.Errores.Count > 0)
+        var resultadoSunat = sunat.Validar(xml, referencia);
+        IReadOnlyList<ObservacionCpe> advertencias = [.. calculo.Advertencias, .. resultadoSunat.Observaciones];
+        if (resultadoSunat.Errores.Count > 0)
         {
-            return new XmlGenerado(referencia, xml, null, validacion.Errores, advertencias, calculo);
+            return new XmlGenerado(referencia, xml, null, resultadoSunat.Errores, advertencias, calculo);
         }
 
         return new XmlGenerado(referencia, xml, null, [], advertencias, calculo);

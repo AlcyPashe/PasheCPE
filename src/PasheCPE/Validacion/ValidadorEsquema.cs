@@ -62,6 +62,9 @@ internal sealed class ValidadorEsquema(CatalogoErrores errores)
     /// <summary>Compila el conjunto de XSD (precalentamiento).</summary>
     public void Precalentar() => _ = _esquemas.Value;
 
+    /// <summary>true si el conjunto de XSD ya se compiló (para pruebas).</summary>
+    internal bool Compilado => _esquemas.IsValueCreated;
+
     private ErrorCpe Error(string mensaje, string? ruta) =>
         errores.Local("PCPE-2001", OrigenError.Esquema, ruta, null, mensaje);
 

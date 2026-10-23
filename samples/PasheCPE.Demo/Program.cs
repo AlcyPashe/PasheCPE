@@ -40,7 +40,7 @@ opcionesSinValidacion.Validacion.XslSunat = false;
 opcionesSinValidacion.Validacion.ReglasComplementarias = false;
 using var pasheSinValidacion = PasheCpe.Crear(opcionesSinValidacion, registros);
 
-EmisorCpe Emisor(bool amazonia, string clave) => new()
+EmisorCpe Emisor(bool amazonia, string clave, string? usuario = null) => new()
 {
     Ruc = datos.Emisor.Ruc,
     RazonSocial = datos.Emisor.RazonSocial,
@@ -57,7 +57,7 @@ EmisorCpe Emisor(bool amazonia, string clave) => new()
     },
     ExoneradoAmazonia = amazonia,
     Canal = CanalEnvio.Sunat,
-    CredencialesSoap = new CredencialesSoap(usuarioSol, clave),
+    CredencialesSoap = new CredencialesSoap(usuario ?? usuarioSol, clave),
     Certificado = new CertificadoCpe(datos.Certificado, claveCertificado),
 };
 
@@ -82,7 +82,7 @@ while (true)
     Console.WriteLine("2. Factura exonerada (Ley de la Amazonía)");
     Console.WriteLine("3. Boleta de venta individual");
     Console.WriteLine("4. Factura con rechazo forzado (cliente con DNI, sin validación local)");
-    Console.WriteLine("5. Factura con clave SOL errónea");
+    Console.WriteLine("5. Factura con usuario y clave SOL erróneos (beta acepta cualquier clave de MODDATOS)");
     Console.WriteLine("6. Reenviar o reconciliar un documento ya generado (EnviarAsync)");
     Console.WriteLine("7. Consultar el CDR (getStatusCdr, solo producción)");
     Console.WriteLine("8. Ver el historial de un documento");
@@ -105,7 +105,7 @@ while (true)
                 await Emitir(pasheSinValidacion, Emisor(amazonia: false, claveSol), Comprobante(TipoDocumentoSunat.Factura, datos.SerieFactura, Consola.Numero(), datos.ClienteBoleta, AfectacionIgv.GravadoOneroso));
                 break;
             case "5":
-                await Emitir(pashe, Emisor(amazonia: false, "CLAVE-ERRONEA"), Comprobante(TipoDocumentoSunat.Factura, datos.SerieFactura, Consola.Numero(), datos.Cliente, AfectacionIgv.GravadoOneroso));
+                await Emitir(pashe, Emisor(amazonia: false, "CLAVE-ERRONEA", usuario: "NOEXISTE"), Comprobante(TipoDocumentoSunat.Factura, datos.SerieFactura, Consola.Numero(), datos.Cliente, AfectacionIgv.GravadoOneroso));
                 break;
             case "6":
                 Consola.Imprimir(await pashe.Cpe.EnviarAsync(Emisor(amazonia: false, claveSol), Consola.Referencia(datos.Emisor.Ruc)));

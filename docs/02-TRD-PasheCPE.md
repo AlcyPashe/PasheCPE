@@ -490,7 +490,7 @@ No usa ping (ICMP suele estar bloqueado). Se puede desactivar por opción.
 
 ## 14. Transporte SOAP (SUNAT y OSE)
 
-- `HttpClient` nombrado vía `IHttpClientFactory` (`SocketsHttpHandler` con `ConnectCallback`: un timeout de la conexión significa que no se envió nada); SOAP 1.1, `Content-Type: text/xml; charset=utf-8`. `SOAPAction` es dato por endpoint (`soapAction` en `endpoints.json`, plantilla `urn:{operacion}` para SUNAT, decidido el 23/10/2026) **[verificar con el envío a beta]**; vacío → `SOAPAction: ""`.
+- `HttpClient` nombrado vía `IHttpClientFactory` (`SocketsHttpHandler` con `ConnectCallback`: un timeout de la conexión significa que no se envió nada); SOAP 1.1, `Content-Type: text/xml; charset=utf-8`. `SOAPAction` es dato por endpoint (`soapAction` en `endpoints.json`, plantilla `urn:{operacion}` para SUNAT, decidido el 23/10/2026): **confirmado en beta** (`billService`, 23/10/2026); producción y `billConsultService` **[verificar]** en el primer uso real; vacío → `SOAPAction: ""`.
 - Sobre construido con plantillas (raw string literals) y `wsse:UsernameToken` (`Username = RUC + usuario`, `Password` texto). Para OSE, usuario y clave los asigna el OSE.
 - Operaciones: `sendBill(fileName, contentFile)`, `sendSummary(fileName, contentFile)`, `getStatus(ticket)`, `getStatusCdr(rucComprobante, tipoComprobante, serieComprobante, numeroComprobante)`.
 - Respuestas parseadas con `XmlReader` (sin cargar DOM completo): `applicationResponse` (Base64 ZIP), `ticket`, `status/statusCode/content`, `statusCdr/statusCode/statusMessage/content`.
