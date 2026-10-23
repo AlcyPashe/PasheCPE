@@ -176,16 +176,24 @@
 
 **Aceptación:** pruebas de cada regla 2027 (una referencia, NC motivo 03 sin cambio de importe, ND motivo 13 sin IGV, serie F/B coherente); **(manual, beta)** NC por devolución total y ND por intereses aceptadas sobre una factura aceptada.
 
-**Estado:** implementada el 23/10/2026 (780 pruebas en verde); **pendiente la prueba manual en beta del desarrollador** (demo, casos 11–16).
-- Decisiones con el desarrollador:
-  - el documento modificado es opcional solo en la ND 13 (2524);
-  - NC 03 con importes → advertencia `PCPE-1420` **[verificar]**: en beta se envían una NC 03 en cero (caso 14) y otra con importes (caso 15), y según la respuesta pasa a error o se elimina;
-  - la NC 13 (ajuste de cuotas) entra en esta fase;
-  - validación contra el original solo si está en el historial (`FechaEmision` opcional del documento modificado);
-  - solo se modifican facturas y boletas.
+**Estado:** completada el 23/10/2026 (779 pruebas en verde). Prueba manual en beta del desarrollador (RUC 20493400364, MODDATOS), todas aceptadas con código 0 y sin observaciones:
+- factura al crédito en 2 cuotas F001-21;
+- NC por devolución total FC01-22 sobre F001-1 y ND por intereses FD01-23 sobre F001-2;
+- NC 03 en cero FC01-24 y NC 03 con los importes de la línea corregida FC01-25;
+- NC 13 (ajuste de cuotas) FC01-26 sobre F001-21.
+
+Decisiones con el desarrollador:
+- el documento modificado es opcional solo en la ND 13 (2524);
+- la NC 13 (ajuste de cuotas) entra en esta fase;
+- validación contra el original solo si está en el historial (`FechaEmision` opcional del documento modificado);
+- solo se modifican facturas y boletas;
+- NC 03: beta aceptó la NC en cero y con importes, y el Excel no tiene regla para ello → **no se validan sus importes** (se quita la advertencia `PCPE-1420`). Como la prueba fue anterior a la vigencia, se repite en enero de 2027 (`05-Mantenimiento-Normativo.md`).
+
+Otros resultados:
+- Fila 2369: beta acepta PriceAmount 0 en las NC 03 y 13 (FC01-24, FC01-26); queda como `xsl`, igual que en la factura.
 - Las 2 NC doradas coinciden con lo generado salvo las leyendas 1000 y 2001. No hay ND dorada: 16 notas generadas pasan el XSD y las XSL sin hallazgos.
 - La XSL de 2022 tiene condiciones viejas en la 3261 (NC) y la 2524 (ND): se suprimen desde el 01/01/2027 (`desde` en `ajustes-xsl.json`) y las reemplazan reglas C#. Hasta esa fecha aplica la XSL.
-- **[verificar]** en beta: PriceAmount 0 en las NC 03 y 13 (fila 2369, «diferente de cero» en el Excel; la XSL lo admite). Las reglas con vigencia 2027 (ND 13, 3261 para todos los motivos…) no se pueden probar en beta antes del 01/01/2027; las cubren las pruebas automáticas.
+- Las reglas con vigencia 2027 (ND 13, 3261 para todos los motivos…) no se pueden probar en beta antes del 01/01/2027; las cubren las pruebas automáticas.
 
 ---
 

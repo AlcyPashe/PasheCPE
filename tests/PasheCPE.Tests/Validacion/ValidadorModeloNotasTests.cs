@@ -114,26 +114,16 @@ public sealed class ValidadorModeloNotasTests : IDisposable
     }
 
     [Fact]
-    public async Task Construir_CorreccionDeDescripcionConImportes_AdvierteSinBloquear()
+    public async Task Construir_CorreccionDeDescripcionConImportes_SeGeneraSinAdvertencias()
     {
+        // Beta aceptó la NC 03 en cero (FC01-24) y con importes (FC01-25) sin observaciones, y el Excel 26.08.2026 no
+        // tiene una regla para sus importes: no se valida (se revisa en enero de 2027, 05-Mantenimiento-Normativo).
         var nota = CasosNotas.Credito(MotivoNotaCredito.CorreccionDescripcion, CasosTributarios.Linea(1, 59m));
 
         var generado = await _servicios.Obtener<GeneradorNota>().ConstruirAsync(CasosTributarios.Gravado(), nota, TestContext.Current.CancellationToken);
 
         Assert.True(generado.Exito, string.Join("; ", generado.Errores.Select(e => e.Codigo)));
-        var advertencia = Assert.Single(generado.Advertencias, a => a.Codigo == "PCPE-1420");
-        Assert.Contains("59.00", advertencia.Descripcion, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public async Task Construir_CorreccionDeDescripcionEnCero_NoAdvierte()
-    {
-        var nota = CasosNotas.Todos["NcCorreccionDescripcionEnCero"].Nota;
-
-        var generado = await _servicios.Obtener<GeneradorNota>().ConstruirAsync(CasosTributarios.Gravado(), nota, TestContext.Current.CancellationToken);
-
-        Assert.True(generado.Exito);
-        Assert.DoesNotContain(generado.Advertencias, a => a.Codigo == "PCPE-1420");
+        Assert.Empty(generado.Advertencias);
     }
 
     private static NotaCpe Modificar(string caso)

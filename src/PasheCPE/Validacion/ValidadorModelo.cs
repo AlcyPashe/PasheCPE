@@ -10,7 +10,7 @@ namespace PasheCPE.Validacion;
 /// Validación del modelo de facturas, boletas y notas (TRD §9.1, nivel 1). Acumula todos los errores, nunca lanza. Los
 /// códigos de catálogo se validan existentes y vigentes a la fecha de emisión, con el número de catálogo en el error.
 /// <see cref="Validar(EmisorCpe, ComprobanteCpe)"/> y <see cref="Validar(EmisorCpe, NotaCpe)"/> corren antes del
-/// cálculo; <see cref="ValidarTotales"/> y <see cref="Advertencias"/>, después (reglas que dependen de los importes).
+/// cálculo; <see cref="ValidarTotales"/>, después (reglas que dependen de los importes).
 /// </summary>
 internal sealed partial class ValidadorModelo(
     CatalogosSunat catalogos,
@@ -319,20 +319,6 @@ internal sealed partial class ValidadorModelo(
         }
 
         return lista;
-    }
-
-    /// <summary>
-    /// Advertencias que no bloquean la emisión. La nota de crédito por corrección de la descripción (motivo 03) no varía
-    /// los importes según la R.S. 000048-2026, pero el Excel de SUNAT no tiene una regla ni un código para ello
-    /// <b>[verificar]</b>: se advierte si trae importes.
-    /// </summary>
-    public IReadOnlyList<ObservacionCpe> Advertencias(CalculoComprobante calculo)
-    {
-        ArgumentNullException.ThrowIfNull(calculo);
-        return calculo.Comprobante is NotaCpe { TipoDocumento: TipoDocumentoSunat.NotaDeCredito, Motivo: MotivoNotaCredito.CorreccionDescripcion }
-            && (calculo.ImporteTotal > 0 || calculo.ValorVenta > 0)
-            ? [errores.Advertencia("PCPE-1420", Monto(calculo.ImporteTotal))]
-            : [];
     }
 
     private static void ValidarEmisor(List<ErrorCpe> lista, EmisorCpe emisor, Action<string, string?, string> catalogo, Func<string, string, object?[], ErrorCpe> local)

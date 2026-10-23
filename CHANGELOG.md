@@ -13,7 +13,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
     - `MapeadorComun` (emisor, cliente, firma, referencias, tributos, totales y líneas) compartido por factura y notas; el XML de factura no cambia (dorados en verde).
     - `MapeadorCreditNote` y `MapeadorDebitNote`; `ConstructorXml` (pasos comunes tras validar el modelo) y `GeneradorNota`.
     - `CalculadoraTributaria` calcula cualquier `DocumentoVentaCpe`; en la NC 13 el monto neto pendiente es la suma de las cuotas (3319).
-  - `ValidadorModelo` (`PCPE-1401`–`1415`): motivo vigente (Cat.09/10), sustento, documento modificado 01/03 y su serie, serie de la nota coherente, plazo, NC 13 (factura al crédito con cuotas e importe cero), ND 13 sin IGV, sin descuentos ni cargos. Advertencia `PCPE-1420` en la NC 03 con importes **[verificar]**.
+  - `ValidadorModelo` (`PCPE-1401`–`1415`): motivo vigente (Cat.09/10), sustento, documento modificado 01/03 y su serie, serie de la nota coherente, plazo, NC 13 (factura al crédito con cuotas e importe cero), ND 13 sin IGV, sin descuentos ni cargos. Los importes de la NC 03 no se validan (ver la prueba en beta).
   - `ValidadorDocumentoModificado` (`PCPE-1430`–`1433`): si el original está en el historial, no puede estar rechazado, la factura debe estar aceptada, misma moneda e importe de la NC no mayor.
   - Reglas 2027: `ReferenciaUnica` (3261/3194), `ReferenciaNotaDebito` (2524) y `PenalidadesSinIgv` (3507); `SumatoriaIgv`, `TasaIgvUnica`, `CodigoProducto` y `ContratoColaboracion` extendidas a 07/08.
   - `ajustes-xsl.json`:
@@ -26,6 +26,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
     - 16 notas generadas sin hallazgos de XSD ni XSL y 23 alteraciones con el código de SUNAT;
     - cada error del modelo y la validación contra el historial;
     - envío por `sendBill`, nota B en modo resumen e individual, y RC desde FIRMA con una NC de boleta.
+  - Prueba en beta (RUC 20493400364): F001-21 al crédito, FC01-22 (devolución total), FD01-23 (intereses), FC01-24 y FC01-25 (NC 03 en cero y con importes) y FC01-26 (NC 13), todas aceptadas sin observaciones. Con ese resultado:
+    - se quitó la advertencia de la NC 03 con importes (el Excel no tiene regla para ello; se repite la prueba en enero de 2027);
+    - se cerró la fila 2369: SUNAT acepta PriceAmount 0 en las notas.
 - 23/10/2026 — Fase 6 (resumen diario de boletas):
   - `IServicioCpe.GenerarResumenAsync` con los totales de cada línea (`ResumenDiarioCpe`) o desde FIRMA (`DocumentoResumenCpe`: la línea se arma con el XML firmado de la boleta o nota); `ConsultarTicketAsync` y `EsperarTicketAsync` (ticket explícito o tomado del historial); `EnviarAsync` envía el RC con `sendSummary`.
   - `SummaryDocuments` UBL 2.0 / 1.1 y `MapeadorSummary`:

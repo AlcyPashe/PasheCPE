@@ -80,7 +80,6 @@
     { "codigo": "PCPE-1413", "descripcion": "Las penalidades (nota de débito motivo 13) son inafectas del IGV (3507): la línea {0} tiene la afectación {1}." },
     { "codigo": "PCPE-1414", "descripcion": "Las notas de crédito y débito no admiten descuentos ni cargos globales." },
     { "codigo": "PCPE-1415", "descripcion": "Las notas de crédito y débito no admiten descuentos de línea (línea {0})." },
-    { "codigo": "PCPE-1420", "descripcion": "La nota de crédito por corrección de la descripción (motivo 03) no debería variar los importes (R.S. 000048-2026) y tiene un importe total de {0}. Se emite igual: confirme el criterio con la respuesta de SUNAT." },
     { "codigo": "PCPE-1430", "descripcion": "El documento que modifica la nota ({0}) está en estado {1} en el historial: una nota no puede modificar un documento rechazado o que no pasó la validación (2119, 2121, 2209, 2208)." },
     { "codigo": "PCPE-1431", "descripcion": "La factura que modifica la nota ({0}) aún no tiene el CDR de aceptación (estado {1} en el historial): envíela antes de emitir la nota (2119, 2209)." },
     { "codigo": "PCPE-1432", "descripcion": "La moneda de la nota ({0}) es distinta de la del documento que modifica ({1}) (3209)." },
