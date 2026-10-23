@@ -269,7 +269,7 @@ public sealed record ResultadoEnvio
 | Sin interfaz de red / sin Internet | `SinConexionInternet` | sí | no |
 | DNS o TCP del destino falla con Internet disponible | `ServicioNoDisponible` | sí | no |
 | HTTP 502/503/504, timeout de **conexión**, error TLS | `ServicioNoDisponible` | sí | no |
-| Fault con código `transitorio = true` (falla interna de SUNAT, p. ej. 0100 "El sistema no puede responder su solicitud") | se reintenta **como máximo 3 veces** con espera progresiva; si persiste, `ServicioNoDisponible` con `EsReintentable = true` y decide el sistema de ventas (nunca reintentos infinitos) | sí | según operación |
+| Fault con código `transitorio = true` (falla interna de SUNAT, p. ej. 0100 "El sistema no puede responder su solicitud") | `ServicioNoDisponible` con `EsReintentable = true`; los reintentos dentro de la llamada dependen de la operación (§14): `sendBill` nunca, `sendSummary` solo faults de disponibilidad, `getStatus`/`getStatusCdr`/token GRE hasta 3. Nunca reintentos infinitos; el reenvío lo decide el sistema de ventas | sí | según el último fault (§14) |
 | Fault con código `enProceso = true` (0140 "Existe un documento igual en proceso") | `EnProceso` con `RequiereConsultaEstado = true`: **nunca se reenvía**; se consulta el CDR después de una espera | — | **sí** |
 | Fault que apunta al archivo enviado (0250 error al descomprimir, 0252 ZIP sin archivos…) | `ErrorServicio`: reenviar el mismo archivo no lo arregla | no | no |
 | Fault 0100–1999 no transitorio (credenciales, perfil, nombre/estructura de archivo) | `ErrorServicio` | no | no |
@@ -490,7 +490,21 @@ No usa ping (ICMP suele estar bloqueado). Se puede desactivar por opción.
 - Respuestas parseadas con `XmlReader` (sin cargar DOM completo): `applicationResponse` (Base64 ZIP), `ticket`, `status/statusCode/content`, `statusCdr/statusCode/statusMessage/content`.
 - `LectorFaultSoap`: `faultcode`/`faultstring`/`detail`; código = sufijo numérico del `faultcode` (`soap-env:Client.0111` → `0111`) o, si no, el número del `faultstring`; se enriquece con `errores-sunat.json`.
 - Timeouts separados: conexión (`TimeoutConexionSegundos`, 10) y respuesta (`TimeoutRespuestaSegundos`, 60). Resiliencia (reintentos con espera exponencial) **solo** para `getStatus`, `getStatusCdr` y token GRE.
-- Faults transitorios (§5.1): como máximo 3 reintentos con espera progresiva por operación; luego `ServicioNoDisponible` con `EsReintentable = true`. Nunca reintentos infinitos. En `sendBill`, el reintento debe respetar la regla de no reenviar automáticamente (principio 4): **[verificar con el desarrollador en la Fase 5]** si cada reintento va precedido de `getStatusCdr` o si los transitorios de `sendBill` solo se informan sin reintentar.
+- **Faults transitorios y reintentos** (decidido con el desarrollador el 22/10/2026). Nunca hay reintentos infinitos. Los transitorios se agrupan así:
+  - *Disponibilidad* (0100, 0109, 0138): SUNAT no recibió el documento.
+  - *Constancia o ticket* (0125, 0130, 0307): SUNAT pudo haberlo registrado.
+  - *Resto de transitorios* (0131–0137, 0200, 0201, 0251, 0253, 0254): por prudencia se tratan como los de constancia o ticket.
+
+  | Operación | Reintentos dentro de la llamada | Resultado si persiste |
+  |---|---|---|
+  | `sendBill` | **Ninguno** (principio 4) | `ServicioNoDisponible` con `EsReintentable = true` de inmediato; el sistema de ventas decide cuándo reenviar (su `BackgroundService`) |
+  | `sendSummary` | Solo faults de *disponibilidad*, como máximo 3, con espera progresiva | `ServicioNoDisponible` con `EsReintentable = true` |
+  | `getStatus`, `getStatusCdr`, token GRE | Hasta 3, con espera progresiva | `ServicioNoDisponible` con `EsReintentable = true` |
+
+- **Siguiente `EnviarAsync` del mismo documento**: antes de reenviar se lee el último intento del historial (`LOG`).
+  - Si fue `RespuestaIncierta` o un fault de *constancia o ticket* (o del resto de transitorios), primero se consulta con `getStatusCdr`. Si SUNAT ya lo tiene, se devuelve ese estado y no se reenvía.
+  - Si fue un fault de *disponibilidad*, se reenvía directamente.
+  - En el RC y la RA, que no tienen `getStatusCdr`, el ticket registrado se consulta con `getStatus` antes de reenviar.
 - 0140 (`enProceso`): nunca se reenvía; `EnProceso` con `RequiereConsultaEstado = true` y consulta del CDR después de una espera.
 - Bloqueo por documento dentro del proceso (`SemaphoreSlim` por nombre de archivo) para impedir envíos simultáneos del mismo comprobante.
 

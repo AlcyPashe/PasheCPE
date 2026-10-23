@@ -111,7 +111,12 @@
 1. `VerificadorConectividad` (TRD §13).
 2. `ConstructorSobreSoap`, `ClienteSoap` (`sendBill`, `getStatusCdr`), `LectorFaultSoap`, timeouts separados, bloqueo por documento.
 3. `LectorCdr` y `ClasificadorRespuesta` con la tabla del TRD §5.1, `MensajeUsuario`, `FechaLimiteEnvio`.
-4. Reconciliación `RespuestaIncierta` / 1033 vía `getStatusCdr`. Faults transitorios: máximo 3 reintentos con espera progresiva y luego `ServicioNoDisponible` con `EsReintentable = true`. 0140: `EnProceso` con `RequiereConsultaEstado = true`, sin reenvío (TRD §5.1). **[Desarrollador]** Antes de implementar, decidir cómo se reintenta un transitorio de `sendBill` sin violar la regla de no reenviar (TRD §14).
+4. Reconciliación `RespuestaIncierta` / 1033 vía `getStatusCdr`. Faults transitorios según TRD §14:
+   - `sendBill` sin reintentos internos (`ServicioNoDisponible` con `EsReintentable = true`).
+   - `sendSummary` solo reintenta los faults de disponibilidad.
+   - Hasta 3 reintentos en `getStatus`, `getStatusCdr` y el token GRE.
+   - El siguiente `EnviarAsync` consulta primero `getStatusCdr` si el último intento fue `RespuestaIncierta` o un fault de constancia o ticket; con un fault de disponibilidad reenvía directamente.
+   - 0140: `EnProceso` con `RequiereConsultaEstado = true`, sin reenvío.
 5. `EnviarAsync`, `EmitirAsync`, `ConsultarCdrAsync` en `ServicioCpe`; telemetría y enmascarado.
 6. `samples\PasheCPE.Demo`: emisión a beta con user-secrets.
 7. **[Desarrollador]** RUC y usuario de beta (`MODDATOS`), certificado de prueba en `CPE\CERT`, ejecución manual de la demo.

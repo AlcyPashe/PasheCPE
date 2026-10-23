@@ -43,6 +43,11 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 - 22/10/2026 — Fase 0: repositorio git (`main`, remoto `origin`), solución `PasheCPE.slnx` con `src/PasheCPE`, `src/PasheCPE.Pdf`, `tests/PasheCPE.Tests`, `tests/PasheCPE.Pdf.Tests` y `samples/PasheCPE.Demo`; `Directory.Packages.props` (CPM) con las dependencias del TRD §1; `src/` y `tests/Directory.Build.props`; metadatos NuGet (licencia propietaria `LICENSE.txt`, README, Source Link del SDK, PDB embebido); pruebas de humo de los dos ensamblados; `tests/Datos/`.
 
 ### Cambiado
+- 22/10/2026 — TRD §5.1 y §14: política de reintentos decidida (se quita el [verificar]). Plan de la Fase 5 actualizado.
+  - `sendBill` no se reintenta dentro de la llamada.
+  - `sendSummary` reintenta solo los faults de disponibilidad (0100, 0109, 0138).
+  - Hasta 3 reintentos en `getStatus`, `getStatusCdr` y el token GRE.
+  - El siguiente `EnviarAsync` consulta primero `getStatusCdr` tras `RespuestaIncierta` o un fault de constancia o ticket (0125, 0130, 0307), y reenvía directo tras un fault de disponibilidad.
 - 22/10/2026 — Revisión de la Fase 1 con el desarrollador:
   - Errores: 0250 (error al descomprimir el ZIP enviado) deja de ser transitorio. 0140 se marca `enProceso` (EnProceso con consulta del CDR, sin reenvío). Quedan 18 transitorios, con la política de máximo 3 reintentos documentada para la Fase 5 (TRD §5.1 y §14).
   - Nueva opción `PasheCPE:VigenciasCatalogos`, que reemplaza las vigencias de `catalogos.json`.
