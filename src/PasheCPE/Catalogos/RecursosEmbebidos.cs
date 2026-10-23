@@ -29,6 +29,7 @@ internal static class RecursosEmbebidos
 [JsonSerializable(typeof(ArchivoPlazos))]
 [JsonSerializable(typeof(ArchivoEndpoints))]
 [JsonSerializable(typeof(ArchivoMonedas))]
+[JsonSerializable(typeof(ArchivoParametros))]
 internal sealed partial class DatosJson : JsonSerializerContext;
 
 internal sealed record ArchivoCatalogos(IReadOnlyDictionary<string, DatosCatalogo> Catalogos);
@@ -73,3 +74,5 @@ internal sealed record ArchivoPlazos(IReadOnlyList<PlazoEnvio> Plazos);
 internal sealed record ArchivoEndpoints(IReadOnlyList<EndpointCpe> Endpoints);
 
 internal sealed record ArchivoMonedas(IReadOnlyDictionary<string, string> Monedas);
+
+internal sealed record ArchivoParametros(decimal BoletaSinIdentificacionHasta, DateOnly ContratoColaboracionDesde);

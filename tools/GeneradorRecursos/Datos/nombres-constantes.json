@@ -750,31 +750,31 @@
       "constantes": [
         {
           "codigo": "00",
-          "nombre": "DescuentosQueAfectanLaBaseImponible"
+          "nombre": "DescuentoLineaAfectaBase"
         },
         {
           "codigo": "01",
-          "nombre": "DescuentosQueNoAfectanLaBase"
+          "nombre": "DescuentoLineaNoAfectaBase"
         },
         {
           "codigo": "02",
-          "nombre": "DescuentosGlobalesQueAfectanLaBase"
+          "nombre": "DescuentoGlobalAfectaBase"
         },
         {
           "codigo": "03",
-          "nombre": "DescuentosGlobalesQueNoAfectanLa"
+          "nombre": "DescuentoGlobalNoAfectaBase"
         },
         {
           "codigo": "04",
-          "nombre": "DescuentosGlobalesPorAnticiposGravadosQue"
+          "nombre": "AnticipoGravado"
         },
         {
           "codigo": "05",
-          "nombre": "DescuentosGlobalesPorAnticiposExonerados"
+          "nombre": "AnticipoExonerado"
         },
         {
           "codigo": "06",
-          "nombre": "DescuentosGlobalesPorAnticiposInafectos"
+          "nombre": "AnticipoInafecto"
         },
         {
           "codigo": "07",
@@ -794,19 +794,19 @@
         },
         {
           "codigo": "47",
-          "nombre": "CargosQueAfectanLaBaseImponible"
+          "nombre": "CargoLineaAfectaBase"
         },
         {
           "codigo": "48",
-          "nombre": "CargosQueNoAfectanLaBase"
+          "nombre": "CargoLineaNoAfectaBase"
         },
         {
           "codigo": "49",
-          "nombre": "CargosGlobalesQueAfectanLaBase"
+          "nombre": "CargoGlobalAfectaBase"
         },
         {
           "codigo": "50",
-          "nombre": "CargosGlobalesQueNoAfectanLa"
+          "nombre": "CargoGlobalNoAfectaBase"
         },
         {
           "codigo": "51",

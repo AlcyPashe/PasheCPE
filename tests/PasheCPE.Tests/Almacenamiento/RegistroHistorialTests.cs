@@ -33,7 +33,7 @@ public sealed class RegistroHistorialTests : IDisposable
         await _registro.RegistrarAsync(referencia, EstadoCpe.EnProceso, Intento(EstadoCpe.EnProceso, "1729000000000"), ct);
         var historial = await _registro.ObtenerAsync(referencia, ct);
 
-        Assert.True(File.Exists(Path.Combine(_temporal.Ruta, "LOG", "2026", "10", "20123456789-RC-20261023-1.json")));
+        Assert.True(File.Exists(Path.Combine(_temporal.Ruta, "LOG", "2026", "10", "20123456786-RC-20261023-1.json")));
         Assert.NotNull(historial);
         Assert.Equal(EstadoCpe.EnProceso, historial.EstadoActual);
         Assert.Equal("1729000000000", historial.Ticket);

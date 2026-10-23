@@ -83,6 +83,9 @@ public sealed record AnticipoCpe
     /// <summary>Monto del anticipo, con impuestos.</summary>
     public required decimal Monto { get; init; }
 
+    /// <summary>Afectación del anticipo (catálogo N.° 07): gravado, exonerado o inafecto; si es null, la del emisor.</summary>
+    public string? Afectacion { get; init; }
+
     /// <summary>Fecha de pago del anticipo.</summary>
     public DateOnly? FechaPago { get; init; }
 }

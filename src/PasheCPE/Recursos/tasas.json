@@ -12,6 +12,10 @@
     { "desde": "2027-01-01", "hasta": "2027-12-31", "tasa": 15.00 }
   ],
   "icbper": [
+    { "desde": "2019-08-01", "montoPorUnidad": 0.10 },
+    { "desde": "2020-01-01", "montoPorUnidad": 0.20 },
+    { "desde": "2021-01-01", "montoPorUnidad": 0.30 },
+    { "desde": "2022-01-01", "montoPorUnidad": 0.40 },
     { "desde": "2023-01-01", "montoPorUnidad": 0.50 }
   ]
 }

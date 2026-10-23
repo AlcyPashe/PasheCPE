@@ -36,13 +36,18 @@ public sealed class TablaTasasTests : IDisposable
             tasa is null ? null : (decimal)tasa.Value,
             new TablaTasas(_almacen.OpcionesDi()).MypeRestaurantesHoteles(DateOnly.Parse(fecha, System.Globalization.CultureInfo.InvariantCulture)));
 
-    [Fact]
-    public void Icbper_Vigente_EsCincuentaCentimos() =>
-        Assert.Equal(0.50m, new TablaTasas(_almacen.OpcionesDi()).Icbper(new DateOnly(2026, 10, 22)));
+    [Theory]
+    [InlineData("2019-08-01", 0.10)]
+    [InlineData("2020-06-30", 0.20)]
+    [InlineData("2021-06-30", 0.30)]
+    [InlineData("2022-12-31", 0.40)]
+    [InlineData("2026-10-22", 0.50)]
+    public void Icbper_SegunElCronogramaGradual(string fecha, double monto) =>
+        Assert.Equal((decimal)monto, new TablaTasas(_almacen.OpcionesDi()).Icbper(DateOnly.Parse(fecha, System.Globalization.CultureInfo.InvariantCulture)));
 
     [Fact]
-    public void Icbper_AntesDelPrimerTramo_EsNull() =>
-        Assert.Null(new TablaTasas(_almacen.OpcionesDi()).Icbper(new DateOnly(2022, 12, 31)));
+    public void Icbper_AntesDeSuVigencia_EsNull() =>
+        Assert.Null(new TablaTasas(_almacen.OpcionesDi()).Icbper(new DateOnly(2019, 7, 31)));
 
     [Fact]
     public void Igv_ConTramosConfigurados_ReemplazaLosEmbebidos()

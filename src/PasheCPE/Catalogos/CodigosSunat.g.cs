@@ -600,25 +600,25 @@ public static class CargoDescuento
     public const string NumeroCatalogo = "53";
 
     /// <summary><c>00</c>: Descuentos que afectan la base imponible del IGV/IVAP</summary>
-    public const string DescuentosQueAfectanLaBaseImponible = "00";
+    public const string DescuentoLineaAfectaBase = "00";
 
     /// <summary><c>01</c>: Descuentos que no afectan la base imponible del IGV/IVAP</summary>
-    public const string DescuentosQueNoAfectanLaBase = "01";
+    public const string DescuentoLineaNoAfectaBase = "01";
 
     /// <summary><c>02</c>: Descuentos globales que afectan la base imponible del IGV/IVAP</summary>
-    public const string DescuentosGlobalesQueAfectanLaBase = "02";
+    public const string DescuentoGlobalAfectaBase = "02";
 
     /// <summary><c>03</c>: Descuentos globales que no afectan la base imponible del IGV/IVAP</summary>
-    public const string DescuentosGlobalesQueNoAfectanLa = "03";
+    public const string DescuentoGlobalNoAfectaBase = "03";
 
     /// <summary><c>04</c>: Descuentos globales por anticipos gravados que afectan la base imponible del IGV/IVAP</summary>
-    public const string DescuentosGlobalesPorAnticiposGravadosQue = "04";
+    public const string AnticipoGravado = "04";
 
     /// <summary><c>05</c>: Descuentos globales por anticipos exonerados</summary>
-    public const string DescuentosGlobalesPorAnticiposExonerados = "05";
+    public const string AnticipoExonerado = "05";
 
     /// <summary><c>06</c>: Descuentos globales por anticipos inafectos</summary>
-    public const string DescuentosGlobalesPorAnticiposInafectos = "06";
+    public const string AnticipoInafecto = "06";
 
     /// <summary><c>07</c>: Factor de compensación - Decreto de urgencia N. 010-2004</summary>
     public const string FactorDeCompensacionDecretoDeUrgencia = "07";
@@ -633,16 +633,16 @@ public static class CargoDescuento
     public const string RecargoAlConsumoYOPropinas = "46";
 
     /// <summary><c>47</c>: Cargos que afectan la base imponible del IGV/IVAP</summary>
-    public const string CargosQueAfectanLaBaseImponible = "47";
+    public const string CargoLineaAfectaBase = "47";
 
     /// <summary><c>48</c>: Cargos que no afectan la base imponible del IGV/IVAP</summary>
-    public const string CargosQueNoAfectanLaBase = "48";
+    public const string CargoLineaNoAfectaBase = "48";
 
     /// <summary><c>49</c>: Cargos globales que afectan la base imponible del IGV/IVAP</summary>
-    public const string CargosGlobalesQueAfectanLaBase = "49";
+    public const string CargoGlobalAfectaBase = "49";
 
     /// <summary><c>50</c>: Cargos globales que no afectan la base imponible del IGV/IVAP</summary>
-    public const string CargosGlobalesQueNoAfectanLa = "50";
+    public const string CargoGlobalNoAfectaBase = "50";
 
     /// <summary><c>51</c>: Percepción venta interna</summary>
     public const string PercepcionVentaInterna = "51";

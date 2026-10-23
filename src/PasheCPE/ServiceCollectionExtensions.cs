@@ -5,8 +5,10 @@ using PasheCPE;
 using PasheCPE.Almacenamiento;
 using PasheCPE.Catalogos;
 using PasheCPE.Configuracion;
+using PasheCPE.Mapeo;
 using PasheCPE.Tiempo;
 using PasheCPE.Tributos;
+using PasheCPE.Validacion;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -49,6 +51,12 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<AlmacenCpe>();
         services.TryAddSingleton<RegistroHistorial>();
         services.TryAddSingleton<IHistorialCpe, ServicioHistorial>();
+        services.TryAddSingleton<ParametrosSunat>();
+        services.TryAddSingleton<CalculadoraTributaria>();
+        services.TryAddSingleton<MapeadorInvoice>();
+        services.TryAddSingleton<ValidadorEsquema>();
+        services.TryAddSingleton<ValidadorModelo>();
+        services.TryAddSingleton<GeneradorInvoice>();
         return services;
     }
 }

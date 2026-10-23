@@ -3,7 +3,7 @@ namespace PasheCPE.Tests.Utilidades;
 /// <summary>Datos de ejemplo para las pruebas (RUC y nombres ficticios).</summary>
 internal static class Ejemplos
 {
-    public const string Ruc = "20123456789";
+    public const string Ruc = "20123456786";
 
     public static EmisorCpe Emisor(RegimenTributario regimen = RegimenTributario.General, bool? amazonia = null, bool mype = false) => new()
     {
@@ -26,7 +26,7 @@ internal static class Ejemplos
         Numero = 123,
         FechaEmision = new DateOnly(2026, 10, 22),
         HoraEmision = new TimeOnly(10, 30, 0),
-        Cliente = new ClienteCpe { TipoDocumento = TipoDocumentoIdentidad.Ruc, NumeroDocumento = "20987654321", RazonSocial = "CLIENTE S.A." },
+        Cliente = new ClienteCpe { TipoDocumento = TipoDocumentoIdentidad.Ruc, NumeroDocumento = "20987654326", RazonSocial = "CLIENTE S.A." },
         Lineas =
         [
             new LineaCpe { Descripcion = "ARROZ X 5 KG", Cantidad = 2, ImporteUnitario = 25.50m, CodigoProductoSunat = "50221200" },
@@ -35,7 +35,7 @@ internal static class Ejemplos
         FormaPago = new FormaPagoCpe
         {
             Tipo = TipoFormaPago.Credito,
-            Cuotas = [new CuotaCpe { Monto = 30.50m, FechaVencimiento = new DateOnly(2026, 11, 22) }],
+            Cuotas = [new CuotaCpe { Monto = 61.00m, FechaVencimiento = new DateOnly(2026, 11, 22) }],
         },
     };
 

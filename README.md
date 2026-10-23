@@ -27,6 +27,8 @@ switch (resultado.Envio.Estado)
 
 Guía completa: [`docs/04-Guia-Integracion.md`](docs/04-Guia-Integracion.md).
 
+> **Contrato estable:** los modelos (`EmisorCpe`, `ComprobanteCpe`…), los resultados, las opciones, las interfaces y las constantes de catálogo. Las clases del namespace `PasheCPE.Ubl` son públicas solo porque `XmlSerializer` lo exige: **no forman parte del contrato estable** y pueden cambiar en versiones menores sin aviso.
+
 ## Estructura
 
 ```

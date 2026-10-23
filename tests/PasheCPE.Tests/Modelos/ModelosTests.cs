@@ -79,11 +79,11 @@ public sealed class ModelosTests
     [Fact]
     public void ReferenciaCpe_NombresDeArchivo()
     {
-        Assert.Equal("20123456789-01-F001-123", Ejemplos.Referencia().NombreArchivo);
-        Assert.Equal("20123456789-RC-20261023-2", ReferenciaCpe.Resumen(Ejemplos.Ruc, new DateOnly(2026, 10, 23), 2).NombreArchivo);
-        Assert.Equal("20123456789-RA-20261023-1", ReferenciaCpe.Baja(Ejemplos.Ruc, new DateOnly(2026, 10, 23), 1).NombreArchivo);
-        Assert.Equal("20123456789-09-T001-45", ReferenciaCpe.Guia(Ejemplos.Ruc, TipoDocumentoSunat.GuiaDeRemisionRemitente, "T001", 45, new DateOnly(2026, 10, 23)).NombreArchivo);
-        Assert.Equal("R-20123456789-01-F001-123.zip", PasheCPE.Empaquetado.NombreArchivoCpe.Cdr(Ejemplos.Referencia()));
+        Assert.Equal("20123456786-01-F001-123", Ejemplos.Referencia().NombreArchivo);
+        Assert.Equal("20123456786-RC-20261023-2", ReferenciaCpe.Resumen(Ejemplos.Ruc, new DateOnly(2026, 10, 23), 2).NombreArchivo);
+        Assert.Equal("20123456786-RA-20261023-1", ReferenciaCpe.Baja(Ejemplos.Ruc, new DateOnly(2026, 10, 23), 1).NombreArchivo);
+        Assert.Equal("20123456786-09-T001-45", ReferenciaCpe.Guia(Ejemplos.Ruc, TipoDocumentoSunat.GuiaDeRemisionRemitente, "T001", 45, new DateOnly(2026, 10, 23)).NombreArchivo);
+        Assert.Equal("R-20123456786-01-F001-123.zip", PasheCPE.Empaquetado.NombreArchivoCpe.Cdr(Ejemplos.Referencia()));
     }
 
     [Fact]

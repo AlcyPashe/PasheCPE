@@ -19,6 +19,23 @@ internal sealed class CatalogosSunat(CatalogoErrores errores)
     public string? Descripcion(string catalogo, string codigo) =>
         Obtener(catalogo).Items.TryGetValue(codigo, out var items) ? items[0].Descripcion : null;
 
+    /// <summary>Valor de una columna adicional del catálogo (p. ej. «Codigo de tributo» del N.° 07).</summary>
+    public string? Extra(string catalogo, string codigo, string columna) =>
+        Obtener(catalogo).Items.TryGetValue(codigo, out var items) ? items[0].Extras?.GetValueOrDefault(columna) : null;
+
+    /// <summary>
+    /// Texto oficial de una leyenda del catálogo N.° 52: lo que va entre comillas en la descripción
+    /// (Leyenda “BIENES TRANSFERIDOS EN LA AMAZONÍA…”); si no tiene comillas, la descripción completa.
+    /// </summary>
+    public string TextoLeyenda(string codigo)
+    {
+        var descripcion = Descripcion(CodigoLeyenda.NumeroCatalogo, codigo)
+            ?? throw new ArgumentException($"No existe la leyenda {codigo} en el catálogo N.° 52.", nameof(codigo));
+        var inicio = descripcion.IndexOfAny(['"', '“']);
+        var fin = descripcion.LastIndexOfAny(['"', '”']);
+        return inicio >= 0 && fin > inicio ? descripcion[(inicio + 1)..fin].Trim() : descripcion;
+    }
+
     /// <summary>Devuelve null si el código es válido a la fecha; si no, el error con el número de catálogo.</summary>
     public ErrorCpe? Validar(string catalogo, string? codigo, DateOnly fecha, string? ruta = null)
     {

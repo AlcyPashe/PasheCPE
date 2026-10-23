@@ -21,7 +21,7 @@
 | DI, opciones, logging | `Microsoft.Extensions.DependencyInjection.Abstractions`, `Microsoft.Extensions.Options`, `Microsoft.Extensions.Options.ConfigurationExtensions`, `Microsoft.Extensions.Logging.Abstractions`, `Microsoft.Extensions.Http` | PasheCPE | Microsoft |
 | Contenedor para `PasheCpe.Crear` (sin DI) | `Microsoft.Extensions.DependencyInjection` | PasheCPE | Microsoft; ya llegaba como transitiva de `Microsoft.Extensions.Http` |
 | Resiliencia HTTP | `Microsoft.Extensions.Http.Resilience` | PasheCPE | Microsoft; solo operaciones idempotentes |
-| Serialización rápida | `Microsoft.XmlSerializer.Generator` | PasheCPE | Microsoft; genera los serializadores en compilación |
+| Serialización rápida | `Microsoft.XmlSerializer.Generator` | PasheCPE | Microsoft; genera `PasheCPE.XmlSerializers.dll` en compilación (va en el `.nupkg`). En el SDK 10 necesita también `DotNetCliToolReference`, porque el target del paquete invoca `dotnet Microsoft.XmlSerializer.Generator`; `SGenTypes` lo limita a los documentos UBL raíz |
 | QR | `QRCoder` | PasheCPE | MIT, utilitario permitido |
 | PDF | `QuestPDF` | PasheCPE.Pdf | Licencia Community (ingresos < USD 1 M) |
 | Pruebas | `xunit.v3.mtp-off`, `xunit.runner.visualstudio`, `Microsoft.NET.Test.Sdk`, `Microsoft.Extensions.TimeProvider.Testing`, `coverlet.collector` | tests | VSTest; `xunit.v3.mtp-off` es xUnit v3 sin Microsoft Testing Platform (con el SDK 10, `xunit.v3` 4.x no corre bajo VSTest) |
@@ -64,10 +64,10 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 │   │   │                     CatalogoErrores + CatalogoEndpoints
 │   │   ├── Tiempo\           ZonaLima, RelojCpe (TimeProvider → hora de Lima)
 │   │   ├── Tributos\         CalculadoraTributaria, ReglasRegimen, NumeroALetras, Redondeo
-│   │   ├── Ubl\Comunes\      cbc/cac/ext/sac (perfil SUNAT)
+│   │   ├── Ubl\Comunes\      cbc/cac/ext (perfil SUNAT; namespace PasheCPE.Ubl, públicas pero ocultas)
 │   │   ├── Ubl\Documentos\   Invoice, CreditNote, DebitNote, SummaryDocuments, VoidedDocuments,
 │   │   │                     DespatchAdvice, ApplicationResponse (lectura)
-│   │   ├── Mapeo\            MapeadorInvoice, MapeadorCreditNote, MapeadorDebitNote, MapeadorSummary,
+│   │   ├── Mapeo\            MapeadorInvoice, AtributosCatalogo, GeneradorInvoice (→ DATA), MapeadorCreditNote, MapeadorDebitNote, MapeadorSummary,
 │   │   │                     MapeadorVoided, MapeadorDespatchAdvice
 │   │   ├── Serializacion\    SerializadorUbl
 │   │   ├── Validacion\       ValidadorModelo, ValidadorEsquema, MotorXslSunat, Emulacion\ (DataPower,
@@ -101,6 +101,8 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 ```
 
 Decisión: **un solo ensamblado principal** con carpetas por responsabilidad y tipos `internal` (solo la fachada, modelos, resultados, opciones e interfaces son `public`). Menos ensamblados = arranque más rápido, un solo paquete que versionar y cero dependencias circulares. `PasheCPE.Pdf` va aparte porque arrastra QuestPDF. `InternalsVisibleTo` solo para los proyectos de prueba.
+
+**Excepción — `PasheCPE.Ubl`:** las clases del perfil UBL son `public` porque `XmlSerializer` y su pregeneración solo admiten tipos públicos. Llevan `[EditorBrowsable(Never)]` y **no forman parte del contrato estable**: pueden cambiar en versiones menores sin aviso (así se indica en el README y en los XML-docs). El contrato es el de `Modelos`, `Resultados` y las interfaces.
 
 ## 3. Recursos SUNAT y generación
 
@@ -149,6 +151,8 @@ Notas del archivo:
 | `errores-sunat.json` | Código → descripción oficial, tipo (`servicio`, `rechazo`, `observacion`) y `transitorio` (bool) — generado del Excel (§3.2) |
 | `reglas-cpe.json` | Matriz de reglas por documento con tag UBL, tipo, código y vigencia — generado del Excel (§3.2) |
 | `endpoints.json` | Endpoints por canal y ambiente |
+| `parametros.json` | Parámetros legales que no son tasas ni plazos: importe de la boleta sin identificar al cliente (S/ 700), inicio del contrato de colaboración empresarial (01/01/2027) |
+| `monedas.json`, `errores-locales.json` | Nombres de moneda para el monto en letras; mensajes de la validación local (`PCPE-xxxx`) |
 | `reglas-2027.json` | Parámetros de las reglas complementarias (códigos de error, motivos válidos) |
 
 Valores iniciales de `tasas.json`:
@@ -323,7 +327,11 @@ Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → seri
 ## 7. Cálculo tributario
 
 - Toda la aritmética con `decimal`; redondeo `MidpointRounding.AwayFromZero` a 2 decimales en montos; valores unitarios hasta 10 decimales.
-- `ModoPrecio.PrecioUnitario`: valor unitario = precio / (1 + tasa) con la tasa de la línea.
+- `ModoPrecio.PrecioUnitario` — **manda el precio**: total de línea = R2(cantidad × precio); base = R2(total ÷ (1 + tasa)); IGV = total − base. El cliente paga exactamente lo de la etiqueta y el IGV puede diferir ±0.01 de base × tasa (tolerancia SUNAT ±1). Con descuento de línea: base = bruto − descuento e IGV = R2(base × tasa). El valor unitario del XML (`cac:Price`) = base bruta ÷ cantidad, con hasta 10 decimales; el precio de referencia (tipo 01) es el precio de la etiqueta. Con tasa 0 ambos modos dan lo mismo.
+- `ModoPrecio.ValorUnitario`: base = R2(cantidad × valor) − descuento; IGV = R2((base + ISC) × tasa).
+- El tributo de cada afectación sale de la columna «Codigo de tributo» del catálogo N.° 07 (gratuita = 9996), y el nombre y el código internacional del `TaxScheme`, del catálogo N.° 05. El texto de las leyendas es el que va entre comillas en el catálogo N.° 52.
+- Totales según las reglas del Excel (3277, 3278, 3279, 3280, 3291, 3294): la base gravada (subtotal 1000) = Σ bases − descuentos 02 − anticipos 04 + cargos 49; el total valor de venta y el precio de venta no restan los anticipos; el importe a pagar = precio de venta + cargos 50 − descuentos 03 − total de anticipos. El IGV de las gratuitas va en el subtotal 9996 y no suma a `TaxTotal/TaxAmount`.
+- ISC: sistemas 01 (al valor) y 02 (monto fijo); el 03 se rechaza en la validación local. IVAP (afectación 17), percepción y retención: fuera del alcance actual.
 - Afectación por línea (Cat.07) → tributo (Cat.05):
 
 | Afectación | Tributo | Código | Nombre | Tipo | Tasa |
@@ -345,7 +353,7 @@ Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → seri
 
 ## 8. Serialización
 
-- `XmlSerializerNamespaces` explícitos: default del documento, `cac`, `cbc`, `ext`, `ds`, `sac` (Summary/Voided/notas cuando aplique); sin `xsi`/`xsd` espurios.
+- `XmlSerializerNamespaces` explícitos: default del documento, `cac`, `cbc` y `ext`; `ds` lo agrega la firma y `sac` solo los documentos que lo usan (Summary/Voided); sin `xsi`/`xsd` espurios.
 - `XmlWriterSettings { Encoding = new UTF8Encoding(false), Indent = false, NewLineChars = "\n" }`.
 - `InvariantCulture`; fechas `yyyy-MM-dd`, horas `HH:mm:ss`; atributos de catálogo (`listAgencyName="PE:SUNAT"`, `listName`, `listURI`, `unitCodeListID="UN/ECE rec 20"`…) según la guía de elaboración vigente.
 - Opcionales vacíos se omiten (`ShouldSerialize*`).
@@ -358,7 +366,7 @@ Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → seri
 Obligatorios, serie vs tipo (F/B/T/V…), tipo de documento del cliente (factura → 6; boleta > S/ 700 → identificación), fechas, plazos (`FechaLimiteEnvio` vencida → error), NRUS, longitud de campos, código de producto 8 dígitos, una sola referencia en notas.
 
 ### 9.2 Esquema
-`XmlSchemaSet` compilado una vez desde `recursos\XSD` (embebidos), con resolutor local para los `import`. Se valida el XML **sin firmar** (la firma no altera la estructura validada).
+`XmlSchemaSet` compilado una vez desde `recursos\XSD` (embebidos, enlazados sin copiar), con resolutor local para los `import` (ninguna URI externa se resuelve). El xmldsig de UBL trae un DOCTYPE con entidades internas: se lee con `DtdProcessing.Parse` y se carga primero. Se valida el XML **sin firmar** (la firma no altera la estructura validada); como `ext:ExtensionContent` exige un elemento, el `ext:UBLExtensions` vacío preparado para la firma se excluye de la validación (única exclusión). Los errores se devuelven como `PCPE-2001` con la ruta del elemento.
 
 ### 9.3 Reglas SUNAT — XSL con emulación DataPower
 
@@ -425,7 +433,7 @@ internal sealed class ProveedorCertificados
 ## 12. QR
 
 - `ConstructorContenidoQr` (01/03/07/08): `RUC|TIPO|SERIE|NUMERO|IGV|TOTAL|FECHA|TIPODOCADQ|NUMDOCADQ|VALORRESUMEN`, montos `0.00`, fecha `yyyy-MM-dd`; opciones: ceros del número y `|` final (por defecto no).
-- GRE (09/31): contenido = enlace que SUNAT devuelve en el CDR **[verificar el nodo con un CDR real; se espera en `cac:DocumentResponse/cac:DocumentReference/cbc:DocumentDescription`]**.
+- GRE (09/31): contenido = enlace que SUNAT devuelve en el CDR, en `cac:DocumentResponse/cac:DocumentReference/cbc:DocumentDescription` (confirmado con los CDR reales de `tests/Datos/Dorados/09-GRE`: `https://e-factura.sunat.gob.pe/v1/contribuyente/gre/comprobantes/descargaqr?hashqr=…`).
 - `GeneradorQrPng` (QRCoder): corrección Q, 20 px por módulo, zona de silencio de 4 módulos, PNG en `QR\yyyy\MM\{nombre}.png`. Tamaño impreso en el PDF A4: 3.5 × 3.5 cm.
 
 ## 13. Conectividad
@@ -463,7 +471,7 @@ Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la con
 
 ## 15. Lectura del CDR
 
-`LectorCdr` (con `XmlReader` y `XmlNamespaceManager`): guarda `R-{nombre}.zip` íntegro en `RPTA\yyyy\MM\`; extrae en memoria; lee `cbc:ResponseDate`, `cbc:ResponseTime`, `cac:DocumentResponse/cac:Response/cbc:ResponseCode`, `cbc:Description`, `cbc:ReferenceID`, todas las `cbc:Note` (formato `"4252 - texto"` → `ObservacionCpe{Codigo, Descripcion}`), `cac:DocumentReference/cbc:ID` y, en GRE, el enlace del QR. Valida opcionalmente la firma del CDR.
+`LectorCdr` (con `XmlReader` y `XmlNamespaceManager`): guarda `R-{nombre}.zip` íntegro en `RPTA\yyyy\MM\`; extrae en memoria; lee `cbc:ResponseDate`, `cbc:ResponseTime`, `cac:DocumentResponse/cac:Response/cbc:ResponseCode`, `cbc:Description`, `cbc:ReferenceID`, todas las `cbc:Note` (formato `"4252 - texto"` → `ObservacionCpe{Codigo, Descripcion}`), `cac:DocumentReference/cbc:ID` y, en GRE, el enlace del QR. Valida opcionalmente la firma del CDR. El ZIP del CDR por SOAP trae además una entrada de carpeta `dummy/` (vista en los CDR reales): se ignoran las entradas que no son archivos XML.
 
 ## 16. Tickets
 

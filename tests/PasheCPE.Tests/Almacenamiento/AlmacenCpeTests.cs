@@ -19,16 +19,16 @@ public sealed class AlmacenCpeTests : IDisposable
     [InlineData("Log", "LOG")]
     public void Ruta_UsaCarpetaAnioYMesSinDia(string carpeta, string nombre)
     {
-        var ruta = Almacen().Ruta(Enum.Parse<CarpetaCpe>(carpeta), new DateOnly(2026, 3, 9), "20123456789-01-F001-1.xml");
+        var ruta = Almacen().Ruta(Enum.Parse<CarpetaCpe>(carpeta), new DateOnly(2026, 3, 9), "20123456786-01-F001-1.xml");
 
-        Assert.Equal(Path.Combine(_temporal.Ruta, nombre, "2026", "03", "20123456789-01-F001-1.xml"), ruta);
+        Assert.Equal(Path.Combine(_temporal.Ruta, nombre, "2026", "03", "20123456786-01-F001-1.xml"), ruta);
     }
 
     [Fact]
     public void Ruta_ConReferencia_UsaElPeriodoDeSuFecha() =>
         Assert.Equal(
-            Path.Combine(_temporal.Ruta, "RPTA", "2026", "10", "R-20123456789-01-F001-123.zip"),
-            Almacen().Ruta(CarpetaCpe.Rpta, Ejemplos.Referencia(), "R-20123456789-01-F001-123.zip"));
+            Path.Combine(_temporal.Ruta, "RPTA", "2026", "10", "R-20123456786-01-F001-123.zip"),
+            Almacen().Ruta(CarpetaCpe.Rpta, Ejemplos.Referencia(), "R-20123456786-01-F001-123.zip"));
 
     [Fact]
     public void RutaCertificado_SinPeriodo() =>

@@ -16,12 +16,31 @@
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     <PackageReference Include="QRCoder" />
+    <PackageReference Include="Microsoft.XmlSerializer.Generator" />
+  </ItemGroup>
+
+  <!-- Pregeneración de serializadores (TRD §3.1): solo los documentos UBL raíz. -->
+  <PropertyGroup>
+    <SGenTypes>PasheCPE.Ubl.Invoice</SGenTypes>
+  </PropertyGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.XmlSerializer.Generator" Version="10.0.13" />
   </ItemGroup>
 
   <!-- Datos versionados (TRD §3.3): generados por tools/GeneradorRecursos o mantenidos a mano -->
   <ItemGroup>
     <EmbeddedResource Include="Recursos\*.json" LogicalName="PasheCPE.Recursos.%(Filename)%(Extension)" />
     <EmbeddedResource Include="Recursos\catalogos\*.xml" LogicalName="PasheCPE.Recursos.catalogos.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- XSD oficiales (TRD §9.2): enlazados desde recursos\XSD, sin copiarlos (una sola fuente) -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\recursos\XSD\2.1\common\*.xsd"
+                      LogicalName="PasheCPE.Recursos.xsd.2.1.common.%(Filename)%(Extension)"
+                      Link="Recursos\xsd\2.1\common\%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\..\recursos\XSD\2.1\maindoc\UBL-Invoice-2.1.xsd;..\..\recursos\XSD\2.1\maindoc\UBL-CreditNote-2.1.xsd;..\..\recursos\XSD\2.1\maindoc\UBL-DebitNote-2.1.xsd;..\..\recursos\XSD\2.1\maindoc\UBL-DespatchAdvice-2.1.xsd;..\..\recursos\XSD\2.1\maindoc\UBL-ApplicationResponse-2.1.xsd"
+                      LogicalName="PasheCPE.Recursos.xsd.2.1.maindoc.%(Filename)%(Extension)"
+                      Link="Recursos\xsd\2.1\maindoc\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

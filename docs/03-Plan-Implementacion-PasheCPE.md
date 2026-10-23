@@ -62,9 +62,11 @@
 3. `CalculadoraTributaria` (TRD §7) y `MapeadorInvoice` (01/03): afectaciones, Amazonía, MYPE, ICBPER, gratuitas, descuentos, anticipos, cuotas, detracción, leyendas, código de producto y GTIN, contrato de colaboración.
 4. `SerializadorUbl` (TRD §8) y `ValidadorEsquema` (TRD §9.2).
 5. `ValidadorModelo` para 01/03 (TRD §9.1).
-6. **[Desarrollador]** Aportar XML aceptados por SUNAT de proyectos anteriores (Fattura u otros) como dorados en `tests\Datos\Dorados`.
+6. ✅ **[Desarrollador]** Dorados entregados en `tests\Datos\Dorados` (facturas, notas de crédito, resúmenes y GRE aceptados de Fattura v2 y Oxigenio, con sus CDR). No se modifican.
 
 **Aceptación:** todos los XML generados pasan XSD; comparación con dorados; casos de cálculo: gravada 18 %, exonerada Amazonía, MYPE 10.5 % (2026) y 15 % (2027), mixta, gratuita, ICBPER, crédito con 3 cuotas, detracción, precio con impuestos.
+
+**Estado:** completada el 22/10/2026. Las dos facturas aceptadas solo difieren en lo documentado en `tests/PasheCPE.Tests/Dorados/DIFERENCIAS.md` (leyendas 1000 y 2001 agregadas, dos atributos de la guía vigente); no hay dorado gravado (llegará en la Fase 5).
 
 ---
 
