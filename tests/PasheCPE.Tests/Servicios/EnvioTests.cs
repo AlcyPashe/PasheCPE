@@ -84,6 +84,20 @@ public sealed class EnvioTests : IDisposable
     }
 
     [Fact]
+    public async Task EnviarAsync_FaultDeRechazoConHttp200_ComoRespondeBeta()
+    {
+        // Respuesta real de beta (23/10/2026, F001-11): el rechazo llega como fault con HTTP 200.
+        var (emisor, referencia) = await GenerarAsync(_servicios);
+        _servicios.Sunat.Responder(SendBill, Fault("soap-env:Client.2800", "El dato ingresado en el tipo de documento de identidad del receptor no esta permitido. - Detalle: xxx.xxx.xxx value='ticket: 1792777141172 error: INFO : 2800 (nodo: \"cbc:ID/schemeID\" valor: \"1\")'"));
+
+        var resultado = await Servicio(_servicios).EnviarAsync(emisor, referencia, Ct);
+
+        Assert.Equal((EstadoCpe.Rechazado, "2800", 200), (resultado.Estado, resultado.Codigo, resultado.Tecnico!.Http));
+        Assert.Equal("El dato ingresado en el tipo de documento de identidad del receptor no esta permitido.", resultado.DescripcionCatalogo);
+        Assert.Null(resultado.Rutas.Cdr);
+    }
+
+    [Fact]
     public async Task EnviarAsync_Fault0111_ErrorServicioConMensajeDelCodigo()
     {
         var (emisor, referencia) = await GenerarAsync(_servicios);

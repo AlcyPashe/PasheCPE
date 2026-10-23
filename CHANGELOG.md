@@ -78,7 +78,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 - 23/10/2026 — `Validacion.Modelo` y `Validacion.Esquema` no tenían efecto: `GeneradorInvoice` siempre validaba el modelo y el XSD (lo encontró la prueba manual en beta, caso de rechazo forzado). Los errores del cálculo y de los totales siguen bloqueando siempre.
 
 ### Cambiado
-- 23/10/2026 — `SOAPAction: "urn:{operacion}"` confirmado en beta. La demo prueba las credenciales erróneas con usuario y clave inexistentes (beta acepta cualquier clave de MODDATOS).
+- 23/10/2026 — `SOAPAction: "urn:{operacion}"` confirmado en beta. La demo prueba las credenciales erróneas con usuario y clave inexistentes; beta no valida credenciales, así que ese caso se verifica en producción. Beta devuelve los rechazos como fault con HTTP 200 (prueba agregada con la respuesta real de F001-11).
 - 23/10/2026 — TRD §5.1: un fault 2000–3999 de `sendBill` es `Rechazado`. §14: `SOAPAction` como dato y reenvío del mismo ZIP sin consulta posible. §15: firma del CDR; hallazgo: los CDR de la GRE (API REST) no verifican el digest con la canonicalización declarada (se revisa en la Fase 10).
 - 23/10/2026 — `PerfilFirma.Sha256` es el valor por defecto (antes `Sha1`): los comprobantes que SUNAT ya aceptó para el RUC piloto están firmados con RSA-SHA256/SHA-256. La firma va sin prefijo `ds:`. PRD RF-09 y TRD §10, §12 y §23 actualizados.
 - 22/10/2026 — Opción `Validacion.Reglas2027` renombrada a `Validacion.ReglasComplementarias` (como `OrigenError.ReglasComplementarias`): incluye reglas del Excel de 2022 a 2027 y cada regla aplica según su vigencia en `reglas-cpe.json`. TRD §9.4 y §23, guía de integración, README, descripción del paquete y CLAUDE.md actualizados.

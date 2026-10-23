@@ -128,12 +128,13 @@
 
 **Aceptación (sin red):** pruebas con handler falso para aceptado, observado, rechazado, faults 0111/1033/0100, HTTP 503, timeout de conexión y de lectura, sin Internet. **(Manual, beta):** factura gravada y factura exonerada Amazonía aceptadas, boleta individual aceptada, un rechazo forzado y una clave errónea correctamente clasificados; historial JSON con todos los intentos.
 
-**Estado:** implementada el 23/10/2026. Prueba manual en beta del desarrollador (RUC 20493400364, MODDATOS):
+**Estado:** completada el 23/10/2026 (595 pruebas en verde). Prueba manual en beta del desarrollador (RUC 20493400364, MODDATOS):
 - Aceptadas en beta: factura gravada F001-1, factura exonerada Amazonía F001-2 y boleta individual B001-3, con CDR en `RPTA` y el historial con todos los intentos.
 - `SOAPAction: "urn:sendBill"` confirmado.
 - El reenvío de un documento aceptado se responde desde el historial; la consulta del CDR en beta devuelve `PCPE-4005`.
 - La prueba encontró que `Validacion.Modelo` y `Validacion.Esquema` no se respetaban (defecto de la Fase 2); corregido.
-- Beta aceptó una clave SOL errónea con MODDATOS: la demo prueba ahora usuario y clave erróneos. **Pendiente:** repetir los casos 4 (rechazo forzado) y 5 (credenciales erróneas); si beta acepta cualquier credencial, ese criterio se verifica en la primera emisión real en producción.
+- Rechazo forzado F001-11 (cliente con DNI): `Rechazado` 2800, recibido como fault con **HTTP 200**.
+- Beta no valida el usuario ni la clave SOL (también con usuario inexistente; confirmado por el desarrollador en proyectos anteriores). La clasificación de credenciales erróneas (0102–0104) queda **pendiente para la primera emisión en producción**; está cubierta por las pruebas automáticas.
 - Decisiones con el desarrollador: sin `getStatusCdr` (beta, boletas, series B) se reenvía el mismo ZIP; `SOAPAction` = `urn:{operacion}` como dato en `endpoints.json`; emisor de la demo en `appsettings.json`.
 - Los rechazos de `sendBill` llegan como fault 2000–3999 → `Rechazado` (agregado al TRD §5.1).
 - Hallazgo: los CDR SOAP dorados verifican la firma de SUNAT; los de la GRE no (digest), se revisa en la Fase 10.
