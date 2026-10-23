@@ -13,13 +13,15 @@ namespace PasheCPE.Servicios;
 
 /// <summary>
 /// Fachada de comprobantes (<see cref="IServicioCpe"/>). Pipeline de generación (TRD §6): historial → XML validado en
-/// DATA (<see cref="GeneradorInvoice"/>) → certificado → firma (FIRMA) → ZIP (ENVIO) → QR → historial (LOG). Cada
+/// DATA (<see cref="GeneradorInvoice"/> o <see cref="GeneradorNota"/>) → certificado → firma (FIRMA) → ZIP (ENVIO) → QR
+/// → historial (LOG). Cada
 /// etapa persiste su archivo y el resultado devuelve todas las rutas; con un error se detiene sin escribir las
 /// siguientes. El resumen diario lo genera <see cref="GeneracionResumenes"/>; el envío y la consulta los hacen
 /// <see cref="EnvioComprobantes"/> (sendBill, getStatusCdr) y <see cref="EnvioResumenes"/> (sendSummary, getStatus).
 /// </summary>
 internal sealed class ServicioCpe(
     GeneradorInvoice generador,
+    GeneradorNota generadorNotas,
     GeneracionResumenes resumenes,
     EnvioComprobantes envio,
     EnvioResumenes envioResumenes,
@@ -36,12 +38,23 @@ internal sealed class ServicioCpe(
 {
     public const string OperacionGenerar = "generar";
 
-    public async Task<ResultadoGeneracion> GenerarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default)
+    public Task<ResultadoGeneracion> GenerarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(emisor);
         ArgumentNullException.ThrowIfNull(cpe);
+        return GenerarAsync(emisor, generador.Referencia(emisor, cpe), () => generador.GenerarAsync(emisor, cpe, ct), ct);
+    }
+
+    public Task<ResultadoGeneracion> GenerarAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(emisor);
+        ArgumentNullException.ThrowIfNull(nota);
+        return GenerarAsync(emisor, generadorNotas.Referencia(emisor, nota), () => generadorNotas.GenerarAsync(emisor, nota, ct), ct);
+    }
+
+    private async Task<ResultadoGeneracion> GenerarAsync(EmisorCpe emisor, ReferenciaCpe referencia, Func<Task<XmlGenerado>> generar, CancellationToken ct)
+    {
         var inicio = Stopwatch.GetTimestamp();
-        var referencia = generador.Referencia(emisor, cpe);
 
         // Regenerar lo ya enviado cambiaría el valor resumen y dejaría archivos distintos de los que tiene SUNAT.
         if (await historial.ObtenerAsync(referencia, ct).ConfigureAwait(false) is { EstadoActual: not (EstadoCpe.Generado or EstadoCpe.ErrorValidacionLocal) } previo)
@@ -49,7 +62,7 @@ internal sealed class ServicioCpe(
             return Resultado(referencia, [errores.Local("PCPE-3101", OrigenError.Modelo, null, null, referencia.NombreArchivo, previo.EstadoActual)], [], RutasCpe.Vacio);
         }
 
-        var generado = await generador.GenerarAsync(emisor, cpe, ct).ConfigureAwait(false);
+        var generado = await generar().ConfigureAwait(false);
         var rutas = new RutasCpe { Xml = generado.Ruta };
         if (!generado.Exito)
         {
@@ -123,9 +136,14 @@ internal sealed class ServicioCpe(
     public Task<ResultadoEnvio> ConsultarCdrAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default) =>
         envio.ConsultarCdrAsync(emisor, referencia, ct);
 
-    public async Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default)
+    public async Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default) =>
+        await EmitirAsync(emisor, await GenerarAsync(emisor, cpe, ct).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+    public async Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default) =>
+        await EmitirAsync(emisor, await GenerarAsync(emisor, nota, ct).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+    private async Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, ResultadoGeneracion generacion, CancellationToken ct)
     {
-        var generacion = await GenerarAsync(emisor, cpe, ct).ConfigureAwait(false);
         if (!generacion.Exito)
         {
             return new ResultadoEmision
@@ -160,13 +178,20 @@ internal sealed class ServicioCpe(
         return Task.FromResult(new ResultadoValidacion { Errores = generado.Errores, Advertencias = generado.Advertencias });
     }
 
+    public async Task<ResultadoValidacion> ValidarAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+        var generado = await generadorNotas.ConstruirAsync(emisor, nota, ct).ConfigureAwait(false);
+        return new ResultadoValidacion { Errores = generado.Errores, Advertencias = generado.Advertencias };
+    }
+
     private ResultadoGeneracion Resultado(ReferenciaCpe referencia, IReadOnlyList<ErrorCpe> encontrados, IReadOnlyList<ObservacionCpe> advertencias, RutasCpe rutas) => new()
     {
         Referencia = referencia,
         Errores = encontrados,
         Advertencias = advertencias,
         Rutas = rutas,
-        FechaLimiteEnvio = plazos.FechaLimite(referencia.TipoDocumento, null, referencia.Fecha),
+        FechaLimiteEnvio = plazos.FechaLimite(referencia),
         FechaProceso = reloj.AhoraLima(),
     };
 }

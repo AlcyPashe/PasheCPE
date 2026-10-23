@@ -43,7 +43,7 @@ Cuando SUNAT publique XSL nuevas (o un Excel de reglas nuevo), **revisar complet
 
 | Fecha | Cambio | Acción en PasheCPE |
 |---|---|---|
-| 01/01/2027 | Entra en vigor la R.S. 000048-2026 (postergada por la R.S. 000143-2026): NC/ND con un solo comprobante, ND motivo 13, NC motivo 03, código de producto, contrato de colaboración | Facturas y boletas: código de producto (3496) y contrato de colaboración (3497–3502) implementados en la Fase 3; NC/ND en la Fase 7. Confirmar los códigos con el listado oficial |
+| 01/01/2027 | Entra en vigor la R.S. 000048-2026 (postergada por la R.S. 000143-2026): NC/ND con un solo comprobante, ND motivo 13, NC motivo 03, código de producto, contrato de colaboración | Facturas y boletas: código de producto (3496) y contrato de colaboración (3497–3502) implementados en la Fase 3. NC/ND implementados en la Fase 7: un solo documento (3261/3194), ND 13 sin documento (2524) y sin IGV (3507), código de producto y contrato. Las supresiones de la XSL 3261 (NC) y 2524 (ND) se activan solas el 01/01/2027 (`desde` en `ajustes-xsl.json`). **[verificar]** NC 03 con importes (advertencia `PCPE-1420`) y PriceAmount cero (2369) con la prueba de beta. Si SUNAT vuelve a postergar, ajustar `desde` y la vigencia del catálogo 10 código 13 |
 | 01/01/2027 | IPM 3 % / IGV 15 % (total 18 %); tasa MYPE restaurantes/hoteles 12 % + 3 % = 15 % | Ya en `tasas.json` |
 | 01/04/2027 | Designaciones DAE/DAEE (fuera de alcance) | Ninguna |
 | 01/01/2028 | IPM 3.5 %; fin de la tasa especial MYPE (salvo prórroga) | Revisar prórroga |

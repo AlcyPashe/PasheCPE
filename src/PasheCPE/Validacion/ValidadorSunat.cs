@@ -28,6 +28,7 @@ internal sealed class ValidadorSunat(
         ArgumentNullException.ThrowIfNull(xml);
         ArgumentNullException.ThrowIfNull(referencia);
         var validacion = opciones.Value.Validacion;
+        var hoy = reloj.HoyLima();
         var encontrados = new List<ErrorCpe>();
         var observaciones = new List<ObservacionCpe>();
 
@@ -41,7 +42,7 @@ internal sealed class ValidadorSunat(
 
             foreach (var hallazgo in resultado.Hallazgos)
             {
-                if (validacion.ReglasComplementarias && ajustes.EstaSuprimido(referencia.TipoDocumento, hallazgo.Codigo))
+                if (validacion.ReglasComplementarias && ajustes.EstaSuprimido(referencia.TipoDocumento, hallazgo.Codigo, hoy))
                 {
                     continue;
                 }
@@ -52,7 +53,7 @@ internal sealed class ValidadorSunat(
 
         if (validacion.ReglasComplementarias)
         {
-            EvaluarReglas(xml, referencia, Agregar);
+            EvaluarReglas(xml, referencia, hoy, Agregar);
         }
 
         return new ResultadoValidacionSunat(encontrados, observaciones);
@@ -72,7 +73,7 @@ internal sealed class ValidadorSunat(
         }
     }
 
-    private void EvaluarReglas(byte[] xml, ReferenciaCpe referencia, Action<string, bool, string?, string, OrigenError, string?> agregar)
+    private void EvaluarReglas(byte[] xml, ReferenciaCpe referencia, DateOnly hoy, Action<string, bool, string?, string, OrigenError, string?> agregar)
     {
         var aplicables = _reglas.Where(r => r.Filas.Any(f => f.Documento == referencia.TipoDocumento)).ToList();
         if (aplicables.Count == 0)
@@ -91,7 +92,6 @@ internal sealed class ValidadorSunat(
             return;
         }
 
-        var hoy = reloj.HoyLima();
         foreach (var hallazgo in aplicables.SelectMany(r => r.Evaluar(documento)))
         {
             var fila = excel.Obtener(referencia.TipoDocumento, hallazgo.Fila);

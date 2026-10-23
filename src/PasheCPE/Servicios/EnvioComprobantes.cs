@@ -94,7 +94,7 @@ internal sealed class EnvioComprobantes(
             // Sin consulta posible (beta, boletas, series B): se reenvía el mismo ZIP; si SUNAT ya lo tiene responde 1033.
         }
 
-        if (plazos.FechaLimite(referencia.TipoDocumento, null, referencia.Fecha) is { } limite && limite < reloj.HoyLima())
+        if (plazos.FechaLimite(referencia) is { } limite && limite < reloj.HoyLima())
         {
             return soporte.Local(contexto, "PCPE-4006", referencia.NombreArchivo, limite.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture));
         }

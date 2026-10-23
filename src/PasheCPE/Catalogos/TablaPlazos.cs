@@ -20,4 +20,20 @@ internal sealed class TablaPlazos(IOptions<OpcionesPasheCpe> opciones)
     /// <summary>Último día para enviar, contado desde <paramref name="fechaBase"/> (emisión o recepción del CDR).</summary>
     public DateOnly? FechaLimite(string documento, string? documentoModificado, DateOnly fechaBase) =>
         Obtener(documento, documentoModificado) is { } plazo ? fechaBase.AddDays(plazo.Dias) : null;
+
+    /// <summary>
+    /// Último día para enviar el documento ya generado, contado desde su fecha. En las notas el tipo modificado se deduce
+    /// de la serie, que la validación del modelo hace coherente: F modifica una factura y B, una boleta.
+    /// </summary>
+    public DateOnly? FechaLimite(ReferenciaCpe referencia)
+    {
+        ArgumentNullException.ThrowIfNull(referencia);
+        return FechaLimite(referencia.TipoDocumento, TipoModificado(referencia.TipoDocumento, referencia.Serie), referencia.Fecha);
+    }
+
+    /// <summary>Tipo que modifica una nota según su serie (F → 01, B → 03); null si no es una nota.</summary>
+    public static string? TipoModificado(string tipoDocumento, string? serie) =>
+        tipoDocumento is TipoDocumentoSunat.NotaDeCredito or TipoDocumentoSunat.NotaDeDebito
+            ? serie is ['B', ..] ? TipoDocumentoSunat.BoletaDeVenta : TipoDocumentoSunat.Factura
+            : null;
 }

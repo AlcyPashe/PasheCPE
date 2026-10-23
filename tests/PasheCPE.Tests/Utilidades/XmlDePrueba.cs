@@ -19,6 +19,14 @@ internal static class XmlDePrueba
         return (generado.Xml ?? throw new InvalidOperationException(string.Join("; ", generado.Errores.Select(e => $"{e.Codigo} {e.Descripcion}"))), generado.Referencia);
     }
 
+    /// <summary>XML sin firmar de la nota del caso (sin validar contra SUNAT: se genera aunque tenga hallazgos).</summary>
+    public static async Task<(byte[] Xml, ReferenciaCpe Referencia)> GenerarNotaAsync(ServiciosPrueba servicios, string caso)
+    {
+        var datos = CasosNotas.Todos[caso];
+        var generado = await servicios.Obtener<GeneradorNota>().GenerarAsync(datos.Emisor, datos.Nota, TestContext.Current.CancellationToken);
+        return (generado.Xml ?? throw new InvalidOperationException(string.Join("; ", generado.Errores.Select(e => $"{e.Codigo} {e.Descripcion}"))), generado.Referencia);
+    }
+
     /// <summary>Aplica la alteración y devuelve el XML en UTF-8 sin BOM, sin reindentar.</summary>
     public static byte[] Alterar(byte[] xml, Action<XElement> alteracion)
     {
@@ -56,5 +64,10 @@ internal static class XmlDePrueba
         contenedor.Element(Cac + "TaxTotal")!.Elements(Cac + "TaxSubtotal")
             .First(s => s.Element(Cac + "TaxCategory")!.Element(Cac + "TaxScheme")!.Element(Cbc + "ID")!.Value == tributo);
 
-    public static XElement PrimeraLinea(this XElement raiz) => raiz.Element(Cac + "InvoiceLine")!;
+    /// <summary>Primera línea de detalle: InvoiceLine, CreditNoteLine o DebitNoteLine.</summary>
+    public static XElement PrimeraLinea(this XElement raiz) =>
+        raiz.Element(Cac + "InvoiceLine") ?? raiz.Element(Cac + "CreditNoteLine") ?? raiz.Element(Cac + "DebitNoteLine")!;
+
+    /// <summary>cac:InvoiceDocumentReference del documento que modifica la nota.</summary>
+    public static XElement DocumentoModificado(this XElement raiz) => raiz.Elemento(Cac + "BillingReference", Cac + "InvoiceDocumentReference");
 }

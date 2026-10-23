@@ -113,15 +113,6 @@ public sealed class SummaryDocumentsLine
     public Collection<TaxTotal> TaxTotal { get; } = [];
 }
 
-/// <summary>cac:BillingReference. No es parte del contrato estable.</summary>
-[EditorBrowsable(EditorBrowsableState.Never)]
-public sealed class BillingReference
-{
-    /// <summary>cac:InvoiceDocumentReference.</summary>
-    [XmlElement("InvoiceDocumentReference", Namespace = EspaciosUbl.Cac)]
-    public DocumentReference? InvoiceDocumentReference { get; set; }
-}
-
 /// <summary>cac:Status. No es parte del contrato estable.</summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class LineStatus

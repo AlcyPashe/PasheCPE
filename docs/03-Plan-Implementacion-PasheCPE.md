@@ -176,6 +176,17 @@
 
 **Aceptación:** pruebas de cada regla 2027 (una referencia, NC motivo 03 sin cambio de importe, ND motivo 13 sin IGV, serie F/B coherente); **(manual, beta)** NC por devolución total y ND por intereses aceptadas sobre una factura aceptada.
 
+**Estado:** implementada el 23/10/2026 (780 pruebas en verde); **pendiente la prueba manual en beta del desarrollador** (demo, casos 11–16).
+- Decisiones con el desarrollador:
+  - el documento modificado es opcional solo en la ND 13 (2524);
+  - NC 03 con importes → advertencia `PCPE-1420` **[verificar]**: en beta se envían una NC 03 en cero (caso 14) y otra con importes (caso 15), y según la respuesta pasa a error o se elimina;
+  - la NC 13 (ajuste de cuotas) entra en esta fase;
+  - validación contra el original solo si está en el historial (`FechaEmision` opcional del documento modificado);
+  - solo se modifican facturas y boletas.
+- Las 2 NC doradas coinciden con lo generado salvo las leyendas 1000 y 2001. No hay ND dorada: 16 notas generadas pasan el XSD y las XSL sin hallazgos.
+- La XSL de 2022 tiene condiciones viejas en la 3261 (NC) y la 2524 (ND): se suprimen desde el 01/01/2027 (`desde` en `ajustes-xsl.json`) y las reemplazan reglas C#. Hasta esa fecha aplica la XSL.
+- **[verificar]** en beta: PriceAmount 0 en las NC 03 y 13 (fila 2369, «diferente de cero» en el Excel; la XSL lo admite). Las reglas con vigencia 2027 (ND 13, 3261 para todos los motivos…) no se pueden probar en beta antes del 01/01/2027; las cubren las pruebas automáticas.
+
 ---
 
 ## Fase 8 — Comunicación de baja

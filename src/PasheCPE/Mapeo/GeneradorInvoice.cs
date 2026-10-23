@@ -1,6 +1,4 @@
 using Microsoft.Extensions.Options;
-using PasheCPE.Almacenamiento;
-using PasheCPE.Empaquetado;
 using PasheCPE.Serializacion;
 using PasheCPE.Tributos;
 using PasheCPE.Validacion;
@@ -20,18 +18,14 @@ internal sealed record XmlGenerado(
 }
 
 /// <summary>
-/// Factura o boleta → XML sin firmar en <c>DATA\yyyy\MM</c>: valida el modelo → calcula → mapea → serializa → valida
-/// el XSD → valida las XSL de SUNAT y las reglas complementarias → escribe. Con cualquier error no escribe nada; las
-/// observaciones de SUNAT van a las advertencias. La firma, el ZIP y el QR los agrega <c>ServicioCpe</c>. Cada capa
-/// respeta su opción (<see cref="OpcionesValidacion"/>); los errores del cálculo y de los totales bloquean siempre.
+/// Factura o boleta → XML sin firmar en <c>DATA\yyyy\MM</c>: valida el modelo y sigue con <see cref="ConstructorXml"/>
+/// (calcula → mapea → serializa → XSD → XSL de SUNAT y reglas complementarias → escribe). Con cualquier error no
+/// escribe nada. La firma, el ZIP y el QR los agrega <c>ServicioCpe</c>.
 /// </summary>
 internal sealed class GeneradorInvoice(
     ValidadorModelo validador,
-    CalculadoraTributaria calculadora,
     MapeadorInvoice mapeador,
-    ValidadorEsquema esquema,
-    ValidadorSunat sunat,
-    AlmacenCpe almacen,
+    ConstructorXml constructor,
     Tiempo.RelojCpe reloj,
     IOptions<OpcionesPasheCpe> opciones)
 {
@@ -44,52 +38,16 @@ internal sealed class GeneradorInvoice(
     }
 
     /// <summary>Genera el XML y, si no hay errores, lo escribe en DATA.</summary>
-    public async Task<XmlGenerado> GenerarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct)
-    {
-        var generado = Construir(emisor, cpe);
-        if (!generado.Exito)
-        {
-            return generado;
-        }
-
-        var ruta = almacen.Ruta(CarpetaCpe.Data, generado.Referencia, NombreArchivoCpe.Xml(generado.Referencia));
-        await AlmacenCpe.EscribirAsync(ruta, generado.Xml!, ct).ConfigureAwait(false);
-        return generado with { Ruta = ruta };
-    }
+    public Task<XmlGenerado> GenerarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct) =>
+        constructor.EscribirAsync(Construir(emisor, cpe), ct);
 
     /// <summary>Valida, calcula, mapea, serializa y valida el XML, sin escribir nada (validación de nivel 1).</summary>
     public XmlGenerado Construir(EmisorCpe emisor, ComprobanteCpe cpe)
     {
         var referencia = Referencia(emisor, cpe);
-        var validacion = opciones.Value.Validacion;
-
-        var errores = validacion.Modelo ? validador.Validar(emisor, cpe) : [];
-        if (errores.Count > 0)
-        {
-            return new XmlGenerado(referencia, null, null, errores, [], null);
-        }
-
-        var calculo = calculadora.Calcular(emisor, cpe);
-        errores = [.. calculo.Errores, .. validador.ValidarTotales(calculo)];
-        if (errores.Count > 0)
-        {
-            return new XmlGenerado(referencia, null, null, errores, calculo.Advertencias, calculo);
-        }
-
-        var xml = SerializadorUbl.Serializar(mapeador.Mapear(calculo));
-        errores = validacion.Esquema ? esquema.Validar(xml) : [];
-        if (errores.Count > 0)
-        {
-            return new XmlGenerado(referencia, xml, null, errores, calculo.Advertencias, calculo);
-        }
-
-        var resultadoSunat = sunat.Validar(xml, referencia);
-        IReadOnlyList<ObservacionCpe> advertencias = [.. calculo.Advertencias, .. resultadoSunat.Observaciones];
-        if (resultadoSunat.Errores.Count > 0)
-        {
-            return new XmlGenerado(referencia, xml, null, resultadoSunat.Errores, advertencias, calculo);
-        }
-
-        return new XmlGenerado(referencia, xml, null, [], advertencias, calculo);
+        var errores = opciones.Value.Validacion.Modelo ? validador.Validar(emisor, cpe) : [];
+        return errores.Count > 0
+            ? new XmlGenerado(referencia, null, null, errores, [], null)
+            : constructor.Construir(referencia, emisor, cpe, calculo => SerializadorUbl.Serializar(mapeador.Mapear(calculo)));
     }
 }

@@ -20,6 +20,19 @@ public sealed class TablaPlazosTests : IDisposable
     public void FechaLimite_DiasCalendarioDesdeElDiaSiguiente(string documento, string? modificado, int dia) =>
         Assert.Equal(new DateOnly(2026, 10, dia), new TablaPlazos(_almacen.OpcionesDi()).FechaLimite(documento, modificado, _emision));
 
+    [Theory]
+    [InlineData(TipoDocumentoSunat.Factura, "F001", 25)]
+    [InlineData(TipoDocumentoSunat.NotaDeCredito, "FC01", 25)]
+    [InlineData(TipoDocumentoSunat.NotaDeDebito, "FD01", 25)]
+    [InlineData(TipoDocumentoSunat.NotaDeCredito, "BC01", 29)]
+    [InlineData(TipoDocumentoSunat.NotaDeDebito, "BD01", 29)]
+    public void FechaLimite_DeLaReferencia_EnNotasDeduceElModificadoDeLaSerie(string documento, string serie, int dia)
+    {
+        var referencia = ReferenciaCpe.Comprobante(Ejemplos.Ruc, documento, serie, 1, _emision);
+
+        Assert.Equal(new DateOnly(2026, 10, dia), new TablaPlazos(_almacen.OpcionesDi()).FechaLimite(referencia));
+    }
+
     [Fact]
     public void FechaLimite_Baja_SeCuentaDesdeElCdr()
     {

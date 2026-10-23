@@ -44,12 +44,26 @@ internal sealed class DocumentoXml
         _espacios.AddNamespace("ext", EspaciosUbl.Ext);
         _espacios.AddNamespace("sac", EspaciosUbl.Sac);
         TipoOperacion = Texto("/*/cbc:InvoiceTypeCode/@listID");
+        Motivo = Texto("/*/cac:DiscrepancyResponse/cbc:ResponseCode");
+        TipoDocumentoModificado = Texto(ReferenciaModificado + "/cbc:DocumentTypeCode");
     }
+
+    /// <summary>Líneas de detalle de cualquier comprobante: InvoiceLine, CreditNoteLine o DebitNoteLine.</summary>
+    public const string Lineas = "(/*/cac:InvoiceLine|/*/cac:CreditNoteLine|/*/cac:DebitNoteLine)";
+
+    /// <summary>Documento que modifica una nota.</summary>
+    public const string ReferenciaModificado = "/*/cac:BillingReference/cac:InvoiceDocumentReference";
 
     public string TipoDocumento { get; }
 
     /// <summary>Tipo de operación (catálogo N.° 51) de facturas y boletas.</summary>
     public string? TipoOperacion { get; }
+
+    /// <summary>Motivo de la nota (catálogo N.° 09 o N.° 10).</summary>
+    public string? Motivo { get; }
+
+    /// <summary>Tipo del (primer) documento que modifica la nota; null si no tiene.</summary>
+    public string? TipoDocumentoModificado { get; }
 
     public static DocumentoXml Cargar(byte[] xml, string tipoDocumento)
     {

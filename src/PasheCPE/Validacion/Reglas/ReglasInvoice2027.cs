@@ -8,18 +8,25 @@ namespace PasheCPE.Validacion.Reglas;
 /// </summary>
 internal sealed partial class ReglaCodigoProducto : IReglaCpe
 {
+    private static readonly Dictionary<string, int> _filas = new(StringComparer.Ordinal) { ["01"] = 155, ["03"] = 155, ["07"] = 169, ["08"] = 147 };
+
     public string Nombre => "CodigoProducto";
 
-    public IReadOnlyList<FilaExcel> Filas { get; } = [new("01", 155), new("03", 155)];
+    public IReadOnlyList<FilaExcel> Filas { get; } = [.. _filas.Select(p => new FilaExcel(p.Key, p.Value))];
 
     public IEnumerable<HallazgoRegla> Evaluar(DocumentoXml documento)
     {
         ArgumentNullException.ThrowIfNull(documento);
-        foreach (var codigo in documento.Nodos("/*/cac:InvoiceLine/cac:Item/cac:CommodityClassification/cbc:ItemClassificationCode"))
+        if (!_filas.TryGetValue(documento.TipoDocumento, out var fila))
+        {
+            yield break;
+        }
+
+        foreach (var codigo in documento.Nodos(DocumentoXml.Lineas + "/cac:Item/cac:CommodityClassification/cbc:ItemClassificationCode"))
         {
             if (!OchoDigitos().IsMatch(codigo.Value))
             {
-                yield return new HallazgoRegla(155, DocumentoXml.Ruta(codigo), $"Código de producto '{codigo.Value}'.");
+                yield return new HallazgoRegla(fila, DocumentoXml.Ruta(codigo), $"Código de producto '{codigo.Value}'.");
             }
         }
     }
@@ -41,6 +48,8 @@ internal sealed partial class ReglaContratoColaboracion : IReglaCpe
     {
         ["01"] = [new(916, 917, 918, 919, 920, 921), new(923, 924, 925, 926, 927, 928)],
         ["03"] = [new(822, 823, 824, 825, 826, 827), new(829, 830, 831, 832, 833, 834)],
+        ["07"] = [new(478, 479, 480, 481, 482, 483), new(485, 486, 487, 488, 489, 490)],
+        ["08"] = [new(458, 459, 460, 461, 462, 463), new(465, 466, 467, 468, 469, 470)],
     };
 
     public string Nombre => "ContratoColaboracion";

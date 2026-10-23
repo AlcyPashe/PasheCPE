@@ -10,6 +10,8 @@ namespace PasheCPE.Ubl;
 internal static class EspaciosUbl
 {
     public const string Invoice = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2";
+    public const string CreditNote = "urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2";
+    public const string DebitNote = "urn:oasis:names:specification:ubl:schema:xsd:DebitNote-2";
     public const string Cac = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2";
     public const string Cbc = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2";
     public const string Ext = "urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2";

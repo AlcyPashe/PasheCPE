@@ -2,13 +2,13 @@ using System.Globalization;
 
 namespace PasheCPE.Validacion.Reglas;
 
-/// <summary>Consultas comunes de las reglas de tributos de facturas y boletas (Invoice).</summary>
+/// <summary>Consultas comunes de las reglas de tributos de facturas, boletas y notas.</summary>
 internal static class ConsultasInvoice
 {
     public const string TipoOperacionNrus = "0113";
 
     public const string SubtotalIgvCabecera = "/*/cac:TaxTotal/cac:TaxSubtotal[cac:TaxCategory/cac:TaxScheme/cbc:ID='1000']";
-    public const string SubtotalesIgvLineas = "/*/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal[cac:TaxCategory/cac:TaxScheme/cbc:ID='1000']";
+    public const string SubtotalesIgvLineas = DocumentoXml.Lineas + "/cac:TaxTotal/cac:TaxSubtotal[cac:TaxCategory/cac:TaxScheme/cbc:ID='1000']";
 
     /// <summary>Monto de descuentos (false) o cargos (true) globales con los códigos del catálogo N.° 53 indicados.</summary>
     public static decimal CargosGlobales(DocumentoXml documento, bool esCargo, params string[] codigos)
@@ -27,7 +27,7 @@ internal static class ConsultasInvoice
 
     /// <summary>true si alguna línea está afecta al IVAP (tributo 1016 con base mayor que cero).</summary>
     public static bool EsIvap(DocumentoXml documento) =>
-        documento.Nodos("/*/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal[cac:TaxCategory/cac:TaxScheme/cbc:ID='1016']")
+        documento.Nodos(DocumentoXml.Lineas + "/cac:TaxTotal/cac:TaxSubtotal[cac:TaxCategory/cac:TaxScheme/cbc:ID='1016']")
             .Any(s => documento.Decimal("cbc:TaxableAmount", s) > 0);
 
     public static decimal TributoCabecera(DocumentoXml documento, string tributo) =>
@@ -42,12 +42,14 @@ internal static class ConsultasInvoice
 /// Sumatoria del IGV (Excel 13/02/2026): Σ «Monto base» de las líneas con tributo 1000 − descuentos globales 02 y 04
 /// + cargos globales 49 − anticipos de ISC 20, por la tasa de las líneas (18 % o 10.5 %), con tolerancia ±1.
 /// Factura: 3291 (la XSL la tiene comentada). Boleta: 4290 (la XSL usa 0.18 fijo y solo para 0113; se suprime).
+/// Notas: 3291 si modifican una factura y 4290 en otro caso (las XSL de NC y ND la tienen comentada).
 /// </summary>
 internal sealed class ReglaSumatoriaIgv : IReglaCpe
 {
     public string Nombre => "SumatoriaIgv";
 
-    public IReadOnlyList<FilaExcel> Filas { get; } = [new("01", 351), new("03", 346), new("03", 349)];
+    public IReadOnlyList<FilaExcel> Filas { get; } =
+        [new("01", 351), new("03", 346), new("03", 349), new("07", 341), new("07", 343), new("08", 328), new("08", 330)];
 
     public IEnumerable<HallazgoRegla> Evaluar(DocumentoXml documento)
     {
@@ -58,10 +60,19 @@ internal sealed class ReglaSumatoriaIgv : IReglaCpe
         }
 
         var igv = documento.Decimal(ConsultasInvoice.SubtotalIgvCabecera + "/cbc:TaxAmount") ?? 0m;
+        var modificaFactura = documento.TipoDocumentoModificado == TipoDocumentoSunat.Factura;
         int fila;
         if (documento.TipoDocumento == "01")
         {
             fila = 351;
+        }
+        else if (documento.TipoDocumento == TipoDocumentoSunat.NotaDeCredito)
+        {
+            fila = modificaFactura ? 341 : 343;
+        }
+        else if (documento.TipoDocumento == TipoDocumentoSunat.NotaDeDebito)
+        {
+            fila = modificaFactura ? 328 : 330;
         }
         else if (documento.TipoOperacion != ConsultasInvoice.TipoOperacionNrus)
         {
@@ -89,14 +100,18 @@ internal sealed class ReglaSumatoriaIgv : IReglaCpe
     }
 }
 
-/// <summary>Todas las líneas afectas al IGV deben tener la misma tasa (3462, Excel 13/02/2026). En boletas, salvo 0113.</summary>
+/// <summary>
+/// Todas las líneas afectas al IGV deben tener la misma tasa (3462, Excel 13/02/2026). En boletas, salvo 0113. En
+/// notas, con una fila según modifiquen una factura o no.
+/// </summary>
 internal sealed class ReglaTasaIgvUnica : IReglaCpe
 {
     private static readonly string[] _gratuitasGravadas = ["11", "12", "13", "14", "15", "16"];
 
     public string Nombre => "TasaIgvUnica";
 
-    public IReadOnlyList<FilaExcel> Filas { get; } = [new("01", 352), new("03", 347)];
+    public IReadOnlyList<FilaExcel> Filas { get; } =
+        [new("01", 352), new("03", 347), new("07", 342), new("07", 344), new("08", 329), new("08", 331)];
 
     public IEnumerable<HallazgoRegla> Evaluar(DocumentoXml documento)
     {
@@ -106,7 +121,7 @@ internal sealed class ReglaTasaIgvUnica : IReglaCpe
             yield break;
         }
 
-        var tasas = documento.Nodos("/*/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal")
+        var tasas = documento.Nodos(DocumentoXml.Lineas + "/cac:TaxTotal/cac:TaxSubtotal")
             .Where(s => documento.Decimal("cbc:TaxableAmount", s) > 0)
             .Where(s => documento.Texto("cac:TaxCategory/cac:TaxScheme/cbc:ID", s) switch
             {
@@ -121,7 +136,15 @@ internal sealed class ReglaTasaIgvUnica : IReglaCpe
         {
             var ruta = documento.Nodo(ConsultasInvoice.SubtotalIgvCabecera + "/cbc:TaxAmount") is { } nodo ? DocumentoXml.Ruta(nodo) : null;
             var lista = string.Join(", ", tasas.Select(t => t is null ? "sin tasa" : ConsultasInvoice.Texto(t.Value) + " %"));
-            yield return new HallazgoRegla(documento.TipoDocumento == "01" ? 352 : 347, ruta, $"Las líneas afectas al IGV tienen tasas distintas: {lista}.");
+            var modificaFactura = documento.TipoDocumentoModificado == TipoDocumentoSunat.Factura;
+            var fila = documento.TipoDocumento switch
+            {
+                "01" => 352,
+                TipoDocumentoSunat.NotaDeCredito => modificaFactura ? 342 : 344,
+                TipoDocumentoSunat.NotaDeDebito => modificaFactura ? 329 : 331,
+                _ => 347,
+            };
+            yield return new HallazgoRegla(fila, ruta, $"Las líneas afectas al IGV tienen tasas distintas: {lista}.");
         }
     }
 }

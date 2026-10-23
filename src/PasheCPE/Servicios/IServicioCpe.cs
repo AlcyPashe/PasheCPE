@@ -2,8 +2,8 @@ namespace PasheCPE;
 
 /// <summary>
 /// Comprobantes de pago electrónicos (TRD §6). En esta versión: generación, validación, envío por sendBill y consulta
-/// del CDR de facturas y boletas, y el resumen diario (sendSummary y ticket); las notas y la baja se agregan en las
-/// versiones siguientes.
+/// del CDR de facturas, boletas y notas de crédito y débito, y el resumen diario (sendSummary y ticket); la baja se
+/// agrega en la versión siguiente.
 /// </summary>
 public interface IServicioCpe
 {
@@ -14,6 +14,14 @@ public interface IServicioCpe
     /// <see cref="ResultadoGeneracion.Errores"/>. Un documento que ya se envió no se regenera.
     /// </summary>
     Task<ResultadoGeneracion> GenerarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default);
+
+    /// <summary>
+    /// Genera la nota de crédito o débito con el mismo pipeline que la factura. Además valida el motivo, el único
+    /// comprobante que modifica y su serie (R.S. 000048-2026) y, si se indica la fecha de emisión del documento modificado
+    /// y este lo generó PasheCPE, su estado, moneda e importe total según el historial. Una nota de serie B con
+    /// <see cref="ModoEnvioBoletas.ResumenDiario"/> se informa después en el resumen diario.
+    /// </summary>
+    Task<ResultadoGeneracion> GenerarAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default);
 
     /// <summary>
     /// Genera el resumen diario de boletas y sus notas (RC) con los totales indicados: valida el modelo y el historial de
@@ -32,6 +40,9 @@ public interface IServicioCpe
     /// <summary>Solo la validación local (nivel 1) de la factura o boleta, sin escribir archivos.</summary>
     Task<ResultadoValidacion> ValidarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default);
 
+    /// <summary>Solo la validación local (nivel 1) de la nota, incluida la del documento modificado, sin escribir archivos.</summary>
+    Task<ResultadoValidacion> ValidarAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default);
+
     /// <summary>
     /// Envía el documento ya generado (ZIP de ENVIO) con sendBill o, si es un resumen diario (RC), con sendSummary;
     /// nunca lo regenera. Si el historial tiene un resultado definitivo lo devuelve sin llamar a SUNAT; si el último
@@ -44,6 +55,12 @@ public interface IServicioCpe
 
     /// <summary>Genera y envía. Si la generación falla, <c>Envio.Estado = ErrorValidacionLocal</c> y no se envía.</summary>
     Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default);
+
+    /// <summary>
+    /// Genera y envía la nota por sendBill. Una nota de serie B con <see cref="ModoEnvioBoletas.ResumenDiario"/> queda
+    /// generada y el envío devuelve el mismo resultado que una boleta en ese modo (se informa en el resumen diario).
+    /// </summary>
+    Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default);
 
     /// <summary>
     /// Consulta una vez (con hasta 3 reintentos ante fallas transitorias) el ticket del resumen con getStatus: 98 en

@@ -1,11 +1,14 @@
 namespace PasheCPE.Tributos;
 
-/// <summary>Resultado del cálculo tributario de un comprobante: todo lo que el mapeador UBL necesita, ya redondeado.</summary>
+/// <summary>
+/// Resultado del cálculo tributario de un comprobante o una nota: todo lo que el mapeador UBL necesita, ya redondeado.
+/// </summary>
 internal sealed record CalculoComprobante
 {
     public required EmisorCpe Emisor { get; init; }
 
-    public required ComprobanteCpe Comprobante { get; init; }
+    /// <summary>Factura o boleta (<see cref="ComprobanteCpe"/>) o nota (<see cref="NotaCpe"/>).</summary>
+    public required DocumentoVentaCpe Comprobante { get; init; }
 
     public required DateOnly FechaEmision { get; init; }
 

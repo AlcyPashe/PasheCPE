@@ -81,6 +81,46 @@ ComprobanteCpe Comprobante(string tipo, string serie, long numero, DatosCliente 
     ],
 };
 
+// Factura al crédito en dos cuotas (a 30 y 60 días) por el total de Comprobante (129.80): base del ajuste de cuotas.
+ComprobanteCpe FacturaAlCredito(long numero) => Comprobante(TipoDocumentoSunat.Factura, datos.SerieFactura, numero, datos.Cliente, AfectacionIgv.GravadoOneroso) with
+{
+    FormaPago = Cuotas(129.80m),
+};
+
+FormaPagoCpe Cuotas(decimal monto)
+{
+    var hoy = DateOnly.FromDateTime(DateTime.Now);
+    var primera = Math.Round(monto / 2, 2, MidpointRounding.AwayFromZero);
+    return new FormaPagoCpe
+    {
+        Tipo = TipoFormaPago.Credito,
+        Cuotas =
+        [
+            new CuotaCpe { Monto = primera, FechaVencimiento = hoy.AddDays(30) },
+            new CuotaCpe { Monto = monto - primera, FechaVencimiento = hoy.AddDays(60) },
+        ],
+    };
+}
+
+// Nota sobre una factura gravada de la demo (casos 1 u 11): pide la factura y arma la nota con las líneas indicadas.
+NotaCpe Nota(string tipo, string motivo, string sustento, IReadOnlyList<LineaCpe> lineas) => new()
+{
+    TipoDocumento = tipo,
+    Serie = tipo == TipoDocumentoSunat.NotaDeCredito ? datos.SerieNotaCredito : datos.SerieNotaDebito,
+    Numero = Consola.Numero(),
+    Motivo = motivo,
+    Sustento = sustento,
+    DocumentoModificado = Consola.Factura(datos.SerieFactura),
+    Cliente = new ClienteCpe { TipoDocumento = datos.Cliente.TipoDocumento, NumeroDocumento = datos.Cliente.NumeroDocumento, RazonSocial = datos.Cliente.RazonSocial },
+    Lineas = lineas,
+};
+
+IReadOnlyList<LineaCpe> LineasDeComprobante(string descripcionProducto, decimal importeProducto, decimal importeServicio) =>
+[
+    new LineaCpe { CodigoInterno = "P001", Descripcion = descripcionProducto, CodigoProductoSunat = "50221200", Cantidad = 2, ImporteUnitario = importeProducto, Afectacion = AfectacionIgv.GravadoOneroso },
+    new LineaCpe { CodigoInterno = "S001", Descripcion = "SERVICIO DE PRUEBA", TipoItem = TipoItem.Servicio, Cantidad = 1, ImporteUnitario = importeServicio, Afectacion = AfectacionIgv.GravadoOneroso },
+];
+
 while (true)
 {
     Console.WriteLine();
@@ -94,6 +134,12 @@ while (true)
     Console.WriteLine("8. Ver el historial de un documento");
     Console.WriteLine("9. Resumen diario: 2 boletas (gravada y exonerada), RC desde FIRMA, envío y espera del ticket");
     Console.WriteLine("10. Consultar el ticket de un resumen ya enviado (también desde otra ejecución)");
+    Console.WriteLine("11. Factura gravada al crédito en 2 cuotas (base del caso 16)");
+    Console.WriteLine("12. Nota de crédito por devolución total (06) de una factura gravada aceptada");
+    Console.WriteLine("13. Nota de débito por intereses por mora (01) de una factura gravada aceptada");
+    Console.WriteLine("14. Nota de crédito por corrección de la descripción (03) con importes en cero");
+    Console.WriteLine("15. Nota de crédito por corrección de la descripción (03) con los importes de la línea corregida");
+    Console.WriteLine("16. Nota de crédito por ajuste de cuotas (13) de una factura al crédito aceptada (caso 11)");
     Console.WriteLine("0. Salir");
     var opcion = Consola.Preguntar("Opción");
     try
@@ -131,6 +177,27 @@ while (true)
                 var resumen = Consola.ReferenciaResumen(datos.Emisor.Ruc);
                 Consola.Imprimir(await pasheResumen.Cpe.ConsultarTicketAsync(Emisor(amazonia: false, claveSol), resumen));
                 await ImprimirDocumentos(pasheResumen, resumen);
+                break;
+            case "11":
+                await Emitir(pashe, Emisor(amazonia: false, claveSol), FacturaAlCredito(Consola.Numero()));
+                break;
+            case "12":
+                await EmitirNota(pashe, Emisor(amazonia: false, claveSol), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.DevolucionTotal, "DEVOLUCION TOTAL DE LA MERCADERIA", LineasDeComprobante("PRODUCTO DE PRUEBA PASHECPE", 59.00m, 11.80m)));
+                break;
+            case "13":
+                await EmitirNota(pashe, Emisor(amazonia: false, claveSol), Nota(TipoDocumentoSunat.NotaDeDebito, MotivoNotaDebito.InteresesPorMora, "INTERESES POR PAGO FUERA DE PLAZO", [new LineaCpe { CodigoInterno = "S002", Descripcion = "INTERESES POR MORA", TipoItem = TipoItem.Servicio, Cantidad = 1, ImporteUnitario = 11.80m, Afectacion = AfectacionIgv.GravadoOneroso }]));
+                break;
+            case "14":
+                await EmitirNota(pashe, Emisor(amazonia: false, claveSol), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.CorreccionDescripcion, "CORRECCION DE LA DESCRIPCION DEL PRODUCTO", LineasDeComprobante("PRODUCTO DE PRUEBA PASHECPE CORREGIDO", 0m, 0m)));
+                break;
+            case "15":
+                await EmitirNota(pashe, Emisor(amazonia: false, claveSol), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.CorreccionDescripcion, "CORRECCION DE LA DESCRIPCION DEL PRODUCTO", LineasDeComprobante("PRODUCTO DE PRUEBA PASHECPE CORREGIDO", 59.00m, 11.80m)));
+                break;
+            case "16":
+                await EmitirNota(pashe, Emisor(amazonia: false, claveSol), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.CorreccionMontoNetoPendientePago, "NUEVAS FECHAS DE PAGO DE LAS CUOTAS", [new LineaCpe { CodigoInterno = "P001", Descripcion = "AJUSTE DE CUOTAS", Cantidad = 1, ImporteUnitario = 0m, Afectacion = AfectacionIgv.GravadoOneroso }]) with
+                {
+                    FormaPago = Cuotas(decimal.Parse(Consola.Preguntar("Monto neto pendiente", "129.80"), CultureInfo.InvariantCulture)),
+                });
                 break;
             case "0":
                 return;
@@ -189,9 +256,14 @@ static async Task ImprimirDocumentos(PasheCpe instancia, ReferenciaCpe resumen)
     }
 }
 
-static async Task Emitir(PasheCpe instancia, EmisorCpe emisor, ComprobanteCpe cpe)
+static async Task Emitir(PasheCpe instancia, EmisorCpe emisor, ComprobanteCpe cpe) =>
+    Imprimir(await instancia.Cpe.EmitirAsync(emisor, cpe));
+
+static async Task EmitirNota(PasheCpe instancia, EmisorCpe emisor, NotaCpe nota) =>
+    Imprimir(await instancia.Cpe.EmitirAsync(emisor, nota));
+
+static void Imprimir(ResultadoEmision emision)
 {
-    var emision = await instancia.Cpe.EmitirAsync(emisor, cpe);
     Consola.Imprimir(emision.Generacion);
     if (emision.Generacion.Exito)
     {
@@ -251,16 +323,29 @@ internal static class Consola
 
     public static ReferenciaCpe Referencia(string ruc)
     {
-        var tipo = Preguntar("Tipo (01 factura, 03 boleta, RC resumen diario)", "01");
+        var tipo = Preguntar("Tipo (01 factura, 03 boleta, 07 nota de crédito, 08 nota de débito, RC resumen diario)", "01");
         if (tipo == ReferenciaCpe.TipoResumenDiario)
         {
             return ReferenciaResumen(ruc);
         }
 
-        var serie = Preguntar("Serie", tipo == "03" ? "B001" : "F001");
+        var serie = Preguntar("Serie", tipo switch { "03" => "B001", "07" => "FC01", "08" => "FD01", _ => "F001" });
         var numero = long.Parse(Preguntar("Número"), CultureInfo.InvariantCulture);
         var fecha = DateOnly.ParseExact(Preguntar("Fecha de emisión (yyyy-MM-dd)", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)), "yyyy-MM-dd", CultureInfo.InvariantCulture);
         return ReferenciaCpe.Comprobante(ruc, tipo, serie, numero, fecha);
+    }
+
+    /// <summary>Factura que modifica la nota, con su fecha de emisión para validarla contra el historial.</summary>
+    public static DocumentoModificadoCpe Factura(string seriePorDefecto)
+    {
+        Console.WriteLine("Factura que modifica la nota:");
+        return new DocumentoModificadoCpe
+        {
+            TipoDocumento = TipoDocumentoSunat.Factura,
+            Serie = Preguntar("  Serie", seriePorDefecto),
+            Numero = long.Parse(Preguntar("  Número"), CultureInfo.InvariantCulture),
+            FechaEmision = DateOnly.ParseExact(Preguntar("  Fecha de emisión (yyyy-MM-dd)", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)), "yyyy-MM-dd", CultureInfo.InvariantCulture),
+        };
     }
 
     public static ReferenciaCpe ReferenciaResumen(string ruc)
@@ -373,6 +458,10 @@ internal sealed class DatosDemo
     public string SerieFactura { get; set; } = "F001";
 
     public string SerieBoleta { get; set; } = "B001";
+
+    public string SerieNotaCredito { get; set; } = "FC01";
+
+    public string SerieNotaDebito { get; set; } = "FD01";
 }
 
 /// <summary>Emisor de la demo.</summary>

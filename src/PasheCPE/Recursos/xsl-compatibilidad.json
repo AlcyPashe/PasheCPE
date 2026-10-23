@@ -17,13 +17,13 @@
       "xsl": "ValidaExprRegNC-2.0.1.xsl",
       "variable": "MontoDescuentoAfectoBI",
       "valor": "0",
-      "motivo": "SUNAT dejó comentada su definición (descuentos globales 02) pero no sus usos en SumatoriaIGVCalculado y SumatoriaIVAPCalculado: con 0 no se restan, como en la definición vigente. Se revisa en la Fase 7."
+      "motivo": "SUNAT dejó comentada su definición (descuentos globales 02) pero no sus usos en SumatoriaIGVCalculado y SumatoriaIVAPCalculado: con 0 no se restan, como en la definición vigente. Revisado en la Fase 7: PasheCPE no emite descuentos ni cargos globales en las notas (PCPE-1414), así que 0 es el valor exacto. La sumatoria del IGV que lo usa está comentada (3291, 4290; la reemplaza la regla SumatoriaIgv) y la del IVAP solo aplica al IVAP, que PasheCPE no emite (PCPE-1226)."
     },
     {
       "xsl": "ValidaExprRegND-2.0.1.xsl",
       "variable": "MontoDescuentoAfectoBI",
       "valor": "0",
-      "motivo": "SUNAT dejó comentada su definición (descuentos globales 02) pero no sus usos en SumatoriaIGVCalculado y SumatoriaIVAPCalculado: con 0 no se restan, como en la definición vigente. Se revisa en la Fase 7."
+      "motivo": "SUNAT dejó comentada su definición (descuentos globales 02) pero no sus usos en SumatoriaIGVCalculado y SumatoriaIVAPCalculado: con 0 no se restan, como en la definición vigente. Revisado en la Fase 7: PasheCPE no emite descuentos ni cargos globales en las notas (PCPE-1414), así que 0 es el valor exacto. La sumatoria del IGV que lo usa está comentada (3291, 4290; la reemplaza la regla SumatoriaIgv) y la del IVAP solo aplica al IVAP, que PasheCPE no emite (PCPE-1226)."
     }
   ]
 }

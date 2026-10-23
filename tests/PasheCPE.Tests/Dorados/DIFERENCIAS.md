@@ -11,6 +11,17 @@ Solo se aceptan estas diferencias; cualquier otra hace fallar la prueba.
 | `/Invoice/cbc:Note[2001]` | Elemento adicional | Leyenda de la Amazonía para bienes exonerados (PRD RF-04); GasperSoft la omitía |
 | `/Invoice/cbc:InvoiceTypeCode/@name` y `@listSchemeURI` | Atributos adicionales | «Tipo de Operacion» y el URI del catálogo 51, como en la guía de elaboración UBL 2.1 vigente |
 
+## Notas de crédito
+
+`DoradosCreditNoteTests` hace lo mismo con las notas de crédito aceptadas de `tests/Datos/Dorados/07-NotaCredito` (F001-840 y F001-841, motivo 01, sobre facturas exoneradas). El lector arma la `NotaCpe` con el motivo, el sustento y el documento modificado del dorado. Solo se aceptan estas diferencias, además de la firma:
+
+| Ruta | Tipo | Motivo |
+|---|---|---|
+| `/CreditNote/cbc:Note[1000]` | Elemento adicional | Monto en letras, como en la factura |
+| `/CreditNote/cbc:Note[2001]` | Elemento adicional | Leyenda de la Amazonía para bienes exonerados, como en la factura |
+
+No hay nota de débito dorada: la ND se valida con el XSD y las XSL de SUNAT sobre los XML generados (`XslSobreNotasTests`).
+
 ## Diferencias que no aparecen en estos dorados
 
 - **Campos 2027** (R.S. 000048-2026): el contrato de colaboración empresarial (`cac:ContractDocumentReference`) solo se genera si el comprobante lo informa y desde el 01/01/2027; ninguno de estos dorados lo tiene.

@@ -90,6 +90,25 @@ venta.ResultadoJson = JsonSerializer.Serialize(r.Envio, PasheCpeJson.Default.Res
 
 Mostrar al cajero `r.Envio.MensajeUsuario`.
 
+Las notas de crédito y débito se emiten igual, con una `NotaCpe` que modifica **un solo** comprobante (R.S. 000048-2026). Conviene indicar la `FechaEmision` del documento modificado: con ella la librería valida que la nota no sea anterior y, si generó ese documento, revisa en su historial que esté aceptado, que la moneda coincida y que la NC no supere su importe total.
+
+```csharp
+NotaCpe nota = new()
+{
+    TipoDocumento = TipoDocumentoSunat.NotaDeCredito,
+    Serie = "FC01",                                   // F modifica una factura; B, una boleta
+    Numero = 15,
+    Motivo = MotivoNotaCredito.DevolucionTotal,       // catálogo N.° 09 (N.° 10 en la nota de débito)
+    Sustento = "DEVOLUCIÓN TOTAL DE LA MERCADERÍA",
+    DocumentoModificado = new() { TipoDocumento = TipoDocumentoSunat.Factura, Serie = "F001", Numero = 1234, FechaEmision = venta.FechaEmision },
+    Cliente = cliente,
+    Lineas = lineasDevueltas,
+};
+ResultadoEmision rn = await cpe.EmitirAsync(emisor, nota, ct);
+```
+
+Una nota de serie B con `ModoEnvioBoletas = ResumenDiario` solo se genera y se informa después en el resumen diario, como la boleta. La nota de débito por penalidades (motivo 13, desde 2027) puede omitir `DocumentoModificado` y no lleva IGV. La nota de crédito por ajuste de cuotas (motivo 13) lleva importes en cero y la nueva `FormaPago` al crédito.
+
 | Estado | Qué hace el sistema de ventas |
 |---|---|
 | `Aceptado`, `AceptadoConObservaciones` | Marcar emitido; mostrar observaciones si hay |

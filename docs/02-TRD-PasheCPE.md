@@ -67,10 +67,11 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 │   │   ├── Ubl\Comunes\      cbc/cac/ext (perfil SUNAT; namespace PasheCPE.Ubl, públicas pero ocultas)
 │   │   ├── Ubl\Documentos\   Invoice, CreditNote, DebitNote, SummaryDocuments, VoidedDocuments,
 │   │   │                     DespatchAdvice, ApplicationResponse (lectura)
-│   │   ├── Mapeo\            MapeadorInvoice, AtributosCatalogo, GeneradorInvoice (→ DATA), MapeadorCreditNote, MapeadorDebitNote, MapeadorSummary,
+│   │   ├── Mapeo\            MapeadorComun, MapeadorInvoice, AtributosCatalogo, ConstructorXml, GeneradorInvoice y
+│   │   │                     GeneradorNota (→ DATA), MapeadorCreditNote, MapeadorDebitNote, MapeadorSummary,
 │   │   │                     MapeadorVoided, MapeadorDespatchAdvice
 │   │   ├── Serializacion\    SerializadorUbl
-│   │   ├── Validacion\       ValidadorModelo, ValidadorEsquema, MotorXslSunat, ValidadorSunat, Precalentador,
+│   │   ├── Validacion\       ValidadorModelo, ValidadorDocumentoModificado, ValidadorEsquema, MotorXslSunat, ValidadorSunat, Precalentador,
 │   │   │                     Emulacion\ (DataPower, EXSLT, resolutor local:///, adaptador),
 │   │   │                     Reglas\ (reglas complementarias y ajustes de la XSL)
 │   │   ├── Firma\            ProveedorCertificados, FirmadorXml
@@ -213,7 +214,7 @@ public sealed record EmisorCpe
 
 - `ComprobanteCpe` (01/03): tipo, serie, número, fecha y hora de emisión (null → ahora en Lima), vencimiento, moneda, tipo de operación (Cat.51), cliente, líneas, forma de pago (contado/crédito + cuotas), descuentos/cargos globales, anticipos, detracción, documentos relacionados, orden de compra, contrato de colaboración, leyendas adicionales, observaciones, `ModoPrecio` (`ValorUnitario` sin impuestos | `PrecioUnitario` con impuestos).
 - `LineaCpe`: código interno, código de producto SUNAT (8 dígitos), GTIN, descripción, unidad (Cat.03), cantidad, valor o precio unitario, afectación (Cat.07, null → default del emisor), descuento, ICBPER (cantidad de bolsas), indicador de gratuito, ISC opcional.
-- `NotaCpe`: datos de `ComprobanteCpe` + tipo (07/08), motivo (Cat.09/10), sustento, **un** documento modificado (tipo, serie, número).
+- `NotaCpe`: datos comunes de `DocumentoVentaCpe` (sin anticipos ni detracción) + tipo (07/08), motivo (Cat.09/10), sustento, **un** documento modificado (`DocumentoModificadoCpe`: tipo 01 o 03, serie, número y, opcional, `FechaEmision`). El documento modificado es obligatorio salvo en la ND por penalidades (motivo 13, 2524). Con `FechaEmision` se valida que la nota no sea anterior al original (2885) y, si el original lo generó PasheCPE, su estado, moneda e importe total en el historial (§9.4). Las notas no llevan descuentos ni cargos (PCPE-1414/1415); la forma de pago solo va en la NC por ajuste de cuotas (motivo 13), donde el monto neto pendiente es la suma de las cuotas (3319).
 - `ResumenDiarioCpe`: fecha de referencia + líneas (boleta/nota, estado 1 adicionar / 2 modificar / 3 anular, cliente con razón social, totales por afectación con gratuitas desagregadas en gravadas/exoneradas/inafectas/exportación, IGV de gratuitas y tasa del IGV — campos 2027; sin tasa, la librería usa la vigente a la fecha de emisión, o la MYPE si el emisor la aplica). La librería asigna correlativos y divide en lotes de 500.
 - `DocumentoResumenCpe` (Fase 6, decidido con el desarrollador el 23/10/2026): tipo, serie, número y estado de una boleta o nota **ya generada por PasheCPE**; con esta vía la librería arma la línea leyendo su XML firmado de `FIRMA` (lo informado coincide con lo firmado).
 - `ComunicacionBajaCpe`: fecha de referencia + documentos (tipo, serie, número, motivo).
@@ -315,6 +316,7 @@ public interface IServicioCpe   // 01, 03, 07, 08, RC, RA
     Task<ResultadoEnvio> ConsultarCdrAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default);   // getStatusCdr
 
     Task<ResultadoValidacion> ValidarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default);       // solo nivel 1
+    Task<ResultadoValidacion> ValidarAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default);             // nivel 1 + documento modificado
 }
 
 public interface IServicioGre   // 09, 31
@@ -342,7 +344,7 @@ public interface IPrecalentador { Task PrecalentarAsync(CancellationToken ct = d
 
 Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → serializar (DATA) → validar XSD + XSL + reglas complementarias → firmar (FIRMA, valor resumen) → ZIP (ENVIO) → QR (QR) → verificar conectividad → enviar → clasificar → CDR (RPTA) → historial (LOG) → resultado**. Cada etapa persiste su archivo y el resultado devuelve todas las rutas. `EnviarAsync` parte de ENVIO\ y nunca regenera.
 
-`IServicioCpe` crece por fases (decidido con el desarrollador el 23/10/2026): en la Fase 4 solo tiene `GenerarAsync(emisor, ComprobanteCpe)` y `ValidarAsync`; la Fase 5 agrega `EnviarAsync`, `EmitirAsync(emisor, ComprobanteCpe)` y `ConsultarCdrAsync`; la Fase 6, `GenerarResumenAsync` (con totales o desde FIRMA), `ConsultarTicketAsync` y `EsperarTicketAsync`, y `EnviarAsync` envía el RC con `sendSummary`; los demás métodos se agregan en la fase que los implementa (7–8), sin stubs. `GenerarAsync` no regenera un documento cuyo historial tenga un estado distinto de `Generado` o `ErrorValidacionLocal` (`PCPE-3101`): cambiaría el valor resumen de lo enviado a SUNAT.
+`IServicioCpe` crece por fases (decidido con el desarrollador el 23/10/2026): en la Fase 4 solo tiene `GenerarAsync(emisor, ComprobanteCpe)` y `ValidarAsync`; la Fase 5 agrega `EnviarAsync`, `EmitirAsync(emisor, ComprobanteCpe)` y `ConsultarCdrAsync`; la Fase 6, `GenerarResumenAsync` (con totales o desde FIRMA), `ConsultarTicketAsync` y `EsperarTicketAsync`, y `EnviarAsync` envía el RC con `sendSummary`; la Fase 7, `GenerarAsync`, `EmitirAsync` y `ValidarAsync` de `NotaCpe` (las notas F van por `sendBill`; las B siguen `ModoEnvioBoletas`); los demás métodos se agregan en la fase que los implementa (8), sin stubs. `GenerarAsync` no regenera un documento cuyo historial tenga un estado distinto de `Generado` o `ErrorValidacionLocal` (`PCPE-3101`): cambiaría el valor resumen de lo enviado a SUNAT.
 
 ## 7. Cálculo tributario
 
@@ -385,7 +387,7 @@ Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → seri
 ## 9. Validación local (nivel 1)
 
 ### 9.1 Modelo (C#)
-Obligatorios, serie vs tipo (F/B/T/V…), tipo de documento del cliente (factura → 6; boleta > S/ 700 → identificación), fechas, plazos (`FechaLimiteEnvio` vencida → error), NRUS, longitud de campos, código de producto 8 dígitos (00000000 y 99999999 se aceptan, como excepción del Excel, 3496), una sola referencia en notas. Ante diferencias con el Excel de validación, prevalece el Excel (§9.4).
+Obligatorios, serie vs tipo (F/B/T/V…), tipo de documento del cliente (factura → 6; boleta > S/ 700 → identificación), fechas, plazos (`FechaLimiteEnvio` vencida → error), NRUS, longitud de campos, código de producto 8 dígitos (00000000 y 99999999 se aceptan, como excepción del Excel, 3496), una sola referencia en notas. Notas (`PCPE-1401`–`1415`): motivo vigente (Cat.09/10), sustento de 1 a 500 caracteres, documento modificado 01 o 03 con su serie, serie de la nota coherente (F → 01, B → 03), plazo según el documento modificado (3 o 7 días; en el envío se deduce de la serie), NC 13 solo sobre factura, al crédito con cuotas y con importe cero, ND 13 sin IGV. Ante diferencias con el Excel de validación, prevalece el Excel (§9.4).
 
 ### 9.2 Esquema
 `XmlSchemaSet` compilado una vez desde `recursos\XSD` (embebidos, enlazados sin copiar), con resolutor local para los `import` (ninguna URI externa se resuelve). El resumen diario (UBL 2.0) usa un **segundo conjunto** con `UBLPE-SummaryDocuments-1.0.xsd` y sus `import` de `recursos\XSD\2.0\common` (Fase 6): UBL 2.0 y 2.1 comparten los namespaces `cac`/`cbc` y no pueden compilarse juntos, así que se elige por el elemento raíz. Solo se carga el documento principal porque `UBLPE-SunatAggregateComponents` 1.0 y 1.1 comparten el namespace (el XSD de SUNAT importa el 1.0, que ya trae cliente, referencia y estado en las líneas). Los 2 RC dorados lo pasan. El xmldsig de UBL trae un DOCTYPE con entidades internas: se lee con `DtdProcessing.Parse` y se carga primero. Se valida el XML **sin firmar** (la firma no altera la estructura validada); como `ext:ExtensionContent` exige un elemento, el `ext:UBLExtensions` vacío preparado para la firma se excluye de la validación (única exclusión). Los errores se devuelven como `PCPE-2001` con la ruta del elemento.
@@ -422,7 +424,7 @@ Las XSL de SUNAT son XSLT 1.0 escritas para IBM DataPower. Lo que se encontró e
 |---|---|
 | `concat('…')` con un solo argumento → el literal | Factura (2), Boleta (2) |
 | Variable local declarada otra vez en su ámbito → se renombra la nueva declaración y sus referencias posteriores (equivale a sombrearla) | Factura y Boleta (`totalDescuentosGlobales`), ND (`totalImpuestos`, `SumatoriaImpuestos`, `valorVentaLinea`) |
-| Variables usadas sin declarar → variable global de respaldo (`xsl-compatibilidad.json`, con su motivo) | Boleta y ND (`nroLinea` = ''), NC y ND (`MontoDescuentoAfectoBI` = 0, cuya definición SUNAT dejó comentada; se revisa en la Fase 7) |
+| Variables usadas sin declarar → variable global de respaldo (`xsl-compatibilidad.json`, con su motivo) | Boleta y ND (`nroLinea` = ''), NC y ND (`MontoDescuentoAfectoBI` = 0, cuya definición SUNAT dejó comentada; revisado en la Fase 7: es el valor exacto porque las notas no llevan descuentos globales) |
 
 - Cada XSL se compila **una sola vez** (perezoso, `Lazy<T>` thread-safe) con `XsltSettings(enableDocumentFunction: true, enableScript: false)`; `IPrecalentador` puede compilarlas al iniciar. Cada validación usa un `XsltArgumentList` nuevo con sus objetos de extensión.
 - Las XSL originales no se modifican; se embeben tal cual, enlazadas desde `recursos\XSL`.
@@ -437,7 +439,7 @@ Las XSL de SUNAT son XSLT 1.0 escritas para IBM DataPower. Lo que se encontró e
 Las XSL son del 06/09/2022 y el Excel de reglas, del 26/08/2026: hay filas posteriores que la XSL no tiene o calcula distinto (por ejemplo, la sumatoria del IGV con la tasa MYPE de 10.5 %). Se cubren con:
 
 - **`IReglaCpe`** (`Validacion\Reglas\`): cada regla evalúa el **XML** (no el modelo, así sirve para cualquier XML) e informa la fila del Excel que no se cumple. El **código y el tipo salen de `reglas-cpe.json`**: error u observación según la vigencia a la fecha de recepción (hoy en Lima); antes de una vigencia «OBSERV → ERROR» se aplica `tipoAnterior`, y una regla sin tipo anterior no aplica antes de su vigencia. Origen `OrigenError.ReglasComplementarias`; se activan con `Validacion.ReglasComplementarias` (la vigencia de cada regla sigue en los datos, `reglas-cpe.json`; desactivarlas también anula las supresiones de `ajustes-xsl.json`).
-- **`ajustes-xsl.json`**: `suprimidos` (código de la XSL que se descarta, la regla C# que lo reemplaza, las filas del Excel que lo respaldan y el motivo; solo se suprime si las reglas complementarias están activas) y `clasificacion` (cada fila de 01/03 con vigencia posterior al 06/09/2022: `reemplazada`, `nueva`, `xsl`, `modelo` o `noVerificable`, con el motivo). Una prueba falla si alguna fila queda sin clasificar, si una regla no respalda sus filas o si un código suprimido ya no está activo en la XSL. Con cada XSL nueva de SUNAT el archivo se revisa completo.
+- **`ajustes-xsl.json`**: `suprimidos` (código de la XSL que se descarta, la regla C# que lo reemplaza, las filas del Excel que lo respaldan, el motivo y, opcional, `desde`: la vigencia de esas filas, antes de la cual sigue aplicando la XSL; solo se suprime si las reglas complementarias están activas) y `clasificacion` (cada fila de 01/03/07/08/RC con vigencia posterior al 06/09/2022: `reemplazada`, `nueva`, `xsl`, `modelo` o `noVerificable`, con el motivo). Una prueba falla si alguna fila queda sin clasificar, si una regla no respalda sus filas o si un código suprimido ya no está activo en la XSL. Con cada XSL nueva de SUNAT el archivo se revisa completo.
 
 Reglas implementadas para 01/03 (Fase 3):
 
@@ -462,7 +464,23 @@ El resto de filas 2027 del RC (2048, 2344, 2268, 2269, 2271, 2355) ya las cumple
 
 Sin regla C#: 2108/1079 (plazos, `ValidadorModelo`), 2369, 3461, 4332 y 4337 (ya en la XSL), 1086, 2529, 4439 y 3496 fila 156 (requieren padrones o listados de SUNAT).
 
-Pendiente para las fases de cada documento: NC/ND con documentos 28 y 56 (ERR-2205, 2207, 2208, 2209, 2885, 3209), una referencia por NC (3261) / ND (3194), NC motivo 03 sin variación de importes, ND motivo 13 penalidades con IGV 0 (3507), serie F/B coherente con el documento modificado, catálogos 09/10 con los códigos 2027 (Fase 7); Los códigos se toman de `reglas-cpe.json`; los que no figuren en el Excel 26.08.2026 se marcan **[verificar]**.
+Reglas implementadas para NC/ND (Fase 7, R.S. 000048-2026; las 125 filas de 07/08 posteriores a la XSL están clasificadas en `ajustes-xsl.json`):
+
+| Regla | Filas del Excel | Motivo |
+|---|---|---|
+| `ReferenciaUnica` (3261 NC; 3194 ND) | 07: 90; 08: 90 | Un solo `InvoiceDocumentReference` desde el 01/01/2027 (en la NC, salvo el motivo 11, que la XSL valida con 3194). La XSL de NC solo lo valida en el motivo 13 → **3261 suprimida desde el 01/01/2027** |
+| `ReferenciaNotaDebito` (2524) | 08: 89 | Documento modificado obligatorio salvo en las penalidades (motivo 13). La XSL lo exige salvo en el motivo 03 → **2524 de ND suprimida desde el 01/01/2027** |
+| `PenalidadesSinIgv` (3507) | 08: 194, 283, 325 | ND 13 inafecta del IGV/IVAP (línea, 9995/9997 y sumatoria) |
+| `SumatoriaIgv` (3291 si modifica factura; 4290 en otro caso) | 07: 341, 343; 08: 328, 330 | Igual que en factura; las XSL de NC/ND la tienen comentada |
+| `TasaIgvUnica` (3462) | 07: 342, 344; 08: 329, 331 | Igual que en factura |
+| `CodigoProducto` (3496) | 07: 169; 08: 147 | Desde el 01/01/2027 |
+| `ContratoColaboracion` (3497–3502) | 07: 478–483, 485–490; 08: 458–463, 465–470 | Desde el 01/01/2027 |
+
+El formato del documento modificado (2117, 2205) y su tipo según la serie de la nota (2116, 2204, 2400) ya los valida la XSL. Los tipos distintos de 01 y 03 (DAE 28 y 56, documentos autorizados, tickets) y el tipo vacío o guion quedan fuera del alcance: `ValidadorModelo` los rechaza (`PCPE-1404`) y en las penalidades sin documento se omite `cac:BillingReference`.
+
+Las filas que comparan con el documento original en el registro de SUNAT (2119–2121, 2207–2209 estado; 3286/4028 importe total; 3209 moneda; 3503 totales por tributo) son `noVerificable`, pero `ValidadorDocumentoModificado` cubre parte cuando el original lo generó PasheCPE y se indica su `FechaEmision`: no puede estar rechazado ni con error de validación (`PCPE-1430`), una factura debe estar aceptada (`PCPE-1431`; una boleta del resumen puede ir en el mismo RC que su nota), misma moneda que la factura (`PCPE-1432`) e importe total de la NC no mayor que el original (`PCPE-1433`, con tolerancia de 1 en boletas y salvo el motivo 10). Si el original no está en el historial, no valida nada. La 2885 (fecha de la nota ≥ fecha del original) la controla `ValidadorModelo` con esa fecha (`PCPE-1408`).
+
+**[verificar]** NC motivo 03 (corrección de la descripción): la R.S. 000048-2026 indica que no varía los importes, pero el Excel 26.08.2026 no tiene una fila ni un código para ello. Si la NC 03 trae importes mayores que cero se emite con la advertencia `PCPE-1420`. En la prueba manual de beta se envían una NC 03 con importes en cero y otra con los importes de la línea corregida; según lo que responda SUNAT, la advertencia pasa a ser un error o se elimina. En la misma prueba se confirma la fila 2369 («PriceAmount diferente de cero»), que la XSL no aplica y que afecta a las NC 03 y 13 en cero.
 
 ## 10. Firma digital
 

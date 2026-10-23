@@ -102,6 +102,14 @@ internal static class AtributosCatalogo
         Value = tipo,
     };
 
+    /// <summary>cbc:DocumentTypeCode del comprobante que modifica una nota (catálogo N.° 01).</summary>
+    public static CodeType DocumentoModificado(string tipo) => Guia(tipo);
+
+    /// <summary>cbc:ResponseCode: motivo de la nota de crédito (catálogo N.° 09) o de débito (catálogo N.° 10).</summary>
+    public static CodeType MotivoNota(string tipoNota, string motivo) => tipoNota == TipoDocumentoSunat.NotaDeCredito
+        ? new() { ListAgencyName = _sunat, ListName = "Tipo de nota de credito", ListUri = _uriCatalogo + "09", Value = motivo }
+        : new() { ListAgencyName = _sunat, ListName = "Tipo de nota de debito", ListUri = _uriCatalogo + "10", Value = motivo };
+
     public static CodeType IdentificadorAnticipo(string identificador) => new() { ListName = "Anticipo", ListAgencyName = _sunat, Value = identificador };
 
     public static IdentifierType PagoAnticipo(string identificador) => new() { SchemeName = "Anticipo", SchemeAgencyName = _sunat, Value = identificador };

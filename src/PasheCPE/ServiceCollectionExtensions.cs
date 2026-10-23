@@ -61,7 +61,12 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<IHistorialCpe, ServicioHistorial>();
         services.TryAddSingleton<ParametrosSunat>();
         services.TryAddSingleton<CalculadoraTributaria>();
+        services.TryAddSingleton<MapeadorComun>();
         services.TryAddSingleton<MapeadorInvoice>();
+        services.TryAddSingleton<MapeadorCreditNote>();
+        services.TryAddSingleton<MapeadorDebitNote>();
+        services.TryAddSingleton<ConstructorXml>();
+        services.TryAddSingleton<ValidadorDocumentoModificado>();
         services.TryAddSingleton<MapeadorSummary>();
         services.TryAddSingleton<ValidadorResumen>();
         services.TryAddSingleton<GeneradorSummary>();
@@ -77,6 +82,9 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaTotalPrecioVenta>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaCodigoProducto>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaContratoColaboracion>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaReferenciaUnica>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaReferenciaNotaDebito>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaPenalidadesSinIgv>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaTasaIgvResumen>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaIgvResumen>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaRazonSocialAdquiriente>());
@@ -84,6 +92,7 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<ValidadorSunat>();
         services.TryAddSingleton<IPrecalentador, Precalentador>();
         services.TryAddSingleton<GeneradorInvoice>();
+        services.TryAddSingleton<GeneradorNota>();
         services.TryAddSingleton<ProveedorCertificados>();
         services.TryAddSingleton<FirmadorXml>();
         services.TryAddSingleton<ConstructorContenidoQr>();

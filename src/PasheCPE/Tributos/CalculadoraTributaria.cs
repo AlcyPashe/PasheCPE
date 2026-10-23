@@ -29,10 +29,16 @@ internal sealed class CalculadoraTributaria(
 {
     private const string _columnaTributo = "Codigo de tributo";
 
-    public CalculoComprobante Calcular(EmisorCpe emisor, ComprobanteCpe comprobante)
+    /// <summary>
+    /// Calcula una factura o boleta (<see cref="ComprobanteCpe"/>) o una nota (<see cref="NotaCpe"/>). Las notas no
+    /// tienen anticipos ni detracción; en la nota de crédito por ajuste de cuotas (motivo 13) el monto neto pendiente es
+    /// la suma de las cuotas (3319), no el importe total.
+    /// </summary>
+    public CalculoComprobante Calcular(EmisorCpe emisor, DocumentoVentaCpe comprobante)
     {
         ArgumentNullException.ThrowIfNull(emisor);
         ArgumentNullException.ThrowIfNull(comprobante);
+        var factura = comprobante as ComprobanteCpe;
 
         var ahora = reloj.AhoraLima();
         var fecha = comprobante.FechaEmision ?? DateOnly.FromDateTime(ahora.DateTime);
@@ -82,7 +88,7 @@ internal sealed class CalculadoraTributaria(
 
         var anticipos = new List<AnticipoCalculado>();
         decimal anticipoGravado = 0, anticipoExonerado = 0, anticipoInafecto = 0, totalAnticipos = 0;
-        foreach (var (anticipo, indice) in comprobante.Anticipos.Select((a, i) => (a, i)))
+        foreach (var (anticipo, indice) in (factura?.Anticipos ?? []).Select((a, i) => (a, i)))
         {
             var tributo = TributoDe(anticipo.Afectacion ?? reglas.AfectacionPorDefecto(emisor));
             var (codigo, deduccion, baseAnticipo) = tributo switch
@@ -151,10 +157,12 @@ internal sealed class CalculadoraTributaria(
             erroresCalculo.Add(errores.Local("PCPE-1290", OrigenError.Modelo, "Anticipos", null, "el importe total o una base imponible resultan negativos"));
         }
 
-        var detraccion = comprobante.Detraccion is { } d
+        var detraccion = factura?.Detraccion is { } d
             ? new DetraccionCalculada(d, d.Monto ?? Redondeo.Monto(importeTotal * d.Porcentaje / 100m))
             : null;
-        var montoNeto = importeTotal - (detraccion is not null && comprobante.Moneda == "PEN" ? detraccion.Monto : 0m);
+        var montoNeto = comprobante is NotaCpe { FormaPago: { Tipo: TipoFormaPago.Credito } credito }
+            ? credito.Cuotas.Sum(c => c.Monto)
+            : importeTotal - (detraccion is not null && comprobante.Moneda == "PEN" ? detraccion.Monto : 0m);
 
         return new CalculoComprobante
         {
@@ -251,7 +259,7 @@ internal sealed class CalculadoraTributaria(
         };
     }
 
-    private List<LeyendaCpe> Leyendas(EmisorCpe emisor, ComprobanteCpe comprobante, List<LineaCalculada> lineas, decimal importeTotal, bool conDetraccion)
+    private List<LeyendaCpe> Leyendas(EmisorCpe emisor, DocumentoVentaCpe comprobante,List<LineaCalculada> lineas, decimal importeTotal, bool conDetraccion)
     {
         var leyendas = new List<LeyendaCpe>
         {

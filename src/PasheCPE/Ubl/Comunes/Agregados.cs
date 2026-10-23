@@ -424,6 +424,32 @@ public sealed class DocumentReference
     public Party? IssuerParty { get; set; }
 }
 
+/// <summary>cac:BillingReference (documento que modifica una nota o una línea del resumen). No es parte del contrato estable.</summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
+public sealed class BillingReference
+{
+    /// <summary>cac:InvoiceDocumentReference.</summary>
+    [XmlElement("InvoiceDocumentReference", Namespace = EspaciosUbl.Cac)]
+    public DocumentReference? InvoiceDocumentReference { get; set; }
+}
+
+/// <summary>cac:DiscrepancyResponse (motivo de la nota de crédito o débito). No es parte del contrato estable.</summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
+public sealed class Response
+{
+    /// <summary>cbc:ReferenceID (serie-número del documento que modifica).</summary>
+    [XmlElement("ReferenceID", Namespace = EspaciosUbl.Cbc, Order = 0)]
+    public string? ReferenceID { get; set; }
+
+    /// <summary>cbc:ResponseCode (catálogo N.° 09 o N.° 10).</summary>
+    [XmlElement("ResponseCode", Namespace = EspaciosUbl.Cbc, Order = 1)]
+    public CodeType? ResponseCode { get; set; }
+
+    /// <summary>cbc:Description (sustento).</summary>
+    [XmlElement("Description", Namespace = EspaciosUbl.Cbc, Order = 2)]
+    public Collection<string> Description { get; } = [];
+}
+
 /// <summary>cac:PricingReference. No es parte del contrato estable.</summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class PricingReference

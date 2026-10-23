@@ -21,7 +21,7 @@
 
   <!-- Pregeneración de serializadores (TRD §3.1): solo los documentos UBL raíz. -->
   <PropertyGroup>
-    <SGenTypes>PasheCPE.Ubl.Invoice</SGenTypes>
+    <SGenTypes>PasheCPE.Ubl.Invoice;PasheCPE.Ubl.CreditNote;PasheCPE.Ubl.DebitNote</SGenTypes>
   </PropertyGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.XmlSerializer.Generator" Version="10.0.13" />

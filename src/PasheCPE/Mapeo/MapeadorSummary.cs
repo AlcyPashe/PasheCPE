@@ -36,7 +36,7 @@ internal sealed class MapeadorSummary(CatalogosSunat catalogos, IOptions<Opcione
             IssueDate = Fecha(lote.Referencia.Fecha),
             AccountingSupplierParty = Cuenta(TipoDocumentoIdentidad.Ruc, emisor.Ruc, emisor.RazonSocial),
         };
-        resumen.Signature.Add(MapeadorInvoice.Firma(emisor, opciones.Value.IdFirma));
+        resumen.Signature.Add(MapeadorComun.Firma(emisor, opciones.Value.IdFirma));
 
         var desagregadas = GratuitasDesagregadas(lote.Referencia.Fecha);
         for (var i = 0; i < lote.Lineas.Count; i++)

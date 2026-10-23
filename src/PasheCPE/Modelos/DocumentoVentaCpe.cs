@@ -80,8 +80,11 @@ public sealed record NotaCpe : DocumentoVentaCpe
     /// <summary>Sustento o descripción del motivo.</summary>
     public required string Sustento { get; init; }
 
-    /// <summary>El comprobante que modifica la nota.</summary>
-    public required DocumentoModificadoCpe DocumentoModificado { get; init; }
+    /// <summary>
+    /// El comprobante que modifica la nota: factura (01) o boleta (03). Obligatorio, salvo en la nota de débito por
+    /// penalidades (motivo 13), que puede no referirse a un comprobante (2524).
+    /// </summary>
+    public DocumentoModificadoCpe? DocumentoModificado { get; init; }
 }
 
 /// <summary>Comprobante que modifica una nota de crédito o débito.</summary>
@@ -95,6 +98,12 @@ public sealed record DocumentoModificadoCpe
 
     /// <summary>Número del documento modificado.</summary>
     public required long Numero { get; init; }
+
+    /// <summary>
+    /// Fecha de emisión del documento modificado (opcional). Con ella se valida que la nota no sea anterior (2885) y,
+    /// si el documento lo generó PasheCPE, se ubica en el historial para validar su estado, moneda e importe total.
+    /// </summary>
+    public DateOnly? FechaEmision { get; init; }
 }
 
 /// <summary>Cómo interpretar el importe unitario de las líneas.</summary>
