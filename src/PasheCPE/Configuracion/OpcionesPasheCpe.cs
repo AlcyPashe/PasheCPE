@@ -89,8 +89,12 @@ public sealed class OpcionesValidacion
     /// <summary>Reglas de las XSL oficiales de SUNAT.</summary>
     public bool XslSunat { get; set; } = true;
 
-    /// <summary>Reglas complementarias vigentes desde 2027.</summary>
-    public bool Reglas2027 { get; set; } = true;
+    /// <summary>
+    /// Reglas complementarias en C#: filas del Excel de validación que las XSL no tienen o calculan distinto (incluidas
+    /// las de 2027). Cada regla aplica según su vigencia en <c>reglas-cpe.json</c>. Desactivarlas también deja sin
+    /// efecto las supresiones de <c>ajustes-xsl.json</c>.
+    /// </summary>
+    public bool ReglasComplementarias { get; set; } = true;
 }
 
 /// <summary>Verificación de conectividad (PRD RF-14).</summary>

@@ -4,7 +4,7 @@ Librería .NET 10 de **Pashe Soluciones** para la emisión electrónica ante SUN
 
 | Paquete | Contenido |
 |---|---|
-| `PasheCPE` | UBL 2.1, cálculo tributario, validación local (XSD, XSL SUNAT, reglas 2027), firma, ZIP, QR, envío SOAP a SUNAT u OSE, GRE por API REST, control de respuestas, historial |
+| `PasheCPE` | UBL 2.1, cálculo tributario, validación local (XSD, XSL SUNAT, reglas complementarias del Excel, incluidas las de 2027), firma, ZIP, QR, envío SOAP a SUNAT u OSE, GRE por API REST, control de respuestas, historial |
 | `PasheCPE.Pdf` | Representación impresa A4 (diseño de comprobantes y diseño de guías) |
 
 **Documentos:** Factura (01), Boleta (03), Nota de crédito (07), Nota de débito (08), Resumen diario (RC), Comunicación de baja (RA), Guía remitente (09) y Guía transportista (31).

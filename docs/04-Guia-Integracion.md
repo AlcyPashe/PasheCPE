@@ -35,9 +35,13 @@ dotnet add package PasheCPE.Pdf   # opcional
   "RutaBase": "D:\\CPE",
   "Ambiente": "Produccion",
   "ExoneradoAmazoniaPorDefecto": true,
-  "PrecalentarAlIniciar": true
+  "PrecalentarAlIniciar": true,
+  "Validacion": { "Modelo": true, "Esquema": true, "XslSunat": true, "ReglasComplementarias": true },
+  "MontoEnLetras": { "ConTildes": false }
 }
 ```
+
+`Validacion` activa las capas de validación local; conviene dejarlas todas en `true`. `XslSunat` ejecuta las XSL oficiales de SUNAT. `ReglasComplementarias` aplica las reglas del Excel de validación que las XSL no tienen o calculan distinto, incluidas las de 2027. Cada regla entra en vigor según su fecha en los datos de la librería: no hay que cambiar nada el 01/01/2027. `MontoEnLetras.ConTildes` en `false` imprime la leyenda sin tildes, para impresoras térmicas.
 
 ```csharp
 builder.Services.AddPasheCpe(builder.Configuration.GetSection("PasheCPE"));

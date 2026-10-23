@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>PasheCPE</RootNamespace>
     <PackageId>PasheCPE</PackageId>
-    <Description>Comprobantes y guías electrónicas SUNAT: UBL 2.1, validación local (XSD, XSL SUNAT y reglas 2027), firma, ZIP, envío SOAP a SUNAT u OSE, GRE por API REST, control de respuestas, historial y QR.</Description>
+    <Description>Comprobantes y guías electrónicas SUNAT: UBL 2.1, validación local (XSD, XSL SUNAT y reglas complementarias del Excel, incluidas las de 2027), firma, ZIP, envío SOAP a SUNAT u OSE, GRE por API REST, control de respuestas, historial y QR.</Description>
   </PropertyGroup>
 
   <ItemGroup>

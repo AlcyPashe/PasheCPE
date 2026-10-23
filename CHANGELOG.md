@@ -11,7 +11,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
   - `AdaptadorXslDataPower`: 3 correcciones en memoria para que compilen Factura, Boleta, NC y ND (`concat` de un argumento, variables redeclaradas, variables de respaldo de `xsl-compatibilidad.json`).
   - Reglas complementarias (`IReglaCpe`) con código y tipo de `reglas-cpe.json` según la vigencia: `SumatoriaIgv` (3291/4290 con la tasa de las líneas, 18 % o 10.5 %), `TasaIgvUnica` (3462), `TotalPrecioVenta` (3279/4310), `CodigoProducto` (3496) y `ContratoColaboracion` (3497–3502).
   - `ajustes-xsl.json`: la 4290 de la XSL de boleta (0.18 fijo) se suprime y la reemplaza `SumatoriaIgv`; clasificación con motivo de las 51 filas de 01/03 posteriores a la XSL.
-  - `ValidadorSunat` (XSL → ajustes → reglas), integrado en `GeneradorInvoice` después del XSD: con errores no escribe en `DATA`; las observaciones van a las advertencias. Respeta `Validacion.XslSunat` y `Validacion.Reglas2027`.
+  - `ValidadorSunat` (XSL → ajustes → reglas), integrado en `GeneradorInvoice` después del XSD: con errores no escribe en `DATA`; las observaciones van a las advertencias. Respeta `Validacion.XslSunat` y `Validacion.ReglasComplementarias`.
   - `IPrecalentador` (XSL, XSD y serializadores en paralelo); `PasheCpe.Crear` lo lanza en segundo plano si `PrecalentarAlIniciar`.
   - Constantes `UnidadMedida` (catálogo N.° 03) desde `tools/GeneradorRecursos/Datos/unidades-medida.json`.
   - Pruebas:
@@ -43,6 +43,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 - 22/10/2026 — Fase 0: repositorio git (`main`, remoto `origin`), solución `PasheCPE.slnx` con `src/PasheCPE`, `src/PasheCPE.Pdf`, `tests/PasheCPE.Tests`, `tests/PasheCPE.Pdf.Tests` y `samples/PasheCPE.Demo`; `Directory.Packages.props` (CPM) con las dependencias del TRD §1; `src/` y `tests/Directory.Build.props`; metadatos NuGet (licencia propietaria `LICENSE.txt`, README, Source Link del SDK, PDB embebido); pruebas de humo de los dos ensamblados; `tests/Datos/`.
 
 ### Cambiado
+- 22/10/2026 — Opción `Validacion.Reglas2027` renombrada a `Validacion.ReglasComplementarias` (como `OrigenError.ReglasComplementarias`): incluye reglas del Excel de 2022 a 2027 y cada regla aplica según su vigencia en `reglas-cpe.json`. TRD §9.4 y §23, guía de integración, README, descripción del paquete y CLAUDE.md actualizados.
 - 22/10/2026 — TRD §5.1 y §14: política de reintentos decidida (se quita el [verificar]). Plan de la Fase 5 actualizado.
   - `sendBill` no se reintenta dentro de la llamada.
   - `sendSummary` reintenta solo los faults de disponibilidad (0100, 0109, 0138).

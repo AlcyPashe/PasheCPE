@@ -56,7 +56,7 @@ public sealed class ReglasComplementariasTests
     [Fact]
     public async Task SumatoriaIgv_SinReglasComplementarias_NoSuprimeLaXsl()
     {
-        using var servicios = new ServiciosPrueba(o => o.Validacion.Reglas2027 = false);
+        using var servicios = new ServiciosPrueba(o => o.Validacion.ReglasComplementarias = false);
         var (xml, referencia) = await GenerarAsync(servicios, "BoletaMypeDiezYMedio");
         var nrus = Alterar(xml, r => r.Element(Cbc + "InvoiceTypeCode")!.SetAttributeValue("listID", "0113"));
 
@@ -137,7 +137,7 @@ public sealed class ReglasComplementariasTests
         using var servicios = new ServiciosPrueba(o =>
         {
             o.Validacion.XslSunat = false;
-            o.Validacion.Reglas2027 = false;
+            o.Validacion.ReglasComplementarias = false;
         });
         var (xml, referencia) = await GenerarAsync(servicios, "Gravada18");
         var alterado = Alterar(xml, r => r.Element(Cbc + "DocumentCurrencyCode")!.Value = "XYZ");

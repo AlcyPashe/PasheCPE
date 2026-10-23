@@ -9,7 +9,7 @@ namespace PasheCPE.Validacion;
 /// <summary>
 /// Validación SUNAT del XML sin firmar (TRD §9.3 y §9.4): XSL oficiales con emulación de DataPower, descarte de los
 /// códigos de la XSL que reemplaza una regla C# (<c>ajustes-xsl.json</c>) y reglas complementarias del Excel vigente.
-/// Cada capa respeta su opción (<see cref="OpcionesValidacion.XslSunat"/>, <see cref="OpcionesValidacion.Reglas2027"/>).
+/// Cada capa respeta su opción (<see cref="OpcionesValidacion.XslSunat"/>, <see cref="OpcionesValidacion.ReglasComplementarias"/>).
 /// Los códigos se suprimen solo si las reglas complementarias están activas. Nunca lanza.
 /// </summary>
 internal sealed class ValidadorSunat(
@@ -41,7 +41,7 @@ internal sealed class ValidadorSunat(
 
             foreach (var hallazgo in resultado.Hallazgos)
             {
-                if (validacion.Reglas2027 && ajustes.EstaSuprimido(referencia.TipoDocumento, hallazgo.Codigo))
+                if (validacion.ReglasComplementarias && ajustes.EstaSuprimido(referencia.TipoDocumento, hallazgo.Codigo))
                 {
                     continue;
                 }
@@ -50,7 +50,7 @@ internal sealed class ValidadorSunat(
             }
         }
 
-        if (validacion.Reglas2027)
+        if (validacion.ReglasComplementarias)
         {
             EvaluarReglas(xml, referencia, Agregar);
         }

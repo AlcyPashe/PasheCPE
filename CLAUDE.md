@@ -1,6 +1,6 @@
 # PasheCPE — instrucciones para Claude Code
 
-Librería .NET 10 de Pashe Soluciones para comprobantes y guías electrónicas SUNAT: UBL 2.1, validación local (XSD + XSL SUNAT con emulación DataPower + reglas 2027), firma, ZIP, envío SOAP a SUNAT u OSE, GRE por API REST con OAuth2, control total de respuestas, QR y PDF A4. La usarán todos los sistemas de ventas; el primer piloto es Bottega.
+Librería .NET 10 de Pashe Soluciones para comprobantes y guías electrónicas SUNAT: UBL 2.1, validación local (XSD + XSL SUNAT con emulación DataPower + reglas complementarias del Excel, incluidas las de 2027), firma, ZIP, envío SOAP a SUNAT u OSE, GRE por API REST con OAuth2, control total de respuestas, QR y PDF A4. La usarán todos los sistemas de ventas; el primer piloto es Bottega.
 
 ## Idioma
 - Responde, explica y comenta en español. Nombres de dominio en español; las clases UBL conservan los nombres del estándar (`Invoice`, `InvoiceLine`, `TaxTotal`…).

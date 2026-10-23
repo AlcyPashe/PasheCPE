@@ -331,7 +331,7 @@ public interface IPrecalentador { Task PrecalentarAsync(CancellationToken ct = d
 
 `IPrecalentador` compila en paralelo las 7 XSL, el conjunto de XSD y los serializadores (sin precalentar, la primera validación tarda ≈ 1 s). Sin dependencias nuevas (no se usa `Microsoft.Extensions.Hosting`): `PasheCpe.Crear` lo lanza en segundo plano si `PrecalentarAlIniciar` (una falla solo se registra); con `AddPasheCpe`, el sistema lo llama al iniciar: `_ = app.Services.GetRequiredService<IPrecalentador>().PrecalentarAsync();`.
 
-Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → serializar (DATA) → validar XSD + XSL + reglas 2027 → firmar (FIRMA, valor resumen) → ZIP (ENVIO) → QR (QR) → verificar conectividad → enviar → clasificar → CDR (RPTA) → historial (LOG) → resultado**. Cada etapa persiste su archivo y el resultado devuelve todas las rutas. `EnviarAsync` parte de ENVIO\ y nunca regenera.
+Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → serializar (DATA) → validar XSD + XSL + reglas complementarias → firmar (FIRMA, valor resumen) → ZIP (ENVIO) → QR (QR) → verificar conectividad → enviar → clasificar → CDR (RPTA) → historial (LOG) → resultado**. Cada etapa persiste su archivo y el resultado devuelve todas las rutas. `EnviarAsync` parte de ENVIO\ y nunca regenera.
 
 ## 7. Cálculo tributario
 
@@ -425,7 +425,7 @@ Las XSL de SUNAT son XSLT 1.0 escritas para IBM DataPower. Lo que se encontró e
 
 Las XSL son del 06/09/2022 y el Excel de reglas, del 26/08/2026: hay filas posteriores que la XSL no tiene o calcula distinto (por ejemplo, la sumatoria del IGV con la tasa MYPE de 10.5 %). Se cubren con:
 
-- **`IReglaCpe`** (`Validacion\Reglas\`): cada regla evalúa el **XML** (no el modelo, así sirve para cualquier XML) e informa la fila del Excel que no se cumple. El **código y el tipo salen de `reglas-cpe.json`**: error u observación según la vigencia a la fecha de recepción (hoy en Lima); antes de una vigencia «OBSERV → ERROR» se aplica `tipoAnterior`, y una regla sin tipo anterior no aplica antes de su vigencia. Origen `OrigenError.ReglasComplementarias`; se activan con `Validacion.Reglas2027`.
+- **`IReglaCpe`** (`Validacion\Reglas\`): cada regla evalúa el **XML** (no el modelo, así sirve para cualquier XML) e informa la fila del Excel que no se cumple. El **código y el tipo salen de `reglas-cpe.json`**: error u observación según la vigencia a la fecha de recepción (hoy en Lima); antes de una vigencia «OBSERV → ERROR» se aplica `tipoAnterior`, y una regla sin tipo anterior no aplica antes de su vigencia. Origen `OrigenError.ReglasComplementarias`; se activan con `Validacion.ReglasComplementarias` (la vigencia de cada regla sigue en los datos, `reglas-cpe.json`; desactivarlas también anula las supresiones de `ajustes-xsl.json`).
 - **`ajustes-xsl.json`**: `suprimidos` (código de la XSL que se descarta, la regla C# que lo reemplaza, las filas del Excel que lo respaldan y el motivo; solo se suprime si las reglas complementarias están activas) y `clasificacion` (cada fila de 01/03 con vigencia posterior al 06/09/2022: `reemplazada`, `nueva`, `xsl`, `modelo` o `noVerificable`, con el motivo). Una prueba falla si alguna fila queda sin clasificar, si una regla no respalda sus filas o si un código suprimido ya no está activo en la XSL. Con cada XSL nueva de SUNAT el archivo se revisa completo.
 
 Reglas implementadas para 01/03 (Fase 3):
@@ -585,7 +585,7 @@ Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la con
   "IdFirma": "PasheSign",
   "PerfilFirma": "Sha1",
   "ModoEnvioBoletas": "ResumenDiario",      // ResumenDiario | Individual
-  "Validacion": { "Modelo": true, "Esquema": true, "XslSunat": true, "Reglas2027": true },
+  "Validacion": { "Modelo": true, "Esquema": true, "XslSunat": true, "ReglasComplementarias": true },
   "TimeoutConexionSegundos": 10,
   "TimeoutRespuestaSegundos": 60,
   "Conectividad": { "Verificar": true, "HostControl": "www.gob.pe", "CacheSegundos": 15 },
