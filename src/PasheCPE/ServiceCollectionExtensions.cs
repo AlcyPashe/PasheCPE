@@ -9,6 +9,7 @@ using PasheCPE.Mapeo;
 using PasheCPE.Tiempo;
 using PasheCPE.Tributos;
 using PasheCPE.Validacion;
+using PasheCPE.Validacion.Reglas;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -56,6 +57,16 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<MapeadorInvoice>();
         services.TryAddSingleton<ValidadorEsquema>();
         services.TryAddSingleton<ValidadorModelo>();
+        services.TryAddSingleton<MotorXslSunat>();
+        services.TryAddSingleton<ReglasExcelSunat>();
+        services.TryAddSingleton<AjustesXsl>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaSumatoriaIgv>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaTasaIgvUnica>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaTotalPrecioVenta>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaCodigoProducto>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IReglaCpe, ReglaContratoColaboracion>());
+        services.TryAddSingleton<ValidadorSunat>();
+        services.TryAddSingleton<IPrecalentador, Precalentador>();
         services.TryAddSingleton<GeneradorInvoice>();
         return services;
     }

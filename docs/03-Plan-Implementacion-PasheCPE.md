@@ -82,6 +82,13 @@
 
 **Aceptación:** las 7 XSL compilan; los dorados pasan sin errores; al menos 20 casos inválidos producen el código SUNAT esperado (moneda, tipo de documento del cliente, totales, código de producto, serie…); tiempo de validación < 300 ms en caliente.
 
+**Estado:** completada el 22/10/2026.
+- Las 7 XSL compilan con 3 correcciones de compatibilidad en memoria (TRD §9.3). Las 2 facturas, las 2 NC y los 2 RC dorados, y los XML generados de 24 casos tributarios, pasan sin hallazgos.
+- 30 casos inválidos producen el código del Excel. La validación en caliente tarda pocos milisegundos.
+- `ajustes-xsl.json` clasifica las 51 filas de 01/03 posteriores a la XSL; la 4290 de boleta (0.18 fijo) se suprime y la reemplaza una regla C# con la tasa de las líneas.
+- La XSL de la GRE solo se compila (es de la GRE 1.0; ver Fase 10).
+- La validación con las XSL encontró 4 defectos del XML de la Fase 2 que SUNAT habría rechazado, ya corregidos: precio de referencia con descuento de línea (3270), tasa del ISC de monto fijo (2992/3108), bolsas ICBPER distintas de la cantidad (3236) y `schemeName` de la detracción (4255).
+
 ---
 
 ## Fase 4 — Firma, ZIP y QR
@@ -164,7 +171,7 @@
 **Objetivo:** GRE remitente (09) y transportista (31) en producción.
 
 1. Modelo de entrada `GuiaRemisionCpe` (TRD §4) a partir del Excel GRE 25.09.2026, constantes de los catálogos 18, 20, 61 y 62 en `nombres-constantes.json`, clases perfil `DespatchAdvice`, `MapeadorDespatchAdvice` (09 y 31: modalidades 01/02, vehículos, conductores, M1/L, documentos relacionados, bienes).
-2. Validación modelo + XSD + XSL `ValidaExprRegGuiaRemitente-2.0.1.xsl` (09) + reglas C# (31).
+2. Validación modelo + XSD + reglas C# del Excel GRE (09 y 31). La XSL `ValidaExprRegGuiaRemitente-2.0.1.xsl` es de la GRE 1.0 y da errores falsos con las GRE 2.0 aceptadas (Fase 3): al preparar esta fase, revisar si SUNAT publicó una XSL de la GRE 2.0 junto al Excel GRE y, si existe, evaluarla con los dorados de `09-GRE` antes de decidir.
 3. `ProveedorTokenGre`, `ClienteGre` (envío, ticket, CDR, QR del CDR), manejo 401/422/5xx, protección `PermitirEnvioConAmbienteBeta`.
 4. `IServicioGre` completo.
 5. **[Desarrollador]** Credenciales de API SUNAT del emisor y un traslado real para el primer envío controlado.

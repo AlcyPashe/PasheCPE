@@ -70,8 +70,9 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 │   │   ├── Mapeo\            MapeadorInvoice, AtributosCatalogo, GeneradorInvoice (→ DATA), MapeadorCreditNote, MapeadorDebitNote, MapeadorSummary,
 │   │   │                     MapeadorVoided, MapeadorDespatchAdvice
 │   │   ├── Serializacion\    SerializadorUbl
-│   │   ├── Validacion\       ValidadorModelo, ValidadorEsquema, MotorXslSunat, Emulacion\ (DataPower,
-│   │   │                     EXSLT, resolutor local:///), Reglas2027\
+│   │   ├── Validacion\       ValidadorModelo, ValidadorEsquema, MotorXslSunat, ValidadorSunat, Precalentador,
+│   │   │                     Emulacion\ (DataPower, EXSLT, resolutor local:///, adaptador),
+│   │   │                     Reglas\ (reglas complementarias y ajustes de la XSL)
 │   │   ├── Firma\            ProveedorCertificados, FirmadorXml
 │   │   ├── Empaquetado\      EmpaquetadorZip, NombreArchivoCpe
 │   │   ├── Qr\               ConstructorContenidoQr, GeneradorQrPng
@@ -139,6 +140,7 @@ Notas del archivo:
   - `formatos-catalogos.json`: expresión regular de los catálogos publicados solo como enlace (02, 03, 04, 13, 25).
   - `errores-transitorios.json`: faults que indican una falla temporal (`transitorio = true`).
   - `nombres-constantes.json`: nombre de cada constante de `CodigosSunat.g.cs`. Los códigos nuevos reciben un nombre derivado de la descripción, que queda fijo aunque SUNAT cambie el texto (así no se rompe el contrato público).
+  - `unidades-medida.json`: unidades de medida de uso habitual (NIU, ZZ, KGM, LTR, MTR, BX, GLL…) → clase `UnidadMedida` (catálogo N.° 03, que el Excel publica solo como enlace). Cada código debe cumplir el formato del catálogo; cualquier otro código con ese formato se sigue aceptando.
 - Las fechas de `Control de Cambios` llegan como serial de Excel o texto; si una celda trae dos fechas (vigencia postergada) vale la última.
 - `GeneradorRecursos.Tests` falla si los recursos del repositorio no coinciden con lo que genera el Excel vigente.
 
@@ -153,7 +155,9 @@ Notas del archivo:
 | `endpoints.json` | Endpoints por canal y ambiente |
 | `parametros.json` | Parámetros legales que no son tasas ni plazos: importe de la boleta sin identificar al cliente (S/ 700), inicio del contrato de colaboración empresarial (01/01/2027) |
 | `monedas.json`, `errores-locales.json` | Nombres de moneda para el monto en letras; mensajes de la validación local (`PCPE-xxxx`) |
-| `reglas-2027.json` | Parámetros de las reglas complementarias (códigos de error, motivos válidos) |
+| `ajustes-xsl.json` | Ajustes entre las XSL (06/09/2022) y el Excel vigente: códigos de la XSL que se suprimen y la regla C# que los reemplaza, y la clasificación de cada fila de 01/03 posterior a la XSL (§9.4). No se sobrescribe por configuración |
+| `xsl-compatibilidad.json` | Variables que las XSL usan sin declarar y su valor de respaldo (§9.3). No se sobrescribe por configuración |
+| `xsl-utils\` | `validate_utils.xsl`, `error_utils.xsl` y `dat_fechas.xml` propios, que reemplazan a los de DataPower (§9.3) |
 
 Valores iniciales de `tasas.json`:
 
@@ -322,12 +326,16 @@ public interface IGeneradorPdf  // PasheCPE.Pdf
 public interface IPrecalentador { Task PrecalentarAsync(CancellationToken ct = default); } // compila XSL, carga esquemas y serializadores
 ```
 
+`IPrecalentador` compila en paralelo las 7 XSL, el conjunto de XSD y los serializadores (sin precalentar, la primera validación tarda ≈ 1 s). Sin dependencias nuevas (no se usa `Microsoft.Extensions.Hosting`): `PasheCpe.Crear` lo lanza en segundo plano si `PrecalentarAlIniciar` (una falla solo se registra); con `AddPasheCpe`, el sistema lo llama al iniciar: `_ = app.Services.GetRequiredService<IPrecalentador>().PrecalentarAsync();`.
+
 Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → serializar (DATA) → validar XSD + XSL + reglas 2027 → firmar (FIRMA, valor resumen) → ZIP (ENVIO) → QR (QR) → verificar conectividad → enviar → clasificar → CDR (RPTA) → historial (LOG) → resultado**. Cada etapa persiste su archivo y el resultado devuelve todas las rutas. `EnviarAsync` parte de ENVIO\ y nunca regenera.
 
 ## 7. Cálculo tributario
 
 - Toda la aritmética con `decimal`; redondeo `MidpointRounding.AwayFromZero` a 2 decimales en montos; valores unitarios hasta 10 decimales.
-- `ModoPrecio.PrecioUnitario` — **manda el precio**: total de línea = R2(cantidad × precio); base = R2(total ÷ (1 + tasa)); IGV = total − base. El cliente paga exactamente lo de la etiqueta y el IGV puede diferir ±0.01 de base × tasa (tolerancia SUNAT ±1). Con descuento de línea: base = bruto − descuento e IGV = R2(base × tasa). El valor unitario del XML (`cac:Price`) = base bruta ÷ cantidad, con hasta 10 decimales; el precio de referencia (tipo 01) es el precio de la etiqueta. Con tasa 0 ambos modos dan lo mismo.
+- `ModoPrecio.PrecioUnitario` — **manda el precio**: total de línea = R2(cantidad × precio); base = R2(total ÷ (1 + tasa)); IGV = total − base. El cliente paga exactamente lo de la etiqueta y el IGV puede diferir ±0.01 de base × tasa (tolerancia SUNAT ±1). Con descuento de línea: base = bruto − descuento e IGV = R2(base × tasa). El valor unitario del XML (`cac:Price`) = base bruta ÷ cantidad, con hasta 10 decimales; el precio de referencia (tipo 01) es el precio de la etiqueta, salvo con descuento de línea: entonces es (valor de venta + tributos de la línea) ÷ cantidad, que es lo que valida SUNAT (3270). Con tasa 0 ambos modos dan lo mismo.
+- ISC: el `cbc:Percent` del subtotal 2000 es obligatorio también en el sistema de monto fijo (2992); se informa la tasa equivalente ISC ÷ base × 100 (5 decimales), que cumple ISC = base × tasa (3108).
+- ICBPER: la cantidad de bolsas debe ser la cantidad de la línea (3236); las bolsas se registran en una línea propia (`PCPE-1219`).
 - `ModoPrecio.ValorUnitario`: base = R2(cantidad × valor) − descuento; IGV = R2((base + ISC) × tasa).
 - El tributo de cada afectación sale de la columna «Codigo de tributo» del catálogo N.° 07 (gratuita = 9996), y el nombre y el código internacional del `TaxScheme`, del catálogo N.° 05. El texto de las leyendas es el que va entre comillas en el catálogo N.° 52.
 - Totales según las reglas del Excel (3277, 3278, 3279, 3280, 3291, 3294): la base gravada (subtotal 1000) = Σ bases − descuentos 02 − anticipos 04 + cargos 49; el total valor de venta y el precio de venta no restan los anticipos; el importe a pagar = precio de venta + cargos 50 − descuentos 03 − total de anticipos. El IGV de las gratuitas va en el subtotal 9996 y no suma a `TaxTotal/TaxAmount`.
@@ -380,30 +388,54 @@ Archivo por documento:
 | 08 | `ValidaExprRegND-2.0.1.xsl` |
 | RC | `ValidaExprRegSummary-1.1.0.xsl` |
 | RA | `ValidaExprRegSummaryVoided-1.0.1.xsl` |
-| 09 | `ValidaExprRegGuiaRemitente-2.0.1.xsl` |
+| 09 | `ValidaExprRegGuiaRemitente-2.0.1.xsl`: **se compila pero no se usa**. Es de la GRE 1.0 (exige `CustomizationID` 1.0) y da errores falsos con las GRE 2.0 aceptadas; en la Fase 10 se revisa si SUNAT publicó una XSL de la GRE 2.0 y se evalúa con los dorados antes de decidir |
 | 31 | sin XSL oficial → XSD + reglas C# |
 
-Las XSL de SUNAT son XSLT 1.0 escritas para IBM DataPower. Lo que se encontró en los archivos y cómo se resuelve con `XslCompiledTransform`:
+Las XSL de SUNAT son XSLT 1.0 escritas para IBM DataPower. Lo que se encontró en los archivos (inventario automático en `InventarioXslTests`) y cómo se resuelve con `XslCompiledTransform`:
 
 | Dependencia | Uso en las XSL | Solución |
 |---|---|---|
-| `xsl:include href="local:///commons/error/validate_utils.xsl"` y `error_utils.xsl` | Plantillas `isTrueExpresion` (307 llamadas), `regexpValidateElementIfExist` (291), `existElement` (143), `existAndRegexpValidateElement`, `findElementInCatalog`, `existAndValidateValueTwoDecimal`, `rejectCall`, `addWarning`, `isDateBefore`, etc. **No vienen en la descarga de SUNAT.** | Implementación propia en `Recursos\xsl-utils\` con la misma firma de plantillas y parámetros (`errorCodeValidate`, `node`, `regexp`, `expresion`, `catalogo`, `idCatalogo`, `descripcion`…). En vez de `dp:reject` (detiene el proceso), **emiten nodos** `<pcpe:error codigo="…" ruta="…"/>` y `<pcpe:observacion …/>`, de modo que se reportan todos los errores de una pasada. |
-| `XmlResolver` para `local:///` | includes, `document('local:///commons/cpe/datos/dat_fechas.xml')`, catálogos | `ResolutorRecursosLocales : XmlResolver` que mapea `local:///…` a recursos embebidos. |
-| `dp:variable('var://context/cpe/…')` (14 usos: nombre del archivo enviado, etc.) | Función | Objeto de extensión registrado en `XsltArgumentList` para `http://www.datapower.com/extensions` con `variable(string)` que lee un diccionario de contexto por documento (nombre de archivo, RUC, tipo, serie, número…). En la Fase 3 se inventarían todas las claves. |
-| `dp:ignore-multiple="yes"` | Atributo en `xsl:include` | Ignorado (atributo de otro namespace, válido en XSLT 1.0). |
-| `extension-element-prefixes="dp"` | Declaración | Compatible; las plantillas propias no usan elementos `dp:`. |
-| EXSLT `regexp:test/match/replace`, `date:seconds`, `date:date`, `date:difference` | Funciones | Objetos de extensión para `http://exslt.org/regular-expressions` y `http://exslt.org/dates-and-times` (con `Regex` compilado y cacheado, y fechas en hora de Lima). |
-| Catálogos (`cat_XX.xml`) | `findElementInCatalog` | Generados por `tools\GeneradorRecursos` desde la hoja `Catálogos` (§3.2). |
+| `xsl:include href="local:///commons/error/validate_utils.xsl"` y `error_utils.xsl` | 16 plantillas: `isTrueExpresion` (888 llamadas), `regexpValidateElementIfExist` (689), `existElement` (337), `existAndRegexpValidateElement` (127), `findElementInCatalog` (122), `existAndValidateValueTwoDecimal` (54), `validateValueTwoDecimalIfExist` (40), `findElementInCatalogProperty` (28), `existElementNoVacio` (26), `rejectCall` (19), `existAndValidateValueTenDecimal` (15), `isTrueExpresionIfExist` (14), `addWarning` (6), `isDateBefore`, `isDateAfterToday` y `validateValueThreeDecimalIfExist`. **No vienen en la descarga de SUNAT.** | Implementación propia en `Recursos\xsl-utils\validate_utils.xsl` con las mismas plantillas y parámetros (`isError` y `isGreaterCero` valen `true()` por defecto). En vez de `dp:reject` (que detiene el proceso), **emiten** `<pcpe:resultado codigo tipo ruta detalle/>`: se reportan todos los errores y observaciones de una pasada, en orden de ejecución (el primero es el que devolvería SUNAT). Un recolector (`XmlWriter`) conserva solo esos nodos y descarta la copia del documento. Un código de catálogo vacío no se reporta (SUNAT acepta sin 4332 las líneas sin código de producto). `error_utils.xsl` queda vacío: DataPower evita la doble inclusión con `dp:ignore-multiple`. |
+| `XmlResolver` para `local:///` | includes y `document('local:///commons/cpe/datos/dat_fechas.xml')` | `ResolutorRecursosLocales : XmlResolver` que mapea las 3 rutas a recursos embebidos y rechaza cualquier otra URI. `dat_fechas.xml` propio: `factoring` = 20210401 (forma de pago obligatoria desde el 01/04/2021). |
+| `dp:variable('var://context/cpe/nombreArchivoEnviado')` (31 usos, **única clave**) | RUC, tipo, serie y número con `substring` del nombre del archivo | `ExtensionesDataPower.variable(string)` devuelve `NombreArchivoCpe.Xml(referencia)`; una clave desconocida produce `PCPE-2101`. |
+| `dp:ignore-multiple="yes"`, `extension-element-prefixes="dp"` | Atributo y declaración | Compatibles con XSLT 1.0. |
+| EXSLT `date:date()` (factoring), `date:seconds()`, `regexp:match()` (GRE); `regexp:test` en las utilidades | Funciones | `ExtensionesExsltFechas` (hora de Lima con `RelojCpe`) y `ExtensionesExsltRegexp` (`Regex` cacheado, `CultureInvariant`, 1 s de tiempo límite). Las 178 expresiones regulares distintas de las XSL compilan en .NET sin cambios. Los nombres de método conservan el de la función XPath (`XslCompiledTransform` distingue mayúsculas). |
+| Catálogos (25 distintos) | `findElementInCatalog(Property)` | `ExtensionesPasheCpe.enCatalogo` con `CatalogosSunat` a la **fecha de recepción** (hoy en Lima, como DataPower). El catálogo N.° 02 se valida contra `monedas.json`; 03, 04, 13 y 25, por formato. `propiedadCatalogo`: `factura`/`boleta` → «Tipo de Comprobante asociado» (Cat. 51); `name` → «Nombre» y `UN_ECE_5153` → «Código internacional» (Cat. 05); `igv`, `iva`, `exp`, `gra`, `exo`, `ina`, `oth` → «Codigo de tributo» (Cat. 07); `tasa` → «Porcentaje %» (Cat. 22). Una propiedad desconocida produce `PCPE-2102`. |
 
-- Cada XSL se compila **una sola vez** (perezoso, `Lazy<T>` thread-safe) con `XsltSettings(enableDocumentFunction: true, enableScript: false)`; el precalentador puede compilarlas al iniciar.
-- Las XSL originales no se modifican; se embeben tal cual.
-- Prueba de humo temprana (Fase 3): compilar las 7 XSL y validar un XML dorado aceptado por SUNAT sin falsos errores.
+**Compatibilidad (`AdaptadorXslDataPower`).** 4 de las 7 XSL no compilan tal cual con `XslCompiledTransform` (DataPower es más permisivo). Se corrigen en memoria al cargar, sin cambiar la semántica; los conteos por XSL quedan fijados en una prueba:
 
-### 9.4 Reglas complementarias 2027 (C#)
+| Corrección | Dónde |
+|---|---|
+| `concat('…')` con un solo argumento → el literal | Factura (2), Boleta (2) |
+| Variable local declarada otra vez en su ámbito → se renombra la nueva declaración y sus referencias posteriores (equivale a sombrearla) | Factura y Boleta (`totalDescuentosGlobales`), ND (`totalImpuestos`, `SumatoriaImpuestos`, `valorVentaLinea`) |
+| Variables usadas sin declarar → variable global de respaldo (`xsl-compatibilidad.json`, con su motivo) | Boleta y ND (`nroLinea` = ''), NC y ND (`MontoDescuentoAfectoBI` = 0, cuya definición SUNAT dejó comentada; se revisa en la Fase 7) |
 
-Fuente principal: las filas del Excel de reglas cuya vigencia en `Control de Cambios` es 01/01/2027 (`reglas-cpe.json`). Cambios ya identificados en el Excel 26.08.2026: NC/ND con documentos 28 y 56 (ERR-2205, 2207, 2208, 2209, 2885, 3209); **Resumen diario**: operaciones gratuitas desagregadas en gravadas/exoneradas/inafectas, campo "Tasa del IGV" (ERR-2992, 3504, 3102), IGV de gratuitas y razón social del adquiriente (ERR-2022 pasa de OBS a ERROR); Catálogo 09 con código 13 y Catálogo 10 con 13 (Penalidades) y 03 "Penalidades/otros conceptos"; Catálogo 54 con 038 y 042.
+- Cada XSL se compila **una sola vez** (perezoso, `Lazy<T>` thread-safe) con `XsltSettings(enableDocumentFunction: true, enableScript: false)`; `IPrecalentador` puede compilarlas al iniciar. Cada validación usa un `XsltArgumentList` nuevo con sus objetos de extensión.
+- Las XSL originales no se modifican; se embeben tal cual, enlazadas desde `recursos\XSL`.
+- Se valida el XML **sin firmar**. Las XSL no exigen la firma en los dorados ni en los XML generados.
+- `MotorXslSunat` nunca lanza: una falla al compilar o ejecutar devuelve `PCPE-2101` o `PCPE-2102`.
+- Resultados de la Fase 3: las 2 facturas, las 2 NC y los 2 RC dorados dan 0 hallazgos; los XML generados de todos los casos tributarios, también; en caliente una factura se valida en pocos milisegundos (meta < 300 ms).
 
-`IReglaCpe` registradas por tipo de documento, parametrizadas en `reglas-2027.json`: una referencia por NC (3261) / ND (3194); NC motivo 03 sin variación de importes; ND motivo 13 penalidades con IGV 0 (3507); ND motivo 03 "Otros conceptos"; serie F/B coherente con el documento modificado; código de producto de 8 dígitos numéricos (≠ 00000000/99999999); contrato de colaboración (tipo 1/2, número 1–50 alfanumérico, descripción 1–250, porcentaje 2 enteros y 2 decimales); catálogos 09/10 vigentes. Los códigos se toman de `reglas-cpe.json`; los que no figuren en el Excel 26.08.2026 se marcan **[verificar]**.
+### 9.4 Reglas complementarias (C#) y ajustes de la XSL
+
+Las XSL son del 06/09/2022 y el Excel de reglas, del 26/08/2026: hay filas posteriores que la XSL no tiene o calcula distinto (por ejemplo, la sumatoria del IGV con la tasa MYPE de 10.5 %). Se cubren con:
+
+- **`IReglaCpe`** (`Validacion\Reglas\`): cada regla evalúa el **XML** (no el modelo, así sirve para cualquier XML) e informa la fila del Excel que no se cumple. El **código y el tipo salen de `reglas-cpe.json`**: error u observación según la vigencia a la fecha de recepción (hoy en Lima); antes de una vigencia «OBSERV → ERROR» se aplica `tipoAnterior`, y una regla sin tipo anterior no aplica antes de su vigencia. Origen `OrigenError.Reglas2027`; se activan con `Validacion.Reglas2027`.
+- **`ajustes-xsl.json`**: `suprimidos` (código de la XSL que se descarta, la regla C# que lo reemplaza, las filas del Excel que lo respaldan y el motivo; solo se suprime si las reglas complementarias están activas) y `clasificacion` (cada fila de 01/03 con vigencia posterior al 06/09/2022: `reemplazada`, `nueva`, `xsl`, `modelo` o `noVerificable`, con el motivo). Una prueba falla si alguna fila queda sin clasificar, si una regla no respalda sus filas o si un código suprimido ya no está activo en la XSL. Con cada XSL nueva de SUNAT el archivo se revisa completo.
+
+Reglas implementadas para 01/03 (Fase 3):
+
+| Regla | Filas del Excel | Motivo |
+|---|---|---|
+| `SumatoriaIgv` (3291 factura; 4290 boleta) | 01: 351; 03: 346, 349 | Σ base de las líneas 1000 − descuentos 02/04 + cargos 49 − anticipos ISC 20, por la tasa de las líneas (18 % o 10.5 %), ±1. La XSL de factura la tiene comentada; la de boleta solo la valida con 0113 y 0.18 fijo → **4290 suprimida** |
+| `TasaIgvUnica` (3462) | 01: 352; 03: 347 | Todas las líneas afectas al IGV con la misma tasa |
+| `TotalPrecioVenta` (3279 factura; 4310 boleta) | 01: 420; 03: 416 | Rama sin IVAP del `TaxInclusiveAmount` con la tasa de las líneas (la XSL solo valida la del IVAP) |
+| `CodigoProducto` (3496) | 01/03: 155 | Formato de 8 dígitos: observación hasta el 31/12/2026, error desde el 01/01/2027 |
+| `ContratoColaboracion` (3497–3502) | 01: 916–921, 923–928; 03: 822–827, 829–834 | Desde el 01/01/2027 |
+
+Sin regla C#: 2108/1079 (plazos, `ValidadorModelo`), 2369, 3461, 4332 y 4337 (ya en la XSL), 1086, 2529, 4439 y 3496 fila 156 (requieren padrones o listados de SUNAT).
+
+Pendiente para las fases de cada documento: NC/ND con documentos 28 y 56 (ERR-2205, 2207, 2208, 2209, 2885, 3209), una referencia por NC (3261) / ND (3194), NC motivo 03 sin variación de importes, ND motivo 13 penalidades con IGV 0 (3507), serie F/B coherente con el documento modificado, catálogos 09/10 con los códigos 2027 (Fase 7); **Resumen diario**: gratuitas desagregadas, «Tasa del IGV» (ERR-2992, 3504, 3102), IGV de gratuitas y razón social del adquiriente (ERR-2022 pasa de OBS a ERROR) (Fase 6). Los códigos se toman de `reglas-cpe.json`; los que no figuren en el Excel 26.08.2026 se marcan **[verificar]**.
 
 ## 10. Firma digital
 

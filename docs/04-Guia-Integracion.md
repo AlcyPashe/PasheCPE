@@ -42,7 +42,13 @@ dotnet add package PasheCPE.Pdf   # opcional
 ```csharp
 builder.Services.AddPasheCpe(builder.Configuration.GetSection("PasheCPE"));
 builder.Services.AddPasheCpePdf();
+
+var app = builder.Build();
+// Compila las XSL de SUNAT, los XSD y los serializadores en segundo plano: la primera emisión no espera ≈ 1 s.
+_ = app.Services.GetRequiredService<IPrecalentador>().PrecalentarAsync();
 ```
+
+Con `PasheCpe.Crear` (sin DI) el precalentamiento se lanza solo si `PrecalentarAlIniciar` es `true`.
 
 Copiar el `.pfx` del cliente a `D:\CPE\CERT\`.
 

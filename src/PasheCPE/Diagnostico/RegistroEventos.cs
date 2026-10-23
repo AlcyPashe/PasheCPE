@@ -12,4 +12,8 @@ internal static partial class RegistroEventos
     [LoggerMessage(EventId = 1101, Level = LogLevel.Warning,
         Message = "Se omitió el historial {Ruta} porque no se pudo leer: {Motivo}")]
     public static partial void HistorialIlegible(ILogger registro, string ruta, string motivo);
+
+    [LoggerMessage(EventId = 1201, Level = LogLevel.Error,
+        Message = "No se pudo precalentar PasheCPE (XSL, XSD o serializadores); se compilarán en la primera validación.")]
+    public static partial void PrecalentamientoFallido(ILogger registro, Exception excepcion);
 }

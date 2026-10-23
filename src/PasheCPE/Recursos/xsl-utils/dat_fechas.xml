@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Equivalente de PasheCPE a local:///commons/cpe/datos/dat_fechas.xml de DataPower (TRD §9.3).
+  factoring: desde esta fecha (yyyyMMdd) las reglas de forma de pago (MIGE-Factoring) son errores y no observaciones;
+  la forma de pago es obligatoria desde el 01/04/2021.
+-->
+<l>
+  <d id="factoring" valor="20210401"/>
+</l>

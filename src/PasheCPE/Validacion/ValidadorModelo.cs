@@ -159,8 +159,8 @@ internal sealed partial class ValidadorModelo(
             var problema = contrato switch
             {
                 { Tipo: not ("1" or "2") } => "el tipo debe ser 1 (ventas) o 2 (adquisiciones)",
-                _ when !NumeroContrato().IsMatch(contrato.Numero ?? string.Empty) => "el número debe tener de 1 a 50 caracteres alfanuméricos",
-                _ when string.IsNullOrWhiteSpace(contrato.Descripcion) || contrato.Descripcion.Length > 250 => "la descripción debe tener de 1 a 250 caracteres",
+                _ when !NumeroContrato().IsMatch(contrato.Numero ?? string.Empty) => "el número debe tener de 1 a 50 caracteres, sin saltos de línea ni tabulaciones",
+                _ when !DescripcionContrato().IsMatch(contrato.Descripcion ?? string.Empty) => "la descripción debe tener de 1 a 250 caracteres, sin saltos de línea ni tabulaciones",
                 _ when contrato.Porcentaje is <= 0 or >= 100 || decimal.Round(contrato.Porcentaje, 2) != contrato.Porcentaje => "el porcentaje debe tener 2 enteros y hasta 2 decimales",
                 _ => null,
             };
@@ -255,6 +255,12 @@ internal sealed partial class ValidadorModelo(
             if (linea.Gtin is { } gtin && !Gtin().IsMatch(gtin))
             {
                 lista.Add(local("PCPE-1224", ruta + ".Gtin", [gtin, numero]));
+            }
+
+            // SUNAT exige que la cantidad de bolsas sea la cantidad de la línea, redondeada (3236).
+            if (linea.BolsasIcbper > 0 && linea.BolsasIcbper != Math.Round(linea.Cantidad, MidpointRounding.AwayFromZero))
+            {
+                lista.Add(local("PCPE-1219", ruta + ".BolsasIcbper", [numero, linea.BolsasIcbper, linea.Cantidad.ToString(CultureInfo.InvariantCulture)]));
             }
 
             if (linea.Afectacion is { } afectacion)
@@ -411,8 +417,13 @@ internal sealed partial class ValidadorModelo(
     [GeneratedRegex(@"^(\d{8}|\d{12}|\d{13}|\d{14})$")]
     private static partial Regex Gtin();
 
-    [GeneratedRegex(@"^[A-Za-z0-9]{1,50}$")]
+    // «Alfanumérico» en el Excel de SUNAT (3501, 3502): cualquier carácter, incluido el espacio, pero ningún otro
+    // carácter de espaciado (salto de línea, tabulación…) y no solo espacios.
+    [GeneratedRegex(@"^(?=.*[^ ])(?:[^\s]| ){1,50}$")]
     private static partial Regex NumeroContrato();
+
+    [GeneratedRegex(@"^(?=.*[^ ])(?:[^\s]| ){1,250}$")]
+    private static partial Regex DescripcionContrato();
 
     [GeneratedRegex(@"^[A-Z0-9]{4}-\d{1,8}$")]
     private static partial Regex SerieNumero();

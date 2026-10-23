@@ -87,13 +87,16 @@ public sealed class CatalogosSunatTests
             .Where(c => c.Numero is not null)
             .ToList();
 
-        Assert.Equal(15, clases.Count);
+        // 15 clases de catálogos con listado y UnidadMedida (catálogo N.° 03, validado por formato).
+        Assert.Equal(16, clases.Count);
         foreach (var (tipo, numero) in clases)
         {
             var codigos = tipo.GetFields(BindingFlags.Public | BindingFlags.Static)
                 .Where(f => f.IsLiteral && f.Name != "NumeroCatalogo")
                 .Select(f => (string)f.GetRawConstantValue()!);
-            Assert.All(codigos, codigo => Assert.True(_catalogos.Existe(numero!, codigo), $"{tipo.Name}: {codigo} no existe en el catálogo {numero}."));
+            Assert.All(codigos, codigo => Assert.True(
+                numero == UnidadMedida.NumeroCatalogo ? _catalogos.Validar(numero, codigo, new DateOnly(2026, 10, 22)) is null : _catalogos.Existe(numero!, codigo),
+                $"{tipo.Name}: {codigo} no existe en el catálogo {numero}."));
         }
     }
 

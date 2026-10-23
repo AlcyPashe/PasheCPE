@@ -216,6 +216,13 @@ internal sealed class CalculadoraTributaria(ReglasRegimen reglas, TablaTasas tas
             precio = Redondeo.Unitario(((linea.ImporteUnitario * (1 + tasaIsc)) + iscUnitario) * (1 + t));
         }
 
+        var icbper = Redondeo.Monto(linea.BolsasIcbper * tarifaIcbper);
+        // Con descuento de línea, SUNAT valida el precio de referencia contra (valor de venta + tributos) ÷ cantidad (3270).
+        if (descuento > 0 && !gratuita)
+        {
+            precio = Redondeo.Unitario((bruto - descuento + isc + igv + icbper) / cantidad);
+        }
+
         return new LineaCalculada
         {
             Numero = numero,
@@ -229,7 +236,7 @@ internal sealed class CalculadoraTributaria(ReglasRegimen reglas, TablaTasas tas
             ValorVenta = bruto - descuento,
             Isc = isc,
             Igv = igv,
-            Icbper = Redondeo.Monto(linea.BolsasIcbper * tarifaIcbper),
+            Icbper = icbper,
             TarifaIcbper = tarifaIcbper,
             ValorUnitario = gratuita ? 0m : Redondeo.Unitario(bruto / cantidad),
             PrecioReferencia = gratuita ? Redondeo.Unitario(bruto / cantidad) : precio,

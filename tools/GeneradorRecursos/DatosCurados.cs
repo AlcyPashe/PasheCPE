@@ -10,7 +10,8 @@ internal sealed record DatosCurados(
     IReadOnlyList<VigenciaCurada> Vigencias,
     IReadOnlyList<FormatoCurado> Formatos,
     IReadOnlyList<TransitorioCurado> Transitorios,
-    IReadOnlyList<ClaseConstantes> Clases)
+    IReadOnlyList<ClaseConstantes> Clases,
+    UnidadesCuradas Unidades)
 {
     public const string Carpeta = "tools/GeneradorRecursos/Datos";
     public const string ArchivoNombres = Carpeta + "/nombres-constantes.json";
@@ -26,7 +27,8 @@ internal sealed record DatosCurados(
             Leer<ArchivoTransitorios>(Path.Combine(carpeta, "errores-transitorios.json")).Transitorios,
             (nombresConstantes is null
                 ? Leer<ArchivoNombresConstantes>(Path.Combine(raiz, ArchivoNombres))
-                : Deserializar<ArchivoNombresConstantes>(nombresConstantes, "nombres de constantes")).Clases);
+                : Deserializar<ArchivoNombresConstantes>(nombresConstantes, "nombres de constantes")).Clases,
+            Leer<UnidadesCuradas>(Path.Combine(carpeta, "unidades-medida.json")));
     }
 
     private static T Leer<T>(string ruta) => Deserializar<T>(File.ReadAllText(ruta), ruta);
@@ -58,3 +60,12 @@ internal sealed record ClaseConstantes(string Catalogo, string Clase, IReadOnlyL
 
 /// <summary>Nombre de la constante de un código.</summary>
 internal sealed record NombreConstante(string Codigo, string Nombre);
+
+/// <summary>
+/// Constantes de un catálogo que el Excel publica solo como enlace (N.° 03, unidades de medida): los códigos de uso
+/// habitual, con su nombre y descripción.
+/// </summary>
+internal sealed record UnidadesCuradas(string Catalogo, string Clase, string Fuente, IReadOnlyList<UnidadCurada> Unidades);
+
+/// <summary>Unidad de medida curada.</summary>
+internal sealed record UnidadCurada(string Codigo, string Nombre, string Descripcion);

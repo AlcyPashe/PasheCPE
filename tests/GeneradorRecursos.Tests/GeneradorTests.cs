@@ -125,6 +125,28 @@ public sealed class GeneradorTests(EjecucionesGenerador ejecuciones) : IClassFix
     }
 
     [Fact]
+    public void Constantes_UnidadesDeMedidaCuradas()
+    {
+        var codigo = Encoding.UTF8.GetString(ejecuciones.Primera.Archivos[Generador.ArchivoConstantes]);
+
+        Assert.Contains("public static class UnidadMedida", codigo, StringComparison.Ordinal);
+        Assert.Contains("public const string NumeroCatalogo = \"03\";", codigo, StringComparison.Ordinal);
+        foreach (var (nombre, unidad) in new[] { ("Unidad", "NIU"), ("Servicio", "ZZ"), ("Kilogramo", "KGM"), ("Litro", "LTR"), ("Metro", "MTR"), ("Caja", "BX"), ("Galon", "GLL") })
+        {
+            Assert.Contains($"public const string {nombre} = \"{unidad}\";", codigo, StringComparison.Ordinal);
+        }
+    }
+
+    [Fact]
+    public void Constantes_UnidadQueNoCumpleElFormato_Falla()
+    {
+        var catalogo = new Catalogo("03", "Unidades", [], "^[A-Z0-9]{1,3}$", [], null, null, []);
+        var unidades = new UnidadesCuradas("03", "UnidadMedida", "Prueba", [new UnidadCurada("niu", "Unidad", "Unidad")]);
+
+        Assert.Throws<InvalidDataException>(() => GeneradorConstantes.Generar([catalogo], [], unidades, "prueba.xlsx"));
+    }
+
+    [Fact]
     public void Constantes_ConservanElNombreCurado()
     {
         var nombres = File.ReadAllText(Path.Combine(ejecuciones.Raiz, DatosCurados.ArchivoNombres))

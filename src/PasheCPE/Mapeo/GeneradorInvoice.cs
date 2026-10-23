@@ -20,13 +20,15 @@ internal sealed record XmlGenerado(
 
 /// <summary>
 /// Factura o boleta → XML sin firmar en <c>DATA\yyyy\MM</c>: valida el modelo → calcula → mapea → serializa → valida
-/// el XSD → escribe. Con cualquier error no escribe nada. La firma, el ZIP y el QR se agregan en la Fase 4.
+/// el XSD → valida las XSL de SUNAT y las reglas complementarias → escribe. Con cualquier error no escribe nada; las
+/// observaciones de SUNAT van a las advertencias. La firma, el ZIP y el QR se agregan en la Fase 4.
 /// </summary>
 internal sealed class GeneradorInvoice(
     ValidadorModelo validador,
     CalculadoraTributaria calculadora,
     MapeadorInvoice mapeador,
     ValidadorEsquema esquema,
+    ValidadorSunat sunat,
     AlmacenCpe almacen,
     Tiempo.RelojCpe reloj)
 {
@@ -56,8 +58,15 @@ internal sealed class GeneradorInvoice(
             return new XmlGenerado(referencia, xml, null, errores, calculo.Advertencias, calculo);
         }
 
+        var validacion = sunat.Validar(xml, referencia);
+        IReadOnlyList<ObservacionCpe> advertencias = [.. calculo.Advertencias, .. validacion.Observaciones];
+        if (validacion.Errores.Count > 0)
+        {
+            return new XmlGenerado(referencia, xml, null, validacion.Errores, advertencias, calculo);
+        }
+
         var ruta = almacen.Ruta(CarpetaCpe.Data, referencia, NombreArchivoCpe.Xml(referencia));
         await AlmacenCpe.EscribirAsync(ruta, xml, ct).ConfigureAwait(false);
-        return new XmlGenerado(referencia, xml, ruta, [], calculo.Advertencias, calculo);
+        return new XmlGenerado(referencia, xml, ruta, [], advertencias, calculo);
     }
 }

@@ -1,0 +1,30 @@
+{
+  "catalogo": "03",
+  "clase": "UnidadMedida",
+  "fuente": "UN/ECE Recomendaciones 20 y 21. El Excel de SUNAT publica el catálogo N.° 03 solo como enlace: estas son las unidades de uso habitual en los sistemas de venta de Pashe; cualquier otro código con el formato del catálogo se acepta.",
+  "unidades": [
+    { "codigo": "NIU", "nombre": "Unidad", "descripcion": "Unidad (bienes)" },
+    { "codigo": "ZZ", "nombre": "Servicio", "descripcion": "Unidad (servicios)" },
+    { "codigo": "KGM", "nombre": "Kilogramo", "descripcion": "Kilogramo" },
+    { "codigo": "GRM", "nombre": "Gramo", "descripcion": "Gramo" },
+    { "codigo": "TNE", "nombre": "Tonelada", "descripcion": "Tonelada (tonelada métrica)" },
+    { "codigo": "LTR", "nombre": "Litro", "descripcion": "Litro" },
+    { "codigo": "MLT", "nombre": "Mililitro", "descripcion": "Mililitro" },
+    { "codigo": "GLL", "nombre": "Galon", "descripcion": "Galón (EE. UU.)" },
+    { "codigo": "MTR", "nombre": "Metro", "descripcion": "Metro" },
+    { "codigo": "CMT", "nombre": "Centimetro", "descripcion": "Centímetro" },
+    { "codigo": "MTK", "nombre": "MetroCuadrado", "descripcion": "Metro cuadrado" },
+    { "codigo": "MTQ", "nombre": "MetroCubico", "descripcion": "Metro cúbico" },
+    { "codigo": "BX", "nombre": "Caja", "descripcion": "Caja" },
+    { "codigo": "PK", "nombre": "Paquete", "descripcion": "Paquete" },
+    { "codigo": "BG", "nombre": "Bolsa", "descripcion": "Bolsa" },
+    { "codigo": "BO", "nombre": "Botella", "descripcion": "Botella" },
+    { "codigo": "CA", "nombre": "Lata", "descripcion": "Lata" },
+    { "codigo": "DZN", "nombre": "Docena", "descripcion": "Docena" },
+    { "codigo": "PR", "nombre": "Par", "descripcion": "Par" },
+    { "codigo": "SET", "nombre": "Juego", "descripcion": "Juego" },
+    { "codigo": "HUR", "nombre": "Hora", "descripcion": "Hora" },
+    { "codigo": "DAY", "nombre": "Dia", "descripcion": "Día" },
+    { "codigo": "MON", "nombre": "Mes", "descripcion": "Mes" }
+  ]
+}

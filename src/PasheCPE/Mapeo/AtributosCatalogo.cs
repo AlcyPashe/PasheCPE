@@ -110,7 +110,7 @@ internal static class AtributosCatalogo
 
     public static IdentifierType BienDetraccion(string codigo) => new()
     {
-        SchemeName = "SUNAT:Codigo de detraccion",
+        SchemeName = "Codigo de detraccion",
         SchemeAgencyName = _sunat,
         SchemeUri = _uriCatalogo + "54",
         Value = codigo,

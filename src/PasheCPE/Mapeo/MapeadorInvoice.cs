@@ -308,7 +308,11 @@ internal sealed class MapeadorInvoice(CatalogosSunat catalogos, IOptions<Opcione
                 TaxAmount = Monto(calculada.Isc, moneda),
                 TaxCategory = new TaxCategory
                 {
-                    Percent = linea.Isc?.Tasa is { } tasaIsc ? new NumericType { Valor = tasaIsc, Formato = FormatoUbl.Monto } : null,
+                    // SUNAT exige la tasa también en el sistema de monto fijo (2992) y valida ISC = base × tasa (3108):
+                    // en ese sistema se informa la tasa equivalente.
+                    Percent = linea.Isc?.Tasa is { } tasaIsc
+                        ? new NumericType { Valor = tasaIsc, Formato = FormatoUbl.Monto }
+                        : new NumericType { Valor = Math.Round(calculada.Isc / calculada.ValorVenta * 100m, 5, MidpointRounding.AwayFromZero), Formato = "0.#####" },
                     TierRange = linea.Isc?.Sistema,
                     TaxScheme = Esquema(TributoSunat.Isc),
                 },
@@ -332,7 +336,7 @@ internal sealed class MapeadorInvoice(CatalogosSunat catalogos, IOptions<Opcione
             tributos.TaxSubtotal.Add(new TaxSubtotal
             {
                 TaxAmount = Monto(calculada.Icbper, moneda),
-                BaseUnitMeasure = new MeasureType { UnitCode = "NIU", Valor = linea.BolsasIcbper },
+                BaseUnitMeasure = new MeasureType { UnitCode = UnidadMedida.Unidad, Valor = linea.BolsasIcbper },
                 TaxCategory = new TaxCategory { PerUnitAmount = Monto(calculada.TarifaIcbper, moneda), TaxScheme = Esquema(TributoSunat.Icbper) },
             });
         }

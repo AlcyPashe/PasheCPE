@@ -16,6 +16,7 @@ internal static partial class GeneradorConstantes
     public static (string Codigo, IReadOnlyList<ClaseConstantes> Nombres, int Nuevas, int Retiradas) Generar(
         IReadOnlyList<Catalogo> catalogos,
         IReadOnlyList<ClaseConstantes> clases,
+        UnidadesCuradas unidades,
         string archivoExcel)
     {
         var porNumero = catalogos.ToDictionary(c => c.Numero, StringComparer.Ordinal);
@@ -78,7 +79,42 @@ internal static partial class GeneradorConstantes
             codigo.Append("}\n");
         }
 
+        AgregarSinListado(codigo, porNumero, unidades);
         return (codigo.ToString(), nombres, nuevas, retiradas);
+    }
+
+    /// <summary>Clase de un catálogo que se valida por formato: cada código curado debe cumplir ese formato.</summary>
+    private static void AgregarSinListado(StringBuilder codigo, Dictionary<string, Catalogo> porNumero, UnidadesCuradas curadas)
+    {
+        if (!porNumero.TryGetValue(curadas.Catalogo, out var catalogo) || catalogo.Formato is null)
+        {
+            throw new InvalidDataException($"La clase {curadas.Clase} requiere que el catálogo {curadas.Catalogo} exista y se valide por formato.");
+        }
+
+        var formato = new Regex(catalogo.Formato, RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
+        var invalidos = curadas.Unidades.Where(u => !formato.IsMatch(u.Codigo) || !Identificador().Replace(u.Nombre, string.Empty).Equals(u.Nombre, StringComparison.Ordinal)).Select(u => u.Codigo).ToList();
+        var repetidos = curadas.Unidades.GroupBy(u => u.Codigo).Concat(curadas.Unidades.GroupBy(u => u.Nombre)).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+        if (invalidos.Count > 0 || repetidos.Count > 0)
+        {
+            throw new InvalidDataException($"Unidades curadas no válidas en {curadas.Clase}: {string.Join(", ", invalidos.Concat(repetidos))}.");
+        }
+
+        codigo.Append('\n')
+            .Append("/// <summary>\n")
+            .Append("/// Catálogo N.° ").Append(catalogo.Numero).Append(" de SUNAT: ").Append(Xml(catalogo.Nombre)).Append(". ").Append(Xml(curadas.Fuente)).Append('\n')
+            .Append("/// </summary>\n")
+            .Append("public static class ").Append(curadas.Clase).Append('\n')
+            .Append("{\n")
+            .Append("    /// <summary>Número del catálogo SUNAT.</summary>\n")
+            .Append("    public const string NumeroCatalogo = \"").Append(catalogo.Numero).Append("\";\n");
+        foreach (var unidad in curadas.Unidades)
+        {
+            codigo.Append('\n')
+                .Append("    /// <summary><c>").Append(Xml(unidad.Codigo)).Append("</c>: ").Append(Xml(unidad.Descripcion)).Append("</summary>\n")
+                .Append("    public const string ").Append(unidad.Nombre).Append(" = \"").Append(unidad.Codigo).Append("\";\n");
+        }
+
+        codigo.Append("}\n");
     }
 
     /// <summary>Nombre PascalCase a partir de la descripción (hasta seis palabras, sin tildes).</summary>

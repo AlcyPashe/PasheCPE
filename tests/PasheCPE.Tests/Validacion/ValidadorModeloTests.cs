@@ -35,6 +35,7 @@ public sealed class ValidadorModeloTests : IDisposable
     [InlineData("Descripcion", "PCPE-1222", null)]
     [InlineData("CodigoProducto", "PCPE-1223", null)]
     [InlineData("Gtin", "PCPE-1224", null)]
+    [InlineData("BolsasDistintasDeLaCantidad", "PCPE-1219", null)]
     [InlineData("GratuitoIncoherente", "PCPE-1225", null)]
     [InlineData("Ivap", "PCPE-1226", null)]
     [InlineData("IscSistema03", "PCPE-1227", null)]
@@ -104,6 +105,26 @@ public sealed class ValidadorModeloTests : IDisposable
         Assert.Contains(validador.Validar(Ejemplos.Emisor(), invalido), e => e.Codigo == "PCPE-1251");
     }
 
+    [Theory]
+    [InlineData("CCE-2027/01 LIMA", true)]
+    [InlineData("CCE\t2027", false)]
+    [InlineData("   ", false)]
+    public void Validar_NumeroDeContrato_ComoElExcelDeSunat(string numero, bool valido)
+    {
+        // «Alfanumérico» en el Excel (3501): cualquier carácter y espacios, sin otros caracteres de espaciado.
+        using var servicios2027 = new ServiciosPrueba(ahora: new DateTimeOffset(2027, 1, 5, 15, 0, 0, TimeSpan.Zero));
+        var factura = Ejemplos.Factura() with
+        {
+            FechaEmision = new DateOnly(2027, 1, 5),
+            FormaPago = FormaPagoCpe.Contado,
+            ContratoColaboracion = new ContratoColaboracionCpe { Tipo = "1", Numero = numero, Descripcion = "Consorcio", Porcentaje = 45.50m },
+        };
+
+        var errores = servicios2027.Obtener<ValidadorModelo>().Validar(Ejemplos.Emisor(), factura);
+
+        Assert.Equal(valido, !errores.Any(e => e.Codigo == "PCPE-1251"));
+    }
+
     [Fact]
     public void ValidarTotales_BoletaAnonimaMayorA700_PideIdentificacion()
     {
@@ -171,6 +192,7 @@ public sealed class ValidadorModeloTests : IDisposable
             "Descripcion" => ConLinea(linea with { Descripcion = " " }),
             "CodigoProducto" => ConLinea(linea with { CodigoProductoSunat = "00000000" }),
             "Gtin" => ConLinea(linea with { Gtin = "123" }),
+            "BolsasDistintasDeLaCantidad" => ConLinea(linea with { BolsasIcbper = 3 }),
             "GratuitoIncoherente" => ConLinea(linea with { EsGratuito = true, Afectacion = AfectacionIgv.GravadoOneroso }),
             "Ivap" => ConLinea(linea with { Afectacion = AfectacionIgv.GravadoIvap }),
             "IscSistema03" => ConLinea(linea with { Isc = new IscLineaCpe { Sistema = SistemaIsc.PreciosVentaAlPublico, Tasa = 10m } }),

@@ -53,7 +53,32 @@ public sealed class PasheCpe : IDisposable, IAsyncDisposable
 
         servicios.AddSingleton(Options.Create(opciones));
         servicios.AgregarNucleoPasheCpe();
-        return new PasheCpe(servicios.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true }));
+        var pashe = new PasheCpe(servicios.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true }));
+        if (opciones.PrecalentarAlIniciar)
+        {
+            _ = pashe.PrecalentarEnSegundoPlanoAsync();
+        }
+
+        return pashe;
+    }
+
+    /// <summary>Precalentamiento en segundo plano: un error solo se registra (se compila en la primera validación).</summary>
+    private async Task PrecalentarEnSegundoPlanoAsync()
+    {
+        try
+        {
+            await Task.Run(() => _proveedor.GetRequiredService<IPrecalentador>().PrecalentarAsync()).ConfigureAwait(false);
+        }
+        catch (ObjectDisposedException)
+        {
+            // La instancia se liberó antes de terminar.
+        }
+#pragma warning disable CA1031 // El precalentamiento es opcional: cualquier falla solo se registra.
+        catch (Exception ex)
+#pragma warning restore CA1031
+        {
+            Diagnostico.RegistroEventos.PrecalentamientoFallido(_proveedor.GetRequiredService<ILogger<PasheCpe>>(), ex);
+        }
     }
 
     /// <inheritdoc/>

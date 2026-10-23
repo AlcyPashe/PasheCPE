@@ -59,8 +59,8 @@ internal static class Generador
 
         resumen.Add($"Control de Cambios: {cambios.Count} filas (con fecha de vigencia: {cambios.Count(c => c.FechaVigencia is not null)})");
 
-        var (codigoConstantes, nombres, nuevas, retiradas) = GeneradorConstantes.Generar(catalogos, datos.Clases, archivoExcel);
-        resumen.Add($"Constantes: {nombres.Count} clases, {nombres.Sum(n => n.Constantes.Count)} constantes (nuevas: {nuevas}; retiradas: {retiradas})");
+        var (codigoConstantes, nombres, nuevas, retiradas) = GeneradorConstantes.Generar(catalogos, datos.Clases, datos.Unidades, archivoExcel);
+        resumen.Add($"Constantes: {nombres.Count} clases, {nombres.Sum(n => n.Constantes.Count)} constantes (nuevas: {nuevas}; retiradas: {retiradas}); {datos.Unidades.Clase}: {datos.Unidades.Unidades.Count} unidades curadas");
 
         var archivos = new SortedDictionary<string, byte[]>(StringComparer.Ordinal)
         {

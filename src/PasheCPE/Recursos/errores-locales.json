@@ -19,7 +19,8 @@
     { "codigo": "PCPE-1211", "descripcion": "Una boleta de venta por más de S/ {0} requiere el documento de identidad del cliente." },
     { "codigo": "PCPE-1212", "descripcion": "El número de documento '{0}' no tiene el formato del tipo de documento de identidad {1}." },
     { "codigo": "PCPE-1213", "descripcion": "El código de establecimiento '{0}' debe tener 4 dígitos." },
-    { "codigo": "PCPE-1220", "descripcion": "La línea {0} debe tener una cantidad mayor que cero." },
+    { "codigo": "PCPE-1219", "descripcion": "La línea {0} tiene {1} bolsas plásticas (ICBPER) y una cantidad de {2}: SUNAT exige que la cantidad de bolsas sea la cantidad de la línea (3236). Registre las bolsas en una línea propia." },
+    { "codigo": "PCPE-1220","descripcion": "La línea {0} debe tener una cantidad mayor que cero." },
     { "codigo": "PCPE-1221", "descripcion": "La línea {0} no puede tener un importe unitario negativo." },
     { "codigo": "PCPE-1222", "descripcion": "La descripción de la línea {0} debe tener entre 1 y 500 caracteres." },
     { "codigo": "PCPE-1223", "descripcion": "El código de producto SUNAT '{0}' de la línea {1} debe tener 8 dígitos y no puede ser 00000000 ni 99999999." },
@@ -44,6 +45,8 @@
     { "codigo": "PCPE-1262", "descripcion": "El descuento o cargo global {0} debe indicar un monto o un factor mayor que cero y ser coherente con EsCargo." },
     { "codigo": "PCPE-1270", "descripcion": "El anticipo {0} no es válido: debe ser del tipo 02 o 03 (catálogo N.° 12), con serie-número (F001-1) y monto mayor que cero." },
     { "codigo": "PCPE-1290", "descripcion": "Los totales calculados no son válidos ({0}). Revise anticipos y descuentos globales." },
-    { "codigo": "PCPE-2001", "descripcion": "El XML no cumple el esquema UBL 2.1: {0}" }
+    { "codigo": "PCPE-2001", "descripcion": "El XML no cumple el esquema UBL 2.1: {0}" },
+    { "codigo": "PCPE-2101", "descripcion": "La XSL {0} pidió la variable de DataPower '{1}', que PasheCPE no emula. Revise la emulación (TRD §9.3)." },
+    { "codigo": "PCPE-2102", "descripcion": "No se pudo ejecutar la XSL de SUNAT {0}: {1}" }
   ]
 }

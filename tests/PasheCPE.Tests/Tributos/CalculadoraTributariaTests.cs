@@ -255,6 +255,8 @@ public sealed class CalculadoraTributariaTests : IDisposable
         var linea = calculo.Lineas[0];
         Assert.Equal((100m, 10m, 90m, 16.20m, 50m), (linea.ValorBruto, linea.Descuento, linea.ValorVenta, linea.Igv, linea.ValorUnitario));
         Assert.Equal(106.20m, calculo.ImporteTotal);
+        // Con descuento, SUNAT valida el precio de referencia contra (valor de venta + tributos) ÷ cantidad (3270).
+        Assert.Equal(53.10m, linea.PrecioReferencia);
     }
 
     [Fact]

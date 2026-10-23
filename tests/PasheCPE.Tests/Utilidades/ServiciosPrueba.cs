@@ -13,13 +13,14 @@ internal sealed class ServiciosPrueba : IDisposable
 {
     private readonly ServiceProvider _proveedor;
 
-    public ServiciosPrueba(Action<OpcionesPasheCpe>? configurar = null, DateTimeOffset? ahora = null)
+    public ServiciosPrueba(Action<OpcionesPasheCpe>? configurar = null, DateTimeOffset? ahora = null, Action<IServiceCollection>? registrar = null)
     {
         Almacen = new AlmacenTemporal();
         Reloj = new FakeTimeProvider(ahora ?? new DateTimeOffset(2026, 10, 22, 15, 0, 0, TimeSpan.Zero));
         var servicios = new ServiceCollection();
         servicios.AddSingleton<TimeProvider>(Reloj);
         servicios.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+        registrar?.Invoke(servicios);
         servicios.AddPasheCpe(o =>
         {
             o.RutaBase = Almacen.Ruta;

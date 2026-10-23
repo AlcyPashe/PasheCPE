@@ -1,6 +1,9 @@
 using System.Text;
+using System.Xml.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using PasheCPE.Mapeo;
 using PasheCPE.Tests.Utilidades;
+using PasheCPE.Validacion.Reglas;
 
 namespace PasheCPE.Tests.Mapeo;
 
@@ -31,6 +34,64 @@ public sealed class GeneradorInvoiceTests : IDisposable
         Assert.Contains(resultado.Errores, e => e.Codigo == "PCPE-1204");
         Assert.Null(resultado.Ruta);
         Assert.False(Directory.Exists(Path.Combine(_servicios.Almacen.Ruta, "DATA")));
+    }
+
+    [Fact]
+    public async Task GenerarAsync_ObservacionDeSunat_VaALasAdvertenciasYSeEscribe()
+    {
+        // Código de producto que termina en 0000: la XSL de SUNAT lo observa (4337) sin rechazarlo.
+        var factura = Ejemplos.Factura() with { Lineas = [Ejemplos.Factura().Lineas[0] with { CodigoProductoSunat = "50220000" }], FormaPago = FormaPagoCpe.Contado };
+
+        var resultado = await _servicios.Obtener<GeneradorInvoice>().GenerarAsync(Ejemplos.Emisor(), factura, TestContext.Current.CancellationToken);
+
+        Assert.True(resultado.Exito);
+        Assert.Contains(resultado.Advertencias, a => a.Codigo == "4337");
+        Assert.True(File.Exists(resultado.Ruta));
+    }
+
+    [Fact]
+    public async Task GenerarAsync_ErrorDeValidacionSunat_NoEscribeNada()
+    {
+        using var servicios = new ServiciosPrueba(registrar: s => s.AddSingleton<IReglaCpe, ReglaQueSiempreFalla>());
+
+        var resultado = await servicios.Obtener<GeneradorInvoice>().GenerarAsync(Ejemplos.Emisor(), Ejemplos.Factura(), TestContext.Current.CancellationToken);
+
+        var error = Assert.Single(resultado.Errores);
+        Assert.Equal(("3291", OrigenError.Reglas2027), (error.Codigo, error.Origen));
+        Assert.NotNull(resultado.Xml);
+        Assert.Null(resultado.Ruta);
+        Assert.False(Directory.Exists(Path.Combine(servicios.Almacen.Ruta, "DATA")));
+    }
+
+    [Fact]
+    public async Task GenerarAsync_IscMontoFijo_InformaLaTasaEquivalente()
+    {
+        var caso = CasosTributarios.Todos["IscMontoFijo"];
+
+        var resultado = await _servicios.Obtener<GeneradorInvoice>().GenerarAsync(caso.Emisor, caso.Comprobante, TestContext.Current.CancellationToken);
+
+        var isc = XDocument.Parse(Encoding.UTF8.GetString(resultado.Xml!)).Root!.Element(XmlDePrueba.Cac + "InvoiceLine")!.Subtotal("2000");
+        Assert.Equal("3", isc.Element(XmlDePrueba.Cac + "TaxCategory")!.Element(XmlDePrueba.Cbc + "Percent")!.Value);
+    }
+
+    [Fact]
+    public async Task GenerarAsync_Detraccion_SchemeNameDelExcel()
+    {
+        var caso = CasosTributarios.Todos["Detraccion"];
+
+        var resultado = await _servicios.Obtener<GeneradorInvoice>().GenerarAsync(caso.Emisor, caso.Comprobante, TestContext.Current.CancellationToken);
+
+        Assert.Contains("schemeName=\"Codigo de detraccion\"", Encoding.UTF8.GetString(resultado.Xml!), StringComparison.Ordinal);
+    }
+
+    /// <summary>Regla que siempre informa la fila 351 de la factura (3291), para probar que un error impide escribir.</summary>
+    private sealed class ReglaQueSiempreFalla : IReglaCpe
+    {
+        public string Nombre => "Prueba";
+
+        public IReadOnlyList<FilaExcel> Filas { get; } = [new("01", 351)];
+
+        public IEnumerable<HallazgoRegla> Evaluar(DocumentoXml documento) => [new HallazgoRegla(351, null, "Prueba")];
     }
 
     [Fact]

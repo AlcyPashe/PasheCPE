@@ -5,6 +5,23 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 22/10/2026 — Fase 3 (validación SUNAT con XSL y emulación DataPower):
+  - `MotorXslSunat`: las 7 XSL oficiales embebidas desde `recursos/XSL` sin cambios, compiladas una sola vez con `XslCompiledTransform`; devuelve todos los errores y observaciones de una pasada y nunca lanza (`PCPE-2101`, `PCPE-2102`). La XSL de la GRE (1.0) se compila pero no se usa.
+  - Emulación de DataPower: `validate_utils.xsl`, `error_utils.xsl` y `dat_fechas.xml` propios; `ResolutorRecursosLocales` (`local:///`); extensiones `dp:variable` (nombre del archivo enviado), EXSLT de fechas (hora de Lima) y de expresiones regulares, y `pcpe:` (catálogos a la fecha de recepción, moneda con `monedas.json`, propiedades de los catálogos 05, 07, 22 y 51, ruta del nodo).
+  - `AdaptadorXslDataPower`: 3 correcciones en memoria para que compilen Factura, Boleta, NC y ND (`concat` de un argumento, variables redeclaradas, variables de respaldo de `xsl-compatibilidad.json`).
+  - Reglas complementarias (`IReglaCpe`) con código y tipo de `reglas-cpe.json` según la vigencia: `SumatoriaIgv` (3291/4290 con la tasa de las líneas, 18 % o 10.5 %), `TasaIgvUnica` (3462), `TotalPrecioVenta` (3279/4310), `CodigoProducto` (3496) y `ContratoColaboracion` (3497–3502).
+  - `ajustes-xsl.json`: la 4290 de la XSL de boleta (0.18 fijo) se suprime y la reemplaza `SumatoriaIgv`; clasificación con motivo de las 51 filas de 01/03 posteriores a la XSL.
+  - `ValidadorSunat` (XSL → ajustes → reglas), integrado en `GeneradorInvoice` después del XSD: con errores no escribe en `DATA`; las observaciones van a las advertencias. Respeta `Validacion.XslSunat` y `Validacion.Reglas2027`.
+  - `IPrecalentador` (XSL, XSD y serializadores en paralelo); `PasheCpe.Crear` lo lanza en segundo plano si `PrecalentarAlIniciar`.
+  - Constantes `UnidadMedida` (catálogo N.° 03) desde `tools/GeneradorRecursos/Datos/unidades-medida.json`.
+  - Pruebas:
+    - compilación y conteos de correcciones;
+    - inventario automático de lo que piden las XSL;
+    - dorados (facturas, NC y RC) sin hallazgos y 24 casos tributarios generados sin hallazgos;
+    - 30 casos inválidos con su código SUNAT;
+    - cobertura de `ajustes-xsl.json`;
+    - reglas con su tolerancia y vigencia, incluida la boleta MYPE al 10.5 %;
+    - extensiones, resolutor, concurrencia (50 validaciones en paralelo) y tiempo en caliente (< 300 ms).
 - 22/10/2026 — Fase 2 (UBL y serialización de factura y boleta):
   - `tools/generar-ubl.ps1` y `.config/dotnet-tools.json` (`dotnet-xscgen` 3.0.1430): referencia UBL completa en `tools/ubl-referencia/` (no se versiona).
   - Perfil UBL 2.1 de SUNAT (`PasheCPE.Ubl`: `Invoice`, `InvoiceLine` y agregados comunes), públicas pero ocultas y fuera del contrato estable; serializadores pregenerados (`PasheCPE.XmlSerializers.dll`, incluido en el paquete).
@@ -26,6 +43,17 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 - 22/10/2026 — Fase 0: repositorio git (`main`, remoto `origin`), solución `PasheCPE.slnx` con `src/PasheCPE`, `src/PasheCPE.Pdf`, `tests/PasheCPE.Tests`, `tests/PasheCPE.Pdf.Tests` y `samples/PasheCPE.Demo`; `Directory.Packages.props` (CPM) con las dependencias del TRD §1; `src/` y `tests/Directory.Build.props`; metadatos NuGet (licencia propietaria `LICENSE.txt`, README, Source Link del SDK, PDB embebido); pruebas de humo de los dos ensamblados; `tests/Datos/`.
 
 ### Cambiado
+- 22/10/2026 — Fase 3: las XSL de SUNAT encontraron 4 defectos del XML de la Fase 2 que SUNAT habría rechazado:
+  - con descuento de línea, el precio de referencia es (valor de venta + tributos) ÷ cantidad (3270);
+  - el ISC de monto fijo informa su tasa equivalente (2992/3108);
+  - las bolsas ICBPER deben ser la cantidad de la línea (3236, nuevo `PCPE-1219`);
+  - el `schemeName` de la detracción es «Codigo de detraccion» (4255).
+- 22/10/2026 — Fase 3: `ValidadorModelo` acepta en el número y la descripción del contrato de colaboración cualquier carácter y espacios, sin saltos de línea ni tabulaciones, como el Excel (3501/3502); antes exigía solo letras y dígitos.
+- 22/10/2026 — Fase 3: documentación actualizada.
+  - TRD: §2, §3.2, §3.3 (`ajustes-xsl.json` y `xsl-compatibilidad.json` en lugar de `reglas-2027.json`), §6 (precalentador), §7, §9.3 y §9.4.
+  - Plan: estado de la Fase 3; en la Fase 10, revisar si existe una XSL de la GRE 2.0.
+  - Guía de mantenimiento: revisar los ajustes con cada XSL nueva.
+  - Guía de integración: precalentador.
 - 22/10/2026 — `UseAppHost=false` en `tools/GeneradorRecursos` y `samples/PasheCPE.Demo`: se ejecutan con `dotnet.exe` (firmado por Microsoft) en lugar de un `.exe` propio, que el antivirus bloqueaba. No aplica a los proyectos de prueba: xUnit v3 exige el `.exe` (`UseAppHost=true`); queda anotado en `tests/Directory.Build.props`.
 - 22/10/2026 — Fase 2: constantes del catálogo 53 con nombres curados (`DescuentoGlobalAfectaBase`, `AnticipoGravado`…). TRD §1, §2, §3.3, §7, §8, §9.2, §12 (nodo del QR de la GRE confirmado con CDR reales) y §15 (entrada `dummy/` del CDR); README (contrato estable).
 - 22/10/2026 — Pruebas: los RUC de ejemplo de la Fase 1 no tenían dígito verificador válido; se corrigieron (`20123456786`, `20987654326`).

@@ -15,8 +15,8 @@ public sealed record LineaCpe
     /// <summary>Descripción del bien o servicio.</summary>
     public required string Descripcion { get; init; }
 
-    /// <summary>Unidad de medida UN/ECE Rec. 20 (catálogo N.° 03).</summary>
-    public string Unidad { get; init; } = "NIU";
+    /// <summary>Unidad de medida UN/ECE Rec. 20 (catálogo N.° 03): <see cref="UnidadMedida"/>.</summary>
+    public string Unidad { get; init; } = UnidadMedida.Unidad;
 
     /// <summary>Cantidad.</summary>
     public required decimal Cantidad { get; init; }

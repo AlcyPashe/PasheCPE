@@ -1,0 +1,29 @@
+{
+  "descripcion": "Variables que las XSL de SUNAT (06/09/2022) usan sin declarar. DataPower las tolera; XslCompiledTransform no compila sin ellas. Se agregan como variables globales de respaldo (TRD §9.3); una variable local con el mismo nombre la sigue sombreando. Revisar completo con cada XSL nueva de SUNAT.",
+  "variablesRespaldo": [
+    {
+      "xsl": "ValidaExprRegBoleta-2.0.1.xsl",
+      "variable": "nroLinea",
+      "valor": "''",
+      "motivo": "Se usa solo en textos de descripción (errores 2956, 3024 y 3208) fuera de las plantillas de línea que la declaran."
+    },
+    {
+      "xsl": "ValidaExprRegND-2.0.1.xsl",
+      "variable": "nroLinea",
+      "valor": "''",
+      "motivo": "Se usa solo en el texto de descripción del error 2956 en la plantilla raíz."
+    },
+    {
+      "xsl": "ValidaExprRegNC-2.0.1.xsl",
+      "variable": "MontoDescuentoAfectoBI",
+      "valor": "0",
+      "motivo": "SUNAT dejó comentada su definición (descuentos globales 02) pero no sus usos en SumatoriaIGVCalculado y SumatoriaIVAPCalculado: con 0 no se restan, como en la definición vigente. Se revisa en la Fase 7."
+    },
+    {
+      "xsl": "ValidaExprRegND-2.0.1.xsl",
+      "variable": "MontoDescuentoAfectoBI",
+      "valor": "0",
+      "motivo": "SUNAT dejó comentada su definición (descuentos globales 02) pero no sus usos en SumatoriaIGVCalculado y SumatoriaIVAPCalculado: con 0 no se restan, como en la definición vigente. Se revisa en la Fase 7."
+    }
+  ]
+}

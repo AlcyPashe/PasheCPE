@@ -877,3 +877,81 @@ public static class MedioPago
     /// <summary><c>999</c>: Otros medios de pago</summary>
     public const string OtrosMediosDePago = "999";
 }
+
+/// <summary>
+/// Catálogo N.° 03 de SUNAT: Código de tipo de unidad de medida comercial. UN/ECE Recomendaciones 20 y 21. El Excel de SUNAT publica el catálogo N.° 03 solo como enlace: estas son las unidades de uso habitual en los sistemas de venta de Pashe; cualquier otro código con el formato del catálogo se acepta.
+/// </summary>
+public static class UnidadMedida
+{
+    /// <summary>Número del catálogo SUNAT.</summary>
+    public const string NumeroCatalogo = "03";
+
+    /// <summary><c>NIU</c>: Unidad (bienes)</summary>
+    public const string Unidad = "NIU";
+
+    /// <summary><c>ZZ</c>: Unidad (servicios)</summary>
+    public const string Servicio = "ZZ";
+
+    /// <summary><c>KGM</c>: Kilogramo</summary>
+    public const string Kilogramo = "KGM";
+
+    /// <summary><c>GRM</c>: Gramo</summary>
+    public const string Gramo = "GRM";
+
+    /// <summary><c>TNE</c>: Tonelada (tonelada métrica)</summary>
+    public const string Tonelada = "TNE";
+
+    /// <summary><c>LTR</c>: Litro</summary>
+    public const string Litro = "LTR";
+
+    /// <summary><c>MLT</c>: Mililitro</summary>
+    public const string Mililitro = "MLT";
+
+    /// <summary><c>GLL</c>: Galón (EE. UU.)</summary>
+    public const string Galon = "GLL";
+
+    /// <summary><c>MTR</c>: Metro</summary>
+    public const string Metro = "MTR";
+
+    /// <summary><c>CMT</c>: Centímetro</summary>
+    public const string Centimetro = "CMT";
+
+    /// <summary><c>MTK</c>: Metro cuadrado</summary>
+    public const string MetroCuadrado = "MTK";
+
+    /// <summary><c>MTQ</c>: Metro cúbico</summary>
+    public const string MetroCubico = "MTQ";
+
+    /// <summary><c>BX</c>: Caja</summary>
+    public const string Caja = "BX";
+
+    /// <summary><c>PK</c>: Paquete</summary>
+    public const string Paquete = "PK";
+
+    /// <summary><c>BG</c>: Bolsa</summary>
+    public const string Bolsa = "BG";
+
+    /// <summary><c>BO</c>: Botella</summary>
+    public const string Botella = "BO";
+
+    /// <summary><c>CA</c>: Lata</summary>
+    public const string Lata = "CA";
+
+    /// <summary><c>DZN</c>: Docena</summary>
+    public const string Docena = "DZN";
+
+    /// <summary><c>PR</c>: Par</summary>
+    public const string Par = "PR";
+
+    /// <summary><c>SET</c>: Juego</summary>
+    public const string Juego = "SET";
+
+    /// <summary><c>HUR</c>: Hora</summary>
+    public const string Hora = "HUR";
+
+    /// <summary><c>DAY</c>: Día</summary>
+    public const string Dia = "DAY";
+
+    /// <summary><c>MON</c>: Mes</summary>
+    public const string Mes = "MON";
+}

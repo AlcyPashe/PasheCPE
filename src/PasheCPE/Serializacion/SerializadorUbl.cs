@@ -55,6 +55,10 @@ internal static class SerializadorUbl
             ?? throw new InvalidDataException($"El XML no contiene un {typeof(T).Name}."));
     }
 
+    /// <summary>Crea y cachea el serializador del documento (precalentamiento).</summary>
+    public static void Precalentar<T>()
+        where T : class => Obtener(typeof(T));
+
     private static (XmlSerializer Serializador, XmlSerializerNamespaces Espacios) Obtener(Type tipo) =>
         _cache.GetOrAdd(tipo, static t =>
         {

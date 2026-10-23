@@ -30,6 +30,9 @@ internal static class RecursosEmbebidos
 [JsonSerializable(typeof(ArchivoEndpoints))]
 [JsonSerializable(typeof(ArchivoMonedas))]
 [JsonSerializable(typeof(ArchivoParametros))]
+[JsonSerializable(typeof(ArchivoCompatibilidadXsl))]
+[JsonSerializable(typeof(ArchivoReglasCpe))]
+[JsonSerializable(typeof(ArchivoAjustesXsl))]
 internal sealed partial class DatosJson : JsonSerializerContext;
 
 internal sealed record ArchivoCatalogos(IReadOnlyDictionary<string, DatosCatalogo> Catalogos);
@@ -76,3 +79,25 @@ internal sealed record ArchivoEndpoints(IReadOnlyList<EndpointCpe> Endpoints);
 internal sealed record ArchivoMonedas(IReadOnlyDictionary<string, string> Monedas);
 
 internal sealed record ArchivoParametros(decimal BoletaSinIdentificacionHasta, DateOnly ContratoColaboracionDesde);
+
+internal sealed record ArchivoCompatibilidadXsl(string Descripcion, IReadOnlyList<Validacion.Emulacion.VariableRespaldoXsl> VariablesRespaldo);
+
+internal sealed record ArchivoReglasCpe(IReadOnlyList<ReglaExcelSunat> Reglas);
+
+/// <summary>Fila de una hoja de reglas del Excel de SUNAT (01, 03, 07, 08, RC, RA).</summary>
+internal sealed record ReglaExcelSunat(
+    string Documento,
+    int Fila,
+    string? Dato,
+    string? TagUbl,
+    string? Validacion,
+    string Tipo,
+    string? TipoAnterior,
+    string Codigo,
+    string? Mensaje,
+    DateOnly? Vigencia);
+
+internal sealed record ArchivoAjustesXsl(
+    string Descripcion,
+    IReadOnlyList<Validacion.Reglas.SupresionXsl> Suprimidos,
+    IReadOnlyList<Validacion.Reglas.ClasificacionRegla> Clasificacion);

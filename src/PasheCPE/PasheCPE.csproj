@@ -43,6 +43,14 @@
                       Link="Recursos\xsd\2.1\maindoc\%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <!-- XSL oficiales (TRD §9.3): enlazadas desde recursos\XSL sin copiarlas; utilidades propias que emulan DataPower -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\recursos\XSL\ValidaExprRegFactura-2.0.1.xsl;..\..\recursos\XSL\ValidaExprRegBoleta-2.0.1.xsl;..\..\recursos\XSL\ValidaExprRegNC-2.0.1.xsl;..\..\recursos\XSL\ValidaExprRegND-2.0.1.xsl;..\..\recursos\XSL\ValidaExprRegSummary-1.1.0.xsl;..\..\recursos\XSL\ValidaExprRegSummaryVoided-1.0.1.xsl;..\..\recursos\XSL\ValidaExprRegGuiaRemitente-2.0.1.xsl"
+                      LogicalName="PasheCPE.Recursos.xsl.%(Filename)%(Extension)"
+                      Link="Recursos\xsl\%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Recursos\xsl-utils\*" LogicalName="PasheCPE.Recursos.xsl-utils.%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <ItemGroup>
     <InternalsVisibleTo Include="PasheCPE.Tests" />
   </ItemGroup>

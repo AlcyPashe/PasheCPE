@@ -13,13 +13,16 @@ internal static class LectorDorado
     private static readonly XNamespace _cbc = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2";
     private static readonly XNamespace _cac = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2";
 
-    public static string Carpeta(string documento)
+    public static string Carpeta(string documento) => Path.Combine(Raiz(), "tests", "Datos", "Dorados", documento);
+
+    /// <summary>Raíz del repositorio (donde está PasheCPE.slnx).</summary>
+    public static string Raiz()
     {
         for (var carpeta = new DirectoryInfo(AppContext.BaseDirectory); carpeta is not null; carpeta = carpeta.Parent)
         {
             if (File.Exists(Path.Combine(carpeta.FullName, "PasheCPE.slnx")))
             {
-                return Path.Combine(carpeta.FullName, "tests", "Datos", "Dorados", documento);
+                return carpeta.FullName;
             }
         }
 
@@ -27,6 +30,23 @@ internal static class LectorDorado
     }
 
     public static XElement Cargar(string ruta) => XDocument.Load(ruta, LoadOptions.None).Root!;
+
+    /// <summary>Referencia a partir del nombre oficial del archivo: RUC-TT-SERIE-NUMERO.xml o RUC-RC-yyyyMMdd-n.xml.</summary>
+    public static ReferenciaCpe Referencia(string archivo)
+    {
+        var partes = Path.GetFileNameWithoutExtension(archivo).Split('-');
+        if (partes[1] is ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja)
+        {
+            var fecha = DateOnly.ParseExact(partes[2], "yyyyMMdd", CultureInfo.InvariantCulture);
+            var correlativo = int.Parse(partes[3], CultureInfo.InvariantCulture);
+            return partes[1] == ReferenciaCpe.TipoResumenDiario
+                ? ReferenciaCpe.Resumen(partes[0], fecha, correlativo)
+                : ReferenciaCpe.Baja(partes[0], fecha, correlativo);
+        }
+
+        // La fecha no interviene en el nombre del archivo; se usa la del reloj de pruebas.
+        return ReferenciaCpe.Comprobante(partes[0], partes[1], partes[2], long.Parse(partes[3], CultureInfo.InvariantCulture), new DateOnly(2026, 10, 22));
+    }
 
     public static (EmisorCpe Emisor, ComprobanteCpe Comprobante) Invoice(XElement raiz)
     {
