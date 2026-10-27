@@ -89,9 +89,11 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 │   │   ├── PasheCpe.cs       fábrica sin DI
 │   │   └── ServiceCollectionExtensions.cs
 │   └── PasheCPE.Pdf\
-│       ├── Disenos\          DisenoComprobante, DisenoGuia
-│       ├── Lectura\          LectorRepresentacion (XML firmado → modelo de impresión)
-│       ├── MarcaEmisor.cs  GeneradorPdf.cs  ServiceCollectionExtensions.cs
+│       ├── Disenos\          ComponentesComunes, DisenoComprobante, DisenoGuia
+│       ├── Representacion\   LectorRepresentacion (XML firmado + CDR → modelo de impresión), FormatoImpresion
+│       ├── Recursos\         textos-impresion.json (títulos y abreviaturas de documentos de identidad)
+│       ├── IGeneradorPdf.cs  GeneradorPdf.cs  MarcaEmisor.cs  OpcionesPasheCpePdf.cs  PasheCpePdf.cs
+│       └── ServiceCollectionExtensions.cs
 ├── tests\
 │   ├── PasheCPE.Tests\                    unitarias (sin red)
 │   ├── PasheCPE.Pdf.Tests\
@@ -102,7 +104,7 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 └── benchmarks\PasheCPE.Benchmarks\        (opcional, Fase 12)
 ```
 
-Decisión: **un solo ensamblado principal** con carpetas por responsabilidad y tipos `internal` (solo la fachada, modelos, resultados, opciones e interfaces son `public`). Menos ensamblados = arranque más rápido, un solo paquete que versionar y cero dependencias circulares. `PasheCPE.Pdf` va aparte porque arrastra QuestPDF. `InternalsVisibleTo` solo para los proyectos de prueba.
+Decisión: **un solo ensamblado principal** con carpetas por responsabilidad y tipos `internal` (solo la fachada, modelos, resultados, opciones e interfaces son `public`). Menos ensamblados = arranque más rápido, un solo paquete que versionar y cero dependencias circulares. `PasheCPE.Pdf` va aparte porque arrastra QuestPDF. `InternalsVisibleTo` solo para los proyectos de prueba y, como excepción decidida con el desarrollador el 27/10/2026, para `PasheCPE.Pdf`: usa el almacén, los catálogos y el lector del CDR sin agrandar la API pública. Por eso el paquete `PasheCPE.Pdf` depende de la versión exacta `[x.y.z]` de `PasheCPE` y ambos se publican juntos.
 
 **Excepción — `PasheCPE.Ubl`:** las clases del perfil UBL son `public` porque `XmlSerializer` y su pregeneración solo admiten tipos públicos. Llevan `[EditorBrowsable(Never)]` y **no forman parte del contrato estable**: pueden cambiar en versiones menores sin aviso (así se indica en el README y en los XML-docs). El contrato es el de `Modelos`, `Resultados` y las interfaces.
 
@@ -156,7 +158,7 @@ Notas del archivo:
 | `reglas-cpe.json` | Matriz de reglas por documento con tag UBL, tipo, código y vigencia — generado del Excel (§3.2) |
 | `endpoints.json` | Endpoints por canal y ambiente |
 | `parametros.json` | Parámetros legales que no son tasas ni plazos: importe de la boleta sin identificar al cliente (S/ 700), inicio del contrato de colaboración empresarial (01/01/2027) |
-| `monedas.json`, `errores-locales.json` | Nombres de moneda para el monto en letras; mensajes de la validación local (`PCPE-xxxx`) |
+| `monedas.json`, `errores-locales.json` | Nombres de moneda para el monto en letras y símbolos para el PDF; mensajes de la validación local (`PCPE-xxxx`) |
 | `estados-consulta-cdr.json` | Estados de `getStatusCdr` (`statusCode` 0001–0012) y su significado (aceptado, rechazado, de baja, no existe, error) **[verificar]** contra el manual de consulta |
 | `estados-ticket.json` | Estados del ticket de `getStatus` (0 procesado, 98 en proceso, 99 con errores) para el resumen diario y la baja |
 | `mensajes-usuario.json` | `MensajeUsuario` para el cajero: por estado y, con prioridad, por código (1033, 0140, 0102–0104, 0111, `PCPE-4xxx`…) |
@@ -347,10 +349,11 @@ public interface IHistorialCpe
     Task<HistorialCpe?> ObtenerAsync(ReferenciaCpe referencia, CancellationToken ct = default);
     IAsyncEnumerable<HistorialCpe> ListarPendientesAsync(int anio, int mes, CancellationToken ct = default); // EnProceso, RespuestaIncierta, ServicioNoDisponible…
 }
-public interface IGeneradorPdf  // PasheCPE.Pdf
+public interface IGeneradorPdf  // PasheCPE.Pdf: 01, 03, 07, 08 y 09 (la 31 en la Fase 10b)
 {
     Task<ResultadoPdf> GenerarAsync(ReferenciaCpe referencia, MarcaEmisor marca, DatosAdicionalesPdf? extra = null, CancellationToken ct = default);
 }
+// Sin DI: PasheCpePdf.Crear(opciones, opcionesPdf) devuelve un PasheCpe con PDF; pashe.Pdf() es su IGeneradorPdf.
 public interface IPrecalentador { Task PrecalentarAsync(CancellationToken ct = default); } // compila XSL, carga esquemas y serializadores
 ```
 
@@ -645,11 +648,35 @@ Fuente: manual «Servicios web – Plataforma nueva GRE» (`recursos\GRE\Manual_
 
 - QuestPDF, licencia Community declarada al registrar (`QuestPDF.Settings.License = LicenseType.Community`).
 - `LectorRepresentacion` lee el **XML firmado** de `FIRMA\` (y el CDR si existe) → modelo de impresión. Así el PDF refleja exactamente lo enviado y puede regenerarse en cualquier momento.
-- `MarcaEmisor`: logo (ruta o bytes), color principal, teléfonos, correo, web, texto de pie.
+- Lectura con LINQ to XML, no con los serializadores UBL, para aceptar también los XML de otros sistemas. Si falta la leyenda 1000, el monto en letras se arma con `NumeroALetras` (con tildes).
+- QR:
+  - en los comprobantes se reconstruye desde el XML firmado, con los mismos campos y opciones (`Qr`) que `ConstructorContenidoQr`;
+  - en la guía es el enlace del CDR. Una guía sin CDR aceptado no tiene PDF (`PCPE-5005`).
+- Estado impreso:
+  - si el historial dice «de baja», ese;
+  - si no, la descripción del CDR (con observaciones si trae notas);
+  - sin CDR, el estado aceptado del historial (boletas del resumen diario).
+- `MarcaEmisor`:
+  - logo en bytes o ruta (PNG o JPEG). Si el logo no se puede usar, el PDF sale sin logo y con la advertencia `PCPE-5007`; una ruta vacía significa sin logo;
+  - color principal (#RRGGBB; uno no válido usa el color por defecto);
+  - teléfonos, correo, web y texto de pie.
+- `DatosAdicionalesPdf`: pares etiqueta/valor y observaciones, en el bloque «Información adicional».
+- `ResultadoPdf`: `Exito`, `Ruta`, `Errores` y `Advertencias`. Nunca lanza por errores del documento. Errores:
+  - `PCPE-5002`: falta el XML firmado;
+  - `PCPE-5003`: el XML no se puede leer;
+  - `PCPE-5004`: el tipo no tiene diseño (RC, RA, 31);
+  - `PCPE-5005`: guía sin CDR aceptado;
+  - `PCPE-5006`: falla de QuestPDF.
 - **DisenoComprobante** (01, 03, 07, 08): cabecera (logo, emisor, recuadro RUC/tipo/serie-número), cliente, fechas, moneda, forma de pago y cuotas, documento modificado y motivo (notas), detalle de líneas, totales por afectación, ICBPER, detracción, leyendas, monto en letras, QR 3.5 × 3.5 cm, valor resumen, "Representación impresa de la …", estado SUNAT si hay CDR.
 - **DisenoGuia** (09, 31): cabecera, remitente/destinatario, motivo y fecha de traslado, modalidad, partida/llegada, vehículos, conductores, transportista, bienes, peso y bultos, documentos relacionados, QR de SUNAT.
 - Formato: `S/ 0,000.00` (o símbolo de la moneda), fechas `DD/MM/AAAA`, A4 vertical, fuentes embebidas.
-- Salida en `REPO\yyyy\MM\{nombre}.pdf`. Generación opcional dentro de `EmitirAsync` si `AddPasheCpePdf` está registrado y `GenerarPdfAutomaticamente = true`.
+- Salida en `REPO\yyyy\MM\{nombre}.pdf` (escritura atómica; regenerar reemplaza el archivo). Títulos y abreviaturas de documentos de identidad en `textos-impresion.json`; símbolos de moneda en `monedas.json`.
+- Generación automática dentro de `EmitirAsync` (comprobantes y guías), si `AddPasheCpePdf` está registrado y `GenerarPdfAutomaticamente = true`:
+  - el núcleo llama al gancho interno `IGeneracionPdfAutomatica`, así no conoce QuestPDF;
+  - usa la marca registrada para el RUC (`OpcionesPasheCpePdf.Marcas`), si no `MarcaPorDefecto`, y si no, sin marca;
+  - solo se genera para documentos aceptados y para boletas y notas B que esperan el resumen diario (`PCPE-4002`); nunca para rechazos ni errores;
+  - si el PDF falla, la emisión no cambia y la generación lleva la advertencia `PCPE-5001`;
+  - `EnviarAsync` no genera el PDF.
 
 ## 23. Configuración
 
@@ -672,6 +699,10 @@ Fuente: manual «Servicios web – Plataforma nueva GRE» (`recursos\GRE\Manual_
   "AvisoVencimientoCertificadoDias": 30,
   "PrecalentarAlIniciar": true,
   "GenerarPdfAutomaticamente": false,
+  "Pdf": {                                  // AddPasheCpePdf(configuration.GetSection("PasheCPE:Pdf"))
+    "MarcaPorDefecto": { "RutaLogo": "D:\\CPE\\logo.png", "ColorPrincipal": "#1F3A5F" },
+    "Marcas": { "20493400364": { "Telefonos": [ "(065) 123456" ], "Correo": "ventas@jully.pe", "Web": "www.jully.pe", "TextoPie": "…" } }
+  },
   "Endpoints": [                            // opcional: SUNAT y eFact vienen en endpoints.json; otro OSE se declara aquí
     { "Canal": "OSE:otro", "Ambiente": "Produccion", "Servicio": "Comprobantes", "Url": "https://…/billService", "SoapAction": "urn:{operacion}" }
   ],
@@ -687,7 +718,7 @@ Fuente: manual «Servicios web – Plataforma nueva GRE» (`recursos\GRE\Manual_
 
 ```csharp
 builder.Services.AddPasheCpe(builder.Configuration.GetSection("PasheCPE"));  // valida opciones al iniciar (ValidateOnStart)
-builder.Services.AddPasheCpePdf();
+builder.Services.AddPasheCpePdf(builder.Configuration.GetSection("PasheCPE:Pdf"));  // o AddPasheCpePdf(o => o.MarcaPorDefecto = marca)
 
 // Sin DI: arma internamente el mismo ServiceCollection que AddPasheCpe y lo encapsula.
 using var pashe = PasheCpe.Crear(new OpcionesPasheCpe { RutaBase = @"D:\CPE", Ambiente = Ambiente.Beta }, loggerFactory);
@@ -706,7 +737,14 @@ var r = await pashe.Cpe.EmitirAsync(emisor, factura, ct);   // pashe.Gre, pashe.
 - **Transporte**: `HttpMessageHandler` falso con respuestas grabadas (CDR aceptado/observado/rechazado, faults 0111/1033/0100, HTTP 503, timeout de conexión y de lectura, ticket 98→0, 99, GRE 401/422).
 - **Conectividad**: simulada con dobles de prueba.
 - **Concurrencia**: 50 emisiones paralelas sin colisión de archivos ni de historial.
-- **PDF**: generación de ambos diseños sin excepción y con QR del tamaño indicado.
+- **PDF** (`PasheCPE.Pdf.Tests`):
+  - lectura de los dorados: factura exonerada con gratuitas, factura exonerada, boleta, NC, ND y GRE 09 (las tres de beta están en `tests/Datos/Dorados/Beta-20493400364`);
+  - formatos y QR igual al de la generación;
+  - QR de 35 mm, con su zona de silencio, medido sobre la página rasterizada;
+  - varias páginas y errores `PCPE-50xx`;
+  - marca desde la configuración y generación automática con SUNAT falso.
+
+  Una copia de los PDF queda en `bin\…\Salida` para la revisión visual.
 - **Envíos reales**: solo desde `samples\PasheCPE.Demo`, ejecutados manualmente por el desarrollador; credenciales en `dotnet user-secrets`.
 - `.gitattributes` marca `tests\Datos\**` como binario para no alterar bytes de XML firmados.
 

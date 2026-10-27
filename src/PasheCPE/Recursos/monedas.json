@@ -3,5 +3,10 @@
     "PEN": "SOLES",
     "USD": "DÓLARES AMERICANOS",
     "EUR": "EUROS"
+  },
+  "simbolos": {
+    "PEN": "S/",
+    "USD": "US$",
+    "EUR": "€"
   }
 }

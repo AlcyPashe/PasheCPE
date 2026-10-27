@@ -139,6 +139,13 @@
     { "codigo": "PCPE-4602", "descripcion": "La guía {0} no se envió: las guías de remisión solo existen en producción y PasheCPE está configurado con Ambiente = Beta. Para enviarla de todos modos, active PasheCPE:Gre:PermitirEnvioConAmbienteBeta." },
     { "codigo": "PCPE-4603", "descripcion": "SUNAT no entregó el token de la API de guías (HTTP {0}): {1}. Revise el client_id, el client_secret y el usuario y la clave SOL del emisor." },
     { "codigo": "PCPE-4604", "descripcion": "La referencia {0} no es una guía de remisión remitente (09)." },
-    { "codigo": "PCPE-4605", "descripcion": "La API de guías respondió a {0} con HTTP {1} sin el ticket o el estado esperado: {2}" }
+    { "codigo": "PCPE-4605", "descripcion": "La API de guías respondió a {0} con HTTP {1} sin el ticket o el estado esperado: {2}" },
+    { "codigo": "PCPE-5001", "descripcion": "El documento {0} se emitió, pero no se pudo generar su PDF: {1}" },
+    { "codigo": "PCPE-5002", "descripcion": "No existe el XML firmado {0}: genere el documento antes de su PDF." },
+    { "codigo": "PCPE-5003", "descripcion": "El XML firmado {0} no se pudo leer: {1}" },
+    { "codigo": "PCPE-5004", "descripcion": "El tipo de documento {0} no tiene representación impresa en PasheCPE.Pdf (solo 01, 03, 07, 08 y 09)." },
+    { "codigo": "PCPE-5005", "descripcion": "La guía {0} aún no tiene el QR de SUNAT: su PDF se genera cuando SUNAT la acepte." },
+    { "codigo": "PCPE-5006", "descripcion": "No se pudo generar el PDF de {0}: {1}" },
+    { "codigo": "PCPE-5007", "descripcion": "El logo del emisor no se pudo usar ({0}); el PDF se generó sin logo." }
   ]
 }

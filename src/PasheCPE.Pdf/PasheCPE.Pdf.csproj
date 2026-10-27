@@ -15,7 +15,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Recursos\*.json" LogicalName="PasheCPE.Pdf.Recursos.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="PasheCPE.Pdf.Tests" />
   </ItemGroup>
+
+  <!-- PasheCPE.Pdf usa tipos internos de PasheCPE (TRD §2): el paquete depende de la versión exacta [x.y.z] de PasheCPE. -->
+  <Target Name="DependenciaExactaPasheCpe" AfterTargets="_GetProjectReferenceVersions">
+    <ItemGroup>
+      <_VersionExacta Include="@(_ProjectReferencesWithVersions)" ProjectVersion="[%(_ProjectReferencesWithVersions.ProjectVersion)]" />
+      <_ProjectReferencesWithVersions Remove="@(_ProjectReferencesWithVersions)" />
+      <_ProjectReferencesWithVersions Include="@(_VersionExacta)" />
+    </ItemGroup>
+  </Target>
 
 </Project>

@@ -45,7 +45,7 @@ dotnet add package PasheCPE.Pdf   # opcional
 
 ```csharp
 builder.Services.AddPasheCpe(builder.Configuration.GetSection("PasheCPE"));
-builder.Services.AddPasheCpePdf();
+builder.Services.AddPasheCpePdf(builder.Configuration.GetSection("PasheCPE:Pdf"));   // opcional (sección 10)
 
 var app = builder.Build();
 // Compila las XSL de SUNAT, los XSD y los serializadores en segundo plano: la primera emisión no espera ≈ 1 s.
@@ -299,11 +299,42 @@ var r = await pashe.Gre.EmitirAsync(emisor, guia, ct);   // genera, pide o reuti
 
 ## 10. PDF
 
+Representación impresa A4 de facturas, boletas, notas de crédito y débito y guías remitente. El PDF se arma desde el XML firmado de `FIRMA` y el CDR de `RPTA`, así que puede regenerarse cuando se necesite. Queda en `REPO\yyyy\MM\{nombre}.pdf`.
+
 ```csharp
-var pdf = await generadorPdf.GenerarAsync(r.Generacion.Referencia, marca, ct: ct); // REPO\yyyy\MM\{nombre}.pdf
+var marca = new MarcaEmisor
+{
+    RutaLogo = @"D:\CPE\logo.png",            // o Logo = bytes (PNG o JPEG)
+    ColorPrincipal = "#1F3A5F",
+    Telefonos = ["(065) 123456"],
+    Correo = "ventas@empresa.pe",
+    Web = "www.empresa.pe",
+    TextoPie = "Cuentas: BCP 123-4567890-0-12",
+};
+var extra = new DatosAdicionalesPdf { Campos = [new("Vendedor", "JUAN PÉREZ"), new("Caja", "02")], Observaciones = "Entrega a domicilio." };
+
+var pdf = await generadorPdf.GenerarAsync(r.Generacion.Referencia, marca, extra, ct);   // IGeneradorPdf
+if (!pdf.Exito)
+{
+    // pdf.Errores[0].Codigo: PCPE-5002 (no se generó el XML), 5005 (guía aún no aceptada)…
+}
 ```
 
-`MarcaEmisor` lleva logo, teléfonos, correo y web. El PDF se arma desde el XML firmado, así que puede regenerarse cuando se necesite.
+**Automático.** Con `"GenerarPdfAutomaticamente": true`, `EmitirAsync` deja el PDF cuando el documento queda aceptado, y también en las boletas que esperan el resumen diario. Lo indica en `r.Envio.Rutas.Pdf`. Usa la marca registrada para el RUC del emisor:
+
+```jsonc
+"PasheCPE": {
+  "GenerarPdfAutomaticamente": true,
+  "Pdf": {
+    "MarcaPorDefecto": { "RutaLogo": "D:\\CPE\\logo.png", "ColorPrincipal": "#1F3A5F" },
+    "Marcas": { "20493400364": { "Web": "www.jully.pe", "Telefonos": [ "(065) 123456" ] } }
+  }
+}
+```
+
+Si el PDF falla, la venta no se afecta: la emisión trae la advertencia `PCPE-5001` en `r.Generacion.Advertencias` y el PDF se puede generar después con `GenerarAsync`.
+
+Sin DI: `using var pashe = PasheCpePdf.Crear(opciones, opcionesPdf);` y `pashe.Pdf().GenerarAsync(...)`.
 
 ## 11. Diagnóstico
 

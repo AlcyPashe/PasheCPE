@@ -26,6 +26,7 @@ internal sealed class ServicioGre(
     TablaPlazos plazos,
     CatalogoErrores errores,
     CatalogoRespuestas respuestas,
+    PdfAutomatico pdf,
     RelojCpe reloj,
     ILogger<ServicioGre> registro) : IServicioGre
 {
@@ -130,7 +131,8 @@ internal sealed class ServicioGre(
             enviado = await EsperarTicketAsync(emisor, generacion.Referencia, ticket, ct).ConfigureAwait(false);
         }
 
-        return new ResultadoEmision { Generacion = generacion, Envio = enviado with { ValorResumen = generacion.ValorResumen } };
+        var emision = new ResultadoEmision { Generacion = generacion, Envio = enviado with { ValorResumen = generacion.ValorResumen } };
+        return await pdf.AplicarAsync(emisor, emision, ct).ConfigureAwait(false);
     }
 
     private ResultadoGeneracion Resultado(ReferenciaCpe referencia, IReadOnlyList<ErrorCpe> encontrados, IReadOnlyList<ObservacionCpe> advertencias, RutasCpe rutas) => new()

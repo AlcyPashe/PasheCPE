@@ -4,4 +4,14 @@
     <ProjectReference Include="..\..\src\PasheCPE.Pdf\PasheCPE.Pdf.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+  </ItemGroup>
+
+  <!-- Utilidades de PasheCPE.Tests (almacén temporal, certificado autofirmado, SUNAT falso y dorados), enlazadas sin copiarlas -->
+  <ItemGroup>
+    <Compile Include="..\PasheCPE.Tests\Utilidades\*.cs" Link="Utilidades\%(Filename)%(Extension)" />
+    <Compile Include="..\PasheCPE.Tests\Dorados\LectorDorado.cs" Link="Utilidades\LectorDorado.cs" />
+  </ItemGroup>
+
 </Project>

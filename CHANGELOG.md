@@ -5,6 +5,40 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 27/10/2026 — Fase 11 (PDF A4, paquete `PasheCPE.Pdf`):
+  - API pública:
+    - `IGeneradorPdf.GenerarAsync(ReferenciaCpe, MarcaEmisor, DatosAdicionalesPdf?)` → `ResultadoPdf` (`Exito`, `Ruta`, `Errores`, `Advertencias`; nunca lanza por errores del documento);
+    - `MarcaEmisor` (logo en bytes o ruta, color, teléfonos, correo, web, texto de pie) y `DatosAdicionalesPdf` (pares etiqueta/valor y observaciones);
+    - `OpcionesPasheCpePdf` (marcas por RUC y marca por defecto), `AddPasheCpePdf(Action<…>)` y `AddPasheCpePdf(IConfiguration)`;
+    - `PasheCpePdf.Crear` y `pashe.Pdf()` para el uso sin DI;
+    - `OrigenError.Pdf`.
+  - `LectorRepresentacion`:
+    - lee el XML firmado de FIRMA y el CDR de RPTA con LINQ to XML, así acepta también los dorados de otros sistemas;
+    - toma totales por afectación, líneas, cuotas, detracción, leyendas, documento modificado y motivo;
+    - en la guía: traslado, partida y llegada, transportista, vehículos, conductores, documentos relacionados y bienes;
+    - si falta la leyenda 1000, arma el monto en letras;
+    - reconstruye el QR igual que `ConstructorContenidoQr`; el de la guía es el enlace del CDR.
+  - Diseños con QuestPDF (A4, fuente Lato embebida):
+    - `DisenoComprobante` (01, 03, 07, 08) y `DisenoGuia` (09);
+    - cabecera con logo y recuadro del RUC, y tabla del detalle con su encabezado en cada página;
+    - QR de 3.5 × 3.5 cm con el valor resumen, el estado del CDR y el texto de representación impresa;
+    - paginación;
+    - montos `S/ 0,000.00` (símbolos en `monedas.json`), fechas `DD/MM/AAAA`. Títulos y abreviaturas en `textos-impresion.json`.
+  - Generación automática dentro de `EmitirAsync` (comprobantes y guías) con `GenerarPdfAutomaticamente`:
+    - gancho interno `IGeneracionPdfAutomatica`, con la marca del RUC;
+    - solo para documentos aceptados y boletas y notas B que esperan el resumen diario;
+    - si el PDF falla, la emisión no cambia y lleva la advertencia `PCPE-5001`;
+    - la ruta queda en `Rutas.Pdf`.
+  - Errores `PCPE-5001`–`5007`.
+  - `InternalsVisibleTo` a `PasheCPE.Pdf` (excepción al TRD §2). El paquete depende de la versión exacta de `PasheCPE`.
+  - Dorados nuevos de beta: F001-2, B001-3 y FD01-23 (`tests/Datos/Dorados/Beta-20493400364`).
+  - Demo: PDF automático, marca en `PasheCPE:Pdf` y caso 21 (generar o regenerar el PDF).
+  - Pruebas (58 en `PasheCPE.Pdf.Tests`, 6 en `PasheCPE.Tests`):
+    - lectura de los 6 dorados y formatos;
+    - QR igual al de la generación y de 35 mm medido sobre la página rasterizada;
+    - varias páginas, logo no válido y errores `PCPE-50xx`;
+    - marca desde la configuración, uso sin DI y generación automática (aceptado, rechazado, boleta del resumen, opción apagada y falla del PDF).
+  - La guía transportista (31) pasa a la Fase 10b.
 - 27/10/2026 — Cierre de las Fases 9 (canal OSE) y 10a (guía remitente): implementadas y probadas sin red; la prueba real de cada una queda para el primer cliente con OSE y para el primer traslado real. La Fase 10b (guía transportista) se posterga hasta tener un cliente transportista.
 - 27/10/2026 — Fase 10a (guía de remisión remitente 09, API REST con OAuth2), solo con pruebas sin red: SUNAT no tiene ambiente de pruebas para guías y el primer envío real queda para el primer cliente.
   - Recursos: XSL GRE 2.0 de SUNAT (01/10/2026) en `recursos/GRE/XSL` y el manual de servicios web de la plataforma nueva GRE (token y errores).

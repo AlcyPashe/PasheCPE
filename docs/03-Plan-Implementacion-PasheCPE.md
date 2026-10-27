@@ -271,7 +271,7 @@ Otros resultados:
 - El XML generado con los datos de T001-31093 es igual al dorado; el digest de los CDR GRE no coincide porque SUNAT los vuelve a serializar tras firmarlos.
 - **[verificar]** con el primer envío real: JSON de envío y consulta, `hashZip`, respuesta a un reenvío.
 
-**10b (transportista 31):** postergada por decisión del desarrollador (27/10/2026) hasta tener un cliente transportista; la XSL ya compila y el generador ya produce sus reglas.
+**10b (transportista 31):** postergada por decisión del desarrollador (27/10/2026) hasta tener un cliente transportista; la XSL ya compila y el generador ya produce sus reglas. Incluye el diseño del PDF de la 31 en `DisenoGuia` (pasado de la Fase 11 el 27/10/2026).
 
 ---
 
@@ -281,7 +281,19 @@ Otros resultados:
 2. `DisenoComprobante` (01, 03, 07, 08) y `DisenoGuia` (09, 31) con `MarcaEmisor` (TRD §22).
 3. `IGeneradorPdf`, `AddPasheCpePdf`, opción `GenerarPdfAutomaticamente`.
 
-**Aceptación:** PDF de factura exonerada, boleta, NC, ND, GRE 09 y 31 generados desde XML dorados; montos `S/ 0,000.00`, fechas `DD/MM/AAAA`, QR 3.5 × 3.5 cm; revisión visual del desarrollador.
+**Aceptación:** PDF de factura exonerada, boleta, NC, ND y GRE 09 generados desde XML dorados (la 31 pasa a la Fase 10b); montos `S/ 0,000.00`, fechas `DD/MM/AAAA`, QR 3.5 × 3.5 cm; revisión visual del desarrollador.
+
+**Estado:** implementada el 27/10/2026 (969 pruebas en verde: 880 + 58 + 31); falta la revisión visual del desarrollador.
+- Decisiones con el desarrollador:
+  - `InternalsVisibleTo` a `PasheCPE.Pdf`, como excepción al TRD §2. El paquete depende de la versión exacta de PasheCPE (`[0.1.0]`, comprobado con `dotnet pack`);
+  - la marca para la generación automática se registra por RUC (`OpcionesPasheCpePdf.Marcas`) o por defecto;
+  - dorados de beta copiados de `D:\CPE`: F001-2, B001-3 y FD01-23, en `tests/Datos/Dorados/Beta-20493400364`;
+  - la 31 pasa a la Fase 10b.
+- PDF de los 6 documentos (factura exonerada con gratuitas F001-3565, factura exonerada F001-2, boleta B001-3, NC F001-840, ND FD01-23 y GRE T001-31093) en `REPO\yyyy\MM`; copia para la revisión en `tests/PasheCPE.Pdf.Tests/bin/Debug/net10.0/Salida`.
+- QR reconstruido desde el XML firmado, igual al de la generación (también con `CerosNumero` y `SeparadorFinal`). Medido sobre la página rasterizada: 35 mm con la zona de silencio (≈ 4 mm, al menos 1 mm).
+- Generación automática solo para aceptados y boletas del resumen diario; si el PDF falla, la emisión sigue igual con `PCPE-5001`.
+- Demo: `GenerarPdfAutomaticamente = true`, marca en `PasheCPE:Pdf` y caso 21 (generar o regenerar el PDF de un documento).
+- **[Desarrollador]** Revisión visual de los 6 PDF y una emisión en beta desde la demo con el PDF automático.
 
 ---
 

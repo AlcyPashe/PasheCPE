@@ -43,11 +43,21 @@ public sealed class PasheCpe : IDisposable, IAsyncDisposable
     /// <summary>Verificación de conectividad con SUNAT u OSE.</summary>
     public IVerificadorConectividad Conectividad { get; }
 
+    /// <summary>Contenedor interno (PasheCPE.Pdf obtiene de aquí su generador).</summary>
+    internal IServiceProvider Servicios => _proveedor;
+
     /// <summary>
     /// Crea la instancia. Las opciones se validan de inmediato (<see cref="OptionsValidationException"/> si no son
     /// válidas). Si no se indica <paramref name="fabricaRegistros"/>, no se registran logs.
     /// </summary>
-    public static PasheCpe Crear(OpcionesPasheCpe opciones, ILoggerFactory? fabricaRegistros = null, TimeProvider? tiempo = null)
+    public static PasheCpe Crear(OpcionesPasheCpe opciones, ILoggerFactory? fabricaRegistros = null, TimeProvider? tiempo = null) =>
+        Crear(opciones, fabricaRegistros, tiempo, registrar: null);
+
+    /// <summary>
+    /// Igual que <see cref="Crear(OpcionesPasheCpe, ILoggerFactory?, TimeProvider?)"/>, con servicios adicionales en el
+    /// mismo contenedor (PasheCPE.Pdf registra aquí su generador).
+    /// </summary>
+    internal static PasheCpe Crear(OpcionesPasheCpe opciones, ILoggerFactory? fabricaRegistros, TimeProvider? tiempo, Action<IServiceCollection>? registrar)
     {
         ArgumentNullException.ThrowIfNull(opciones);
         var validacion = new ValidadorOpciones().Validate(Options.DefaultName, opciones);
@@ -66,6 +76,7 @@ public sealed class PasheCpe : IDisposable, IAsyncDisposable
 
         servicios.AddSingleton(Options.Create(opciones));
         servicios.AgregarNucleoPasheCpe();
+        registrar?.Invoke(servicios);
         var pashe = new PasheCpe(servicios.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true }));
         if (opciones.PrecalentarAlIniciar)
         {

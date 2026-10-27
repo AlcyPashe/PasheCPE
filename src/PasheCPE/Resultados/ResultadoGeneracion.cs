@@ -99,6 +99,9 @@ public enum OrigenError
 
     /// <summary>Respuesta de SUNAT u OSE.</summary>
     Sunat,
+
+    /// <summary>Representación impresa (PasheCPE.Pdf).</summary>
+    Pdf,
 }
 
 /// <summary>Observación o advertencia con código y descripción.</summary>

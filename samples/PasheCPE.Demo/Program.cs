@@ -8,6 +8,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PasheCPE;
+using PasheCPE.Pdf;
 
 Console.OutputEncoding = Encoding.UTF8;
 var configuracion = new ConfigurationBuilder()
@@ -18,6 +19,8 @@ var configuracion = new ConfigurationBuilder()
 
 var opciones = new OpcionesPasheCpe();
 configuracion.GetSection("PasheCPE").Bind(opciones);
+var opcionesPdf = new OpcionesPasheCpePdf();
+configuracion.GetSection("PasheCPE:Pdf").Bind(opcionesPdf);
 var datos = configuracion.GetSection("Demo").Get<DatosDemo>() ?? throw new InvalidOperationException("Falta la sección Demo en appsettings.json.");
 
 Console.WriteLine($"PasheCPE.Demo — ambiente {opciones.Ambiente}, almacén {opciones.RutaBase}, emisor {datos.Emisor.Ruc}.");
@@ -39,7 +42,8 @@ var (usuarioEnvio, claveEnvio) = canal.Tipo == TipoCanal.Sunat
 var claveCertificado = configuracion["Demo:ClaveCertificado"] ?? Consola.PreguntarOculto($"Clave del certificado {datos.Certificado}");
 
 using var registros = LoggerFactory.Create(b => b.AddConfiguration(configuracion.GetSection("Logging")).AddSimpleConsole(o => o.SingleLine = true));
-using var pashe = PasheCpe.Crear(opciones, registros);
+// PDF (Fase 11): con GenerarPdfAutomaticamente, EmitirAsync deja el PDF en REPO con la marca de PasheCPE:Pdf.
+using var pashe = PasheCpePdf.Crear(opciones, opcionesPdf, registros);
 
 // Rechazo forzado: sin validación local, para que el error lo detecte SUNAT y no la librería.
 var opcionesSinValidacion = new OpcionesPasheCpe();
@@ -54,7 +58,7 @@ using var pasheSinValidacion = PasheCpe.Crear(opcionesSinValidacion, registros);
 var opcionesResumen = new OpcionesPasheCpe();
 configuracion.GetSection("PasheCPE").Bind(opcionesResumen);
 opcionesResumen.ModoEnvioBoletas = ModoEnvioBoletas.ResumenDiario;
-using var pasheResumen = PasheCpe.Crear(opcionesResumen, registros);
+using var pasheResumen = PasheCpePdf.Crear(opcionesResumen, opcionesPdf, registros);
 
 // Guías (casos 19 y 20): se crean al usarlas.
 CredencialesGre? credencialesGre = null;
@@ -158,6 +162,7 @@ while (true)
     Console.WriteLine("18. Comunicación de baja fuera de plazo (emitida hace 8 días): error local, no se envía");
     Console.WriteLine("19. Guía de remisión remitente (09): genera y valida; solo la envía si confirma (producción, guía oficial)");
     Console.WriteLine("20. Consultar el ticket de una guía de remisión ya enviada");
+    Console.WriteLine("21. Generar (o regenerar) el PDF de un documento ya generado");
     Console.WriteLine("0. Salir");
     var opcion = Consola.Preguntar("Opción");
     try
@@ -231,6 +236,10 @@ while (true)
                 var referenciaGuia = ReferenciaCpe.Guia(datos.Emisor.Ruc, TipoDocumentoSunat.GuiaDeRemisionRemitente, Consola.Preguntar("Serie", "T001"), Consola.Numero(),
                     DateOnly.ParseExact(Consola.Preguntar("Fecha de emisión (yyyy-MM-dd)", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)), "yyyy-MM-dd", CultureInfo.InvariantCulture));
                 Consola.Imprimir(await PasheGre().Gre.ConsultarTicketAsync(EmisorGre(), referenciaGuia));
+                break;
+            case "21":
+                var referenciaPdf = Consola.Referencia(datos.Emisor.Ruc, guias: true);
+                Consola.Imprimir(await pashe.Pdf().GenerarAsync(referenciaPdf, opcionesPdf.MarcaDe(datos.Emisor.Ruc)));
                 break;
             case "0":
                 return;
@@ -415,6 +424,11 @@ static void Imprimir(ResultadoEmision emision)
     {
         Consola.Imprimir(emision.Envio);
     }
+
+    if (emision.Envio.Rutas.Pdf is { } pdf)
+    {
+        Console.WriteLine($"  PDF: {pdf}");
+    }
 }
 
 /// <summary>Entrada y salida por consola de la demo.</summary>
@@ -467,18 +481,37 @@ internal static class Consola
         return long.Parse(Preguntar("Número", porDefecto), CultureInfo.InvariantCulture);
     }
 
-    public static ReferenciaCpe Referencia(string ruc)
+    public static ReferenciaCpe Referencia(string ruc, bool guias = false)
     {
-        var tipo = Preguntar("Tipo (01 factura, 03 boleta, 07 nota de crédito, 08 nota de débito, RC resumen diario, RA comunicación de baja)", "01");
+        var tipo = Preguntar(guias
+            ? "Tipo (01 factura, 03 boleta, 07 nota de crédito, 08 nota de débito, 09 guía remitente)"
+            : "Tipo (01 factura, 03 boleta, 07 nota de crédito, 08 nota de débito, RC resumen diario, RA comunicación de baja)", "01");
         if (tipo is ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja)
         {
             return ReferenciaResumen(ruc, tipo);
         }
 
-        var serie = Preguntar("Serie", tipo switch { "03" => "B001", "07" => "FC01", "08" => "FD01", _ => "F001" });
+        var serie = Preguntar("Serie", tipo switch { "03" => "B001", "07" => "FC01", "08" => "FD01", "09" => "T001", _ => "F001" });
         var numero = long.Parse(Preguntar("Número"), CultureInfo.InvariantCulture);
         var fecha = DateOnly.ParseExact(Preguntar("Fecha de emisión (yyyy-MM-dd)", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)), "yyyy-MM-dd", CultureInfo.InvariantCulture);
-        return ReferenciaCpe.Comprobante(ruc, tipo, serie, numero, fecha);
+        return tipo == TipoDocumentoSunat.GuiaDeRemisionRemitente
+            ? ReferenciaCpe.Guia(ruc, tipo, serie, numero, fecha)
+            : ReferenciaCpe.Comprobante(ruc, tipo, serie, numero, fecha);
+    }
+
+    public static void Imprimir(ResultadoPdf pdf)
+    {
+        Console.WriteLine();
+        Console.WriteLine($"— PDF {pdf.Referencia.NombreArchivo}: {(pdf.Exito ? pdf.Ruta : "no generado")}");
+        foreach (var error in pdf.Errores)
+        {
+            Console.WriteLine($"  ERROR {error.Codigo}: {error.Descripcion}");
+        }
+
+        foreach (var advertencia in pdf.Advertencias)
+        {
+            Console.WriteLine($"  Advertencia {advertencia.Codigo}: {advertencia.Descripcion}");
+        }
     }
 
     /// <summary>Factura que modifica la nota o que se da de baja, con su fecha de emisión para validarla contra el historial.</summary>

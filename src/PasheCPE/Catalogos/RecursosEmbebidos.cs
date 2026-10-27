@@ -131,7 +131,8 @@ internal sealed record ArchivoPlazos(IReadOnlyList<PlazoEnvio> Plazos);
 
 internal sealed record ArchivoEndpoints(IReadOnlyList<EndpointCpe> Endpoints);
 
-internal sealed record ArchivoMonedas(IReadOnlyDictionary<string, string> Monedas);
+/// <summary>Nombres de moneda (monto en letras) y símbolos (representación impresa).</summary>
+internal sealed record ArchivoMonedas(IReadOnlyDictionary<string, string> Monedas, IReadOnlyDictionary<string, string>? Simbolos);
 
 internal sealed record ArchivoParametros(decimal BoletaSinIdentificacionHasta, DateOnly ContratoColaboracionDesde);
 

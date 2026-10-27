@@ -45,7 +45,7 @@ public static class PasheCpeServiceCollectionExtensions
         return services.AgregarNucleoPasheCpe();
     }
 
-    /// <summary>Servicios de PasheCPE; lo usan <c>AddPasheCpe</c> y <see cref="PasheCpe.Crear"/> por igual.</summary>
+    /// <summary>Servicios de PasheCPE; lo usan <c>AddPasheCpe</c> y <see cref="PasheCpe.Crear(OpcionesPasheCpe, Microsoft.Extensions.Logging.ILoggerFactory?, TimeProvider?)"/> por igual.</summary>
     internal static IServiceCollection AgregarNucleoPasheCpe(this IServiceCollection services)
     {
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<OpcionesPasheCpe>, ValidadorOpciones>());
@@ -123,6 +123,7 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<ProveedorTokenGre>();
         services.TryAddSingleton<EnvioGre>();
         services.TryAddSingleton<IServicioGre, ServicioGre>();
+        services.TryAddSingleton<PdfAutomatico>();
         services.TryAddSingleton<GeneracionResumenes>();
         services.TryAddSingleton<IServicioCpe, ServicioCpe>();
         return services;

@@ -63,6 +63,10 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="PasheCPE.Tests" />
+    <!-- Excepción al TRD §2 (decidida el 27/10/2026): PasheCPE.Pdf usa el almacén, los catálogos y el lector del CDR.
+         Ambos paquetes se publican con la misma versión y PasheCPE.Pdf depende de esa versión exacta. -->
+    <InternalsVisibleTo Include="PasheCPE.Pdf" />
+    <InternalsVisibleTo Include="PasheCPE.Pdf.Tests" />
   </ItemGroup>
 
 </Project>

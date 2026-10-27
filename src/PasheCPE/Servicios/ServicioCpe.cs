@@ -33,6 +33,7 @@ internal sealed class ServicioCpe(
     TablaPlazos plazos,
     CatalogoErrores errores,
     CatalogoRespuestas respuestas,
+    PdfAutomatico pdf,
     RelojCpe reloj,
     ILogger<ServicioCpe> registro) : IServicioCpe
 {
@@ -187,11 +188,12 @@ internal sealed class ServicioCpe(
         }
 
         var enviado = await ConReceptorAsync(emisor, envio.EnviarAsync(emisor, generacion.Referencia, ct)).ConfigureAwait(false);
-        return new ResultadoEmision
+        var emision = new ResultadoEmision
         {
             Generacion = generacion,
             Envio = enviado with { ValorResumen = generacion.ValorResumen, ContenidoQr = generacion.ContenidoQr },
         };
+        return await pdf.AplicarAsync(emisor, emision, ct).ConfigureAwait(false);
     }
 
     public Task<ResultadoValidacion> ValidarAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default)

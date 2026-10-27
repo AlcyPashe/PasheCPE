@@ -1,0 +1,25 @@
+{
+  "titulos": {
+    "01": "FACTURA ELECTRÓNICA",
+    "03": "BOLETA DE VENTA ELECTRÓNICA",
+    "07": "NOTA DE CRÉDITO ELECTRÓNICA",
+    "08": "NOTA DE DÉBITO ELECTRÓNICA",
+    "09": "GUÍA DE REMISIÓN REMITENTE ELECTRÓNICA"
+  },
+  "documentosIdentidad": {
+    "0": "DOC. TRIB. NO DOM.",
+    "1": "DNI",
+    "4": "C.E.",
+    "6": "RUC",
+    "7": "PASAPORTE",
+    "A": "CÉD. DIPLOMÁTICA",
+    "B": "DOC. IDENT. PAÍS RESID.",
+    "C": "TIN",
+    "D": "IN",
+    "E": "TAM",
+    "F": "PTP",
+    "G": "SALVOCONDUCTO",
+    "H": "CPP"
+  },
+  "representacionImpresa": "Representación impresa de la {0}. Consulte su validez en www.sunat.gob.pe."
+}
