@@ -32,6 +32,6 @@ internal static partial class Enmascarador
     [GeneratedRegex(@"(?<apertura><(?:\w+:)?Password\b[^>]*>)[^<]*(?<cierre></(?:\w+:)?Password>)", RegexOptions.IgnoreCase)]
     private static partial Regex Clave();
 
-    [GeneratedRegex(@"(?<apertura><(?:\w+:)?(?:contentFile|applicationResponse|content|arcGreZip|arcCdr)\b[^>]*>)(?<valor>[A-Za-z0-9+/=\s]+)(?<cierre></(?:\w+:)?(?:contentFile|applicationResponse|content|arcGreZip|arcCdr)>)")]
+    [GeneratedRegex(@"(?<apertura><(?:\w+:)?(?:contentFile|applicationResponse|content|document|arcGreZip|arcCdr)\b[^>]*>)(?<valor>[A-Za-z0-9+/=\s]+)(?<cierre></(?:\w+:)?(?:contentFile|applicationResponse|content|document|arcGreZip|arcCdr)>)")]
     private static partial Regex Base64();
 }

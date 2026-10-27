@@ -5,6 +5,20 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 27/10/2026 — Fase 9 (canal OSE, eFact):
+  - `endpoints.json`: `OSE:efact` en producción (`https://ose.efact.pe/ol-ti-itcpe/billService`) para `Comprobantes` y `ConsultaCdr`, con `SOAPAction` `urn:{operacion}` y sin verificar. Basta con `CanalEnvio.Ose("efact")` y el RUC del emisor como usuario.
+  - `LectorRespuestaSoap` lee el `getStatusCdr` de eFact, que devuelve el ZIP del CDR en `document`, sin código. El enmascarador del log trunca ese Base64.
+  - Mensajes al cajero según el canal: `mensajes-usuario.json` usa `{Receptor}` / `{receptor}`, que `IServicioCpe` reemplaza por «SUNAT» o «el OSE». Los textos de las claves (0102–0154) dejan de nombrar a SOL.
+  - Dorados: dos CDR reales de RC de eFact (`tests/Datos/Dorados/OSE-efact`), firmados por el OSE; su firma verifica.
+  - Demo: opción de canal SUNAT / OSE eFact (`Demo:UsuarioOse`, `Demo:ClaveOse`).
+  - Pruebas sin red:
+    - factura por eFact (URL, `SOAPAction`, usuario sin prefijo, canal en el historial);
+    - respuesta incierta resuelta con el `document` de eFact sin reenviar;
+    - fault en la consulta: no reenvía;
+    - OSE en beta: `PCPE-4004`;
+    - RC por eFact con `contentMessage`;
+    - faults con prefijos `S:` / `env:`;
+    - ningún mensaje queda con marcadores.
 - 27/10/2026 — Fase 8, tras la prueba en beta: `RA-20261027-1` de F001-1 aceptada en la primera consulta del ticket y la factura en `DeBaja`; la baja fuera de plazo dio `PCPE-1510` sin enviar. La RA y su CDR quedan como dorado (`tests/Datos/Dorados/RA-Baja`), con pruebas de XSD, XSL, mapeo y lectura del CDR.
 - 27/10/2026 — Fase 8 (comunicación de baja):
   - `IServicioCpe.GenerarBajaAsync(EmisorCpe, ComunicacionBajaCpe)`: una RA por llamada (`RUC-RA-yyyyMMdd-n`, correlativo propio del día), en DATA, FIRMA, ENVIO y LOG. `EnviarAsync`, `ConsultarTicketAsync` y `EsperarTicketAsync` admiten la RA (sendSummary y getStatus, como el RC).

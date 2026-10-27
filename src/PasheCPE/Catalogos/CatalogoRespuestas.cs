@@ -36,7 +36,21 @@ internal sealed class CatalogoRespuestas
         return _estadosTicket.Value.GetValueOrDefault(normalizado.Length == 0 ? "0" : normalizado);
     }
 
-    /// <summary>Mensaje del código si tiene uno propio; si no, el del estado.</summary>
+    /// <summary>
+    /// Nombra a quien recibe el comprobante según el canal (Fase 9): <c>{Receptor}</c> (inicio de frase) y
+    /// <c>{receptor}</c> pasan a «SUNAT» o a «El OSE» / «el OSE».
+    /// </summary>
+    public static string ConReceptor(string mensaje, CanalEnvio canal)
+    {
+        ArgumentNullException.ThrowIfNull(mensaje);
+        ArgumentNullException.ThrowIfNull(canal);
+        var esSunat = canal.Tipo == TipoCanal.Sunat;
+        return mensaje
+            .Replace("{Receptor}", esSunat ? "SUNAT" : "El OSE", StringComparison.Ordinal)
+            .Replace("{receptor}", esSunat ? "SUNAT" : "el OSE", StringComparison.Ordinal);
+    }
+
+    /// <summary>Mensaje del código si tiene uno propio; si no, el del estado. Puede traer el marcador del receptor (<see cref="ConReceptor"/>).</summary>
     public string MensajeUsuario(EstadoCpe estado, string? codigo)
     {
         var mensajes = _mensajes.Value;

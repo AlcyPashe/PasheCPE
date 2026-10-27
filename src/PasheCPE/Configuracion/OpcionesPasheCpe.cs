@@ -57,7 +57,7 @@ public sealed class OpcionesPasheCpe
     /// <summary>Genera el PDF dentro de la emisión si PasheCPE.Pdf está registrado.</summary>
     public bool GenerarPdfAutomaticamente { get; set; }
 
-    /// <summary>Endpoints que reemplazan o completan los de <c>endpoints.json</c> (obligatorios para OSE).</summary>
+    /// <summary>Endpoints que reemplazan o completan los de <c>endpoints.json</c> (SUNAT y eFact vienen embebidos; otro OSE se declara aquí).</summary>
     public IList<EndpointCpe> Endpoints { get; } = [];
 
     /// <summary>Tasas que reemplazan las de <c>tasas.json</c>; cada lista informada reemplaza a la embebida.</summary>

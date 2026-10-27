@@ -228,11 +228,26 @@ Otros resultados:
 
 **Objetivo:** enviar por OSE con el mismo contrato público.
 
-1. **[Desarrollador]** Endpoints (pruebas y producción) y forma de las credenciales del OSE del sistema de ventas que lo use, sin claves. No se toman de configuraciones de sistemas anteriores; mientras no exista ese sistema, el canal se implementa con endpoints configurables y queda pendiente la prueba real.
-2. `CanalEnvio.Ose` con endpoints, credenciales del OSE y capacidades (`SoportaConsultaCdr`, `SoportaBoletaIndividual`).
-3. Diferencias de faults/respuestas del OSE en `LectorFaultSoap` y `errores-sunat.json` (sección OSE).
+1. **[Desarrollador]** Endpoints y forma de las credenciales del OSE. ✅ El 27/10/2026 el desarrollador eligió eFact (validación simple): producción `https://ose.efact.pe/ol-ti-itcpe/billService`, sin ambiente de pruebas; el usuario es el RUC del emisor y la clave la asigna eFact.
+2. `CanalEnvio.Ose` con endpoints y credenciales del OSE. No hacen falta capacidades aparte:
+   - el canal consulta el CDR si existe un endpoint `ConsultaCdr` para él;
+   - las boletas una por una las rige `ModoEnvioBoletas`, para cualquier canal.
+3. Diferencias de respuestas del OSE en `LectorRespuestaSoap` y, si aparecen códigos propios, en `errores-sunat.json`.
 
-**Aceptación:** pruebas con respuestas grabadas del OSE; **(manual, cuando exista el sistema de ventas con OSE)** una factura aceptada en el ambiente de pruebas del OSE, si existe.
+**Aceptación:** pruebas con respuestas grabadas del OSE; **(manual, cuando exista el sistema de ventas con OSE)** una factura aceptada por el OSE en producción.
+
+**Estado:** implementada el 27/10/2026; la prueba real queda pendiente hasta que haya un cliente con OSE.
+- `endpoints.json`: `OSE:efact` en producción para `Comprobantes` y `ConsultaCdr`, ambos con el mismo `billService`, `SOAPAction` `urn:{operacion}` y no verificados.
+- **Diferencia con SUNAT** (vista en el WSDL público de eFact): `getStatusCdr` responde `<document>` con el ZIP del CDR, sin `statusCode`. `LectorRespuestaSoap` lo lee como el `content` de SUNAT. `getStatus` agrega `contentMessage`, que se ignora.
+- **Mensajes al cajero según el canal** (`{Receptor}` / `{receptor}` en `mensajes-usuario.json`): «SUNAT» o «el OSE».
+- **Dorados:** dos CDR reales de RC de eFact (2023), en `tests/Datos/Dorados/OSE-efact`. Los firma eFact (RSA-SHA1) y su firma verifica; los elementos `cbc` vienen en el namespace por defecto. `LectorCdr` los lee sin cambios.
+- **Demo:** opción de canal SUNAT / OSE eFact (`Demo:UsuarioOse`, `Demo:ClaveOse`).
+- **[verificar]** con el primer cliente:
+  - https:443 para el envío (el cliente anterior usaba http:80);
+  - el fault de `getStatusCdr` cuando no existe el documento. Mientras no se conozca, no se reenvía;
+  - si la consulta se limita a series F;
+  - la respuesta al reenvío de un documento ya recibido (¿1033?);
+  - los códigos de `getStatus`.
 
 ---
 
@@ -290,6 +305,6 @@ Otros resultados:
 | Fase 1 | ✅ Excel de reglas de validación 26.08.2026 en `recursos\VALIDACIONES` (incluye catálogos y códigos de retorno). Opcional: UNSPSC completo `CCNU_MOD_2.xlsm` en `recursos\CATALOGOS` |
 | Fase 2 | XML aceptados por SUNAT para dorados |
 | Fase 5 | RUC y usuario beta, certificado de prueba |
-| Fase 9 | Endpoints y forma de las credenciales del OSE del sistema de ventas que lo use (sin claves) — pendiente |
+| Fase 9 | ✅ OSE eFact: endpoint de producción y usuario = RUC. Pendiente: un cliente activo para la prueba real |
 | Fase 10 | ✅ Excel de reglas de validación GRE `ReglasValidacion-GRE-2026-09-25.xlsx` en `recursos\VALIDACIONES`. Pendientes: credenciales API SUNAT y un traslado real |
 | Fase 13 | PAT de GitHub con `read:packages` en el servidor del cliente |

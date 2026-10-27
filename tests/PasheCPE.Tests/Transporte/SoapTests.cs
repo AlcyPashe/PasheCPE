@@ -90,6 +90,45 @@ public sealed class SoapTests : IDisposable
     }
 
     [Fact]
+    public void Leer_GetStatusCdrDeEfact_ElDocumentoEsElContenidoSinCodigo()
+    {
+        var contenido = Lector.Leer(RespuestasSoap.DocumentoEfact([9, 9]))!;
+
+        Assert.Equal(new EstadoCdrSoap(null, null, "CQk="), contenido.StatusCdr);
+        Assert.Null(contenido.ApplicationResponse);
+    }
+
+    [Fact]
+    public void Leer_GetStatusDeEfact_IgnoraContentMessage()
+    {
+        var contenido = Lector.Leer(RespuestasSoap.StatusEfact("0", [9, 9]))!;
+
+        Assert.Equal(new EstadoTicketSoap("0", "CQk="), contenido.Status);
+        Assert.Null(contenido.StatusCdr);
+    }
+
+    /// <summary>Formas de fault de un OSE (prefijos S: o env:, código solo en el faultstring).</summary>
+    [Theory]
+    [InlineData("S:Server", "2335 - El documento electrónico ingresado ha sido alterado", "2335")]
+    [InlineData("env:Client.0111", "No tiene el perfil para enviar comprobantes electronicos", "0111")]
+    [InlineData("S:Client", "El comprobante fue registrado previamente con otros datos (1033)", "1033")]
+    public void Leer_FaultDeOse_CodigoDelFaultcodeODelFaultstring(string faultCode, string faultString, string esperado)
+    {
+        Assert.Equal(esperado, Lector.Leer(RespuestasSoap.Fault(faultCode, faultString))!.Fault!.Codigo);
+    }
+
+    [Fact]
+    public void Enmascarador_TruncaElDocumentoDeGetStatusCdr()
+    {
+        var cdr = Convert.ToBase64String(new byte[300]);
+
+        var enmascarado = Enmascarador.Sobre($"<document>{cdr}</document>");
+
+        Assert.DoesNotContain(cdr, enmascarado, StringComparison.Ordinal);
+        Assert.Contains($"({cdr.Length} caracteres)", enmascarado, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SendSummaryYGetStatus_SobresConElArchivoYElTicketEscapados()
     {
         var envio = XDocument.Parse(ConstructorSobreSoap.SendSummary("20123456786MODDATOS", "x", "20123456786-RC-20261022-1.zip", "UEsDBA=="));

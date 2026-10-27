@@ -124,20 +124,37 @@ internal sealed class ServicioCpe(
 
     public Task<ResultadoEnvio> EnviarAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default)
     {
+        ArgumentNullException.ThrowIfNull(emisor);
         ArgumentNullException.ThrowIfNull(referencia);
-        return referencia.TipoDocumento is ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja
+        return ConReceptorAsync(emisor, referencia.TipoDocumento is ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja
             ? envioResumenes.EnviarAsync(emisor, referencia, ct)
-            : envio.EnviarAsync(emisor, referencia, ct);
+            : envio.EnviarAsync(emisor, referencia, ct));
     }
 
-    public Task<ResultadoEnvio> ConsultarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default) =>
-        envioResumenes.ConsultarTicketAsync(emisor, referencia, ticket, ct);
+    public Task<ResultadoEnvio> ConsultarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(emisor);
+        return ConReceptorAsync(emisor, envioResumenes.ConsultarTicketAsync(emisor, referencia, ticket, ct));
+    }
 
-    public Task<ResultadoEnvio> EsperarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default) =>
-        envioResumenes.EsperarTicketAsync(emisor, referencia, ticket, ct);
+    public Task<ResultadoEnvio> EsperarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(emisor);
+        return ConReceptorAsync(emisor, envioResumenes.EsperarTicketAsync(emisor, referencia, ticket, ct));
+    }
 
-    public Task<ResultadoEnvio> ConsultarCdrAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default) =>
-        envio.ConsultarCdrAsync(emisor, referencia, ct);
+    public Task<ResultadoEnvio> ConsultarCdrAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(emisor);
+        return ConReceptorAsync(emisor, envio.ConsultarCdrAsync(emisor, referencia, ct));
+    }
+
+    /// <summary>El mensaje al cajero nombra a quien recibe el comprobante: SUNAT o el OSE del emisor.</summary>
+    private static async Task<ResultadoEnvio> ConReceptorAsync(EmisorCpe emisor, Task<ResultadoEnvio> tarea)
+    {
+        var resultado = await tarea.ConfigureAwait(false);
+        return resultado with { MensajeUsuario = CatalogoRespuestas.ConReceptor(resultado.MensajeUsuario, emisor.Canal) };
+    }
 
     public async Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default) =>
         await EmitirAsync(emisor, await GenerarAsync(emisor, cpe, ct).ConfigureAwait(false), ct).ConfigureAwait(false);
@@ -157,7 +174,7 @@ internal sealed class ServicioCpe(
                     Estado = EstadoCpe.ErrorValidacionLocal,
                     Codigo = generacion.Errores[0].Codigo,
                     Descripcion = generacion.Errores[0].Descripcion,
-                    MensajeUsuario = respuestas.MensajeUsuario(EstadoCpe.ErrorValidacionLocal, null),
+                    MensajeUsuario = CatalogoRespuestas.ConReceptor(respuestas.MensajeUsuario(EstadoCpe.ErrorValidacionLocal, null), emisor.Canal),
                     Errores = generacion.Errores,
                     Rutas = generacion.Rutas,
                     FechaLimiteEnvio = generacion.FechaLimiteEnvio,
@@ -166,7 +183,7 @@ internal sealed class ServicioCpe(
             };
         }
 
-        var enviado = await envio.EnviarAsync(emisor, generacion.Referencia, ct).ConfigureAwait(false);
+        var enviado = await ConReceptorAsync(emisor, envio.EnviarAsync(emisor, generacion.Referencia, ct)).ConfigureAwait(false);
         return new ResultadoEmision
         {
             Generacion = generacion,

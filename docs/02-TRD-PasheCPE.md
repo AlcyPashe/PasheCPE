@@ -530,9 +530,9 @@ No usa ping (ICMP suele estar bloqueado). Se puede desactivar por opción.
 ## 14. Transporte SOAP (SUNAT y OSE)
 
 - `HttpClient` nombrado vía `IHttpClientFactory` (`SocketsHttpHandler` con `ConnectCallback`: un timeout de la conexión significa que no se envió nada); SOAP 1.1, `Content-Type: text/xml; charset=utf-8`. `SOAPAction` es dato por endpoint (`soapAction` en `endpoints.json`, plantilla `urn:{operacion}` para SUNAT, decidido el 23/10/2026): **confirmado en beta** (`billService`: `sendBill`, `sendSummary` y `getStatus`, 23/10/2026); producción y `billConsultService` **[verificar]** en el primer uso real; vacío → `SOAPAction: ""`.
-- Sobre construido con plantillas (raw string literals) y `wsse:UsernameToken` (`Username = RUC + usuario`, `Password` texto). Para OSE, usuario y clave los asigna el OSE.
+- Sobre construido con plantillas (raw string literals) y `wsse:UsernameToken` (`Username = RUC + usuario`, `Password` texto). Para OSE, el usuario se envía tal cual y la clave la asigna el OSE; en eFact el usuario es el RUC del emisor (dato del cliente anterior, 27/10/2026).
 - Operaciones: `sendBill(fileName, contentFile)`, `sendSummary(fileName, contentFile)`, `getStatus(ticket)`, `getStatusCdr(rucComprobante, tipoComprobante, serieComprobante, numeroComprobante)`.
-- Respuestas parseadas con `XmlReader` (sin cargar DOM completo): `applicationResponse` (Base64 ZIP), `ticket`, `status/statusCode/content`, `statusCdr/statusCode/statusMessage/content`.
+- Respuestas parseadas con `XmlReader` (sin cargar DOM completo): `applicationResponse` (Base64 ZIP), `ticket`, `status/statusCode/content`, `statusCdr/statusCode/statusMessage/content`. En eFact (WSDL público, Fase 9), `getStatusCdr` responde `document` con el ZIP del CDR y sin código: se lee como el `content` de SUNAT. `getStatus` agrega `contentMessage`, que se ignora.
 - `LectorFaultSoap`: `faultcode`/`faultstring`/`detail`; código = sufijo numérico del `faultcode` (`soap-env:Client.0111` → `0111`) o, si no, el número del `faultstring`; se enriquece con `errores-sunat.json`.
 - Timeouts separados: conexión (`TimeoutConexionSegundos`, 10) y respuesta (`TimeoutRespuestaSegundos`, 60). Resiliencia (reintentos con espera exponencial) **solo** para `getStatus`, `getStatusCdr` y token GRE.
 - **Faults transitorios y reintentos** (decidido con el desarrollador el 22/10/2026). Nunca hay reintentos infinitos. Los transitorios se agrupan así:
@@ -563,16 +563,16 @@ Endpoints por defecto (`endpoints.json`, sobrescribibles por emisor/canal):
 | SUNAT | Beta | billService | `https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService` |
 | SUNAT | Producción | billService | `https://e-factura.sunat.gob.pe/ol-ti-itcpfegem/billService` |
 | SUNAT | Producción | billConsultService (`getStatusCdr`) | `https://e-factura.sunat.gob.pe/ol-it-wsconscpegem/billConsultService` **[verificar]** |
-| OSE | Producción | billService | **[pendiente]** — se define con el sistema de ventas que use OSE |
-| OSE | Pruebas | billService | **[pendiente]** — ídem |
+| OSE:efact | Producción | billService y `getStatusCdr` (mismo servicio) | `https://ose.efact.pe/ol-ti-itcpe/billService` **[verificar]** (no verificado; el cliente anterior usaba http:80) |
+| OSE:efact | Pruebas | — | eFact no publica un ambiente de pruebas |
 | GRE | Producción | token | `https://api-seguridad.sunat.gob.pe/v1/clientessol/{client_id}/oauth2/token/` |
 | GRE | Producción | API | `https://api-cpe.sunat.gob.pe/v1/contribuyente/gem/comprobantes` |
 
-Notas: `endpoints.json` no trae valores por defecto para OSE; el emisor o la configuración los indican. `getStatusCdr` no existe en beta → `ConsultarCdrAsync` en beta devuelve `ErrorServicio` "no soportado en beta". Si el OSE no ofrece `getStatusCdr`, el canal lo declara (`SoportaConsultaCdr = false`) y la reconciliación se hace con `getStatus` o consulta manual.
+Notas: `endpoints.json` trae solo eFact; otro OSE se declara en `PasheCPE:Endpoints` con la clave `OSE:{nombre}`. No hay un tipo de capacidades: el canal consulta el CDR si tiene endpoint `ConsultaCdr` (si no, ante una respuesta incierta se reenvía el mismo ZIP, como en beta), y las boletas una por una las rige `ModoEnvioBoletas`. Mientras no se conozca el fault de eFact para «no existe» en `getStatusCdr`, ese caso no se reenvía y el estado no cambia **[verificar]**. Los mensajes al cajero nombran al receptor según el canal (`{Receptor}` / `{receptor}` en `mensajes-usuario.json` → «SUNAT» o «el OSE»). `getStatusCdr` no existe en beta → `ConsultarCdrAsync` en beta devuelve `ErrorServicio` "no soportado en beta". Si el OSE no ofrece `getStatusCdr`, el canal lo declara (`SoportaConsultaCdr = false`) y la reconciliación se hace con `getStatus` o consulta manual.
 
 ## 15. Lectura del CDR
 
-`LectorCdr` (con `XmlReader` y `XmlNamespaceManager`): guarda `R-{nombre}.zip` íntegro en `RPTA\yyyy\MM\`; extrae en memoria; lee `cbc:ResponseDate`, `cbc:ResponseTime`, `cac:DocumentResponse/cac:Response/cbc:ResponseCode`, `cbc:Description`, `cbc:ReferenceID`, todas las `cbc:Note` (formato `"4252 - texto"` → `ObservacionCpe{Codigo, Descripcion}`), `cac:DocumentReference/cbc:ID` y, en GRE, el enlace del QR. Valida la firma del CDR solo si `VerificarFirmaCdr = true` (si no es válida, observación `PCPE-4009`). SUNAT agrega dentro de `Signature` elementos fuera del estándar (`Proposito`, `Revocacion`, `TSL`, `Expiracion`) que no están firmados: se retiran antes de verificar. Los CDR SOAP dorados verifican; en los de la GRE (API REST) el `SignedInfo` verifica pero el digest del documento no coincide (revisar en la Fase 10). Beta no firma sus CDR: `SignatureValue` y `X509Certificate` traen textos de relleno («Private key 'BetaPublicCert' not up»), así que con la verificación activa quedan con la firma no válida, sin lanzar (Fase 8). El ZIP del CDR por SOAP trae además una entrada de carpeta `dummy/` (vista en los CDR reales): se ignoran las entradas que no son archivos XML.
+`LectorCdr` (con `XmlReader` y `XmlNamespaceManager`): guarda `R-{nombre}.zip` íntegro en `RPTA\yyyy\MM\`; extrae en memoria; lee `cbc:ResponseDate`, `cbc:ResponseTime`, `cac:DocumentResponse/cac:Response/cbc:ResponseCode`, `cbc:Description`, `cbc:ReferenceID`, todas las `cbc:Note` (formato `"4252 - texto"` → `ObservacionCpe{Codigo, Descripcion}`), `cac:DocumentReference/cbc:ID` y, en GRE, el enlace del QR. Valida la firma del CDR solo si `VerificarFirmaCdr = true` (si no es válida, observación `PCPE-4009`). SUNAT agrega dentro de `Signature` elementos fuera del estándar (`Proposito`, `Revocacion`, `TSL`, `Expiracion`) que no están firmados: se retiran antes de verificar. Los CDR SOAP dorados verifican; en los de la GRE (API REST) el `SignedInfo` verifica pero el digest del documento no coincide (revisar en la Fase 10). Beta no firma sus CDR: `SignatureValue` y `X509Certificate` traen textos de relleno («Private key 'BetaPublicCert' not up»), así que con la verificación activa quedan con la firma no válida, sin lanzar (Fase 8). Los CDR de un OSE los firma el OSE, no SUNAT (en los dorados de eFact, RSA-SHA1 con el certificado de EFACT S.A.C., y los elementos `cbc` van en el namespace por defecto): la verificación usa la llave del propio `KeyInfo` y no comprueba que el certificado sea de SUNAT. El ZIP del CDR por SOAP trae además una entrada de carpeta `dummy/` (vista en los CDR reales): se ignoran las entradas que no son archivos XML.
 
 ## 16. Tickets
 
@@ -657,8 +657,8 @@ Espera progresiva configurable (por defecto 2, 4, 8, 15, 30 s; máximo 5 consult
   "AvisoVencimientoCertificadoDias": 30,
   "PrecalentarAlIniciar": true,
   "GenerarPdfAutomaticamente": false,
-  "Endpoints": [                            // opcional para SUNAT; obligatorio para OSE
-    { "Canal": "OSE:efact", "Ambiente": "Produccion", "Servicio": "Comprobantes", "Url": "https://…/billService" }
+  "Endpoints": [                            // opcional: SUNAT y eFact vienen en endpoints.json; otro OSE se declara aquí
+    { "Canal": "OSE:otro", "Ambiente": "Produccion", "Servicio": "Comprobantes", "Url": "https://…/billService", "SoapAction": "urn:{operacion}" }
   ],
   "Tasas": { "Igv": [], "MypeRestaurantesHoteles": [], "Icbper": [] },  // cada lista informada reemplaza a la de tasas.json
   "Plazos": [],                             // si se informa, reemplaza plazos.json

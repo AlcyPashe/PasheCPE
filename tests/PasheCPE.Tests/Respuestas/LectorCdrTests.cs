@@ -17,6 +17,8 @@ public sealed class LectorCdrTests
         { "09-GRE", "R-20611619767-09-T001-31093.zip", "T001-31093" },
         { "RC-Resumen", "R-20611619767-RC-20261021-11.zip", "RC-20261021-11" },
         { "RA-Baja", "R-20493400364-RA-20261027-1.zip", "RA-20261027-1" },
+        { "OSE-efact", "R-20451319800-RC-20231003-9.zip", "RC-20231003-9" },
+        { "OSE-efact", "R-20451319800-RC-20231004-12.zip", "RC-20231004-12" },
     };
 
     [Theory]
@@ -62,6 +64,20 @@ public sealed class LectorCdrTests
     public void Leer_VerificandoFirma_CdrSoapConFirmaDeSunatValida(string carpeta, string archivo)
     {
         var cdr = LectorCdr.Leer(File.ReadAllBytes(Path.Combine(LectorDorado.Carpeta(carpeta), archivo)), verificarFirma: true)!;
+
+        Assert.True(cdr.FirmaValida);
+    }
+
+    /// <summary>
+    /// CDR reales de eFact (2023): los firma el OSE (RSA-SHA1, certificado de EFACT S.A.C.), no SUNAT, con los elementos
+    /// cbc en el namespace por defecto y la hora con fracciones de segundo.
+    /// </summary>
+    [Theory]
+    [InlineData("R-20451319800-RC-20231003-9.zip")]
+    [InlineData("R-20451319800-RC-20231004-12.zip")]
+    public void Leer_VerificandoFirma_CdrDeEfactFirmadoPorElOse(string archivo)
+    {
+        var cdr = LectorCdr.Leer(File.ReadAllBytes(Path.Combine(LectorDorado.Carpeta("OSE-efact"), archivo)), verificarFirma: true)!;
 
         Assert.True(cdr.FirmaValida);
     }

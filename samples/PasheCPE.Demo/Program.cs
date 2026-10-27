@@ -1,5 +1,6 @@
 // Demo de PasheCPE: envíos reales a SUNAT (beta o producción), ejecutados manualmente por el desarrollador.
-// Configuración en appsettings.json; credenciales en user-secrets (Demo:UsuarioSol, Demo:ClaveSol, Demo:ClaveCertificado).
+// Configuración en appsettings.json; credenciales en user-secrets (Demo:UsuarioSol, Demo:ClaveSol, Demo:ClaveCertificado y,
+// para el canal OSE eFact, Demo:UsuarioOse y Demo:ClaveOse).
 // Si falta una clave, se pide en pantalla sin mostrarla y no se guarda. La demo nunca lee el .pfx: lo hace la librería.
 using System.Globalization;
 using System.Text;
@@ -24,8 +25,16 @@ if (opciones.Ambiente == Ambiente.Produccion && !Consola.Confirmar("ATENCIÓN: a
     return;
 }
 
-var usuarioSol = configuracion["Demo:UsuarioSol"] ?? Consola.Preguntar("Usuario secundario SOL (sin el RUC)");
-var claveSol = configuracion["Demo:ClaveSol"] ?? Consola.PreguntarOculto("Clave SOL");
+// Canal OSE (Fase 9): eFact solo está embebido en producción; en beta el envío da PCPE-4004 sin llamar a nadie.
+var canal = Consola.Preguntar("Canal de envío: 1 = SUNAT, 2 = OSE eFact", "1") == "2" ? CanalEnvio.Ose("efact") : CanalEnvio.Sunat;
+if (canal.Tipo == TipoCanal.Ose && opciones.Ambiente != Ambiente.Produccion)
+{
+    Console.WriteLine("Aviso: eFact no tiene ambiente de pruebas; con Ambiente = Beta los envíos darán PCPE-4004.");
+}
+
+var (usuarioEnvio, claveEnvio) = canal.Tipo == TipoCanal.Sunat
+    ? (configuracion["Demo:UsuarioSol"] ?? Consola.Preguntar("Usuario secundario SOL (sin el RUC)"), configuracion["Demo:ClaveSol"] ?? Consola.PreguntarOculto("Clave SOL"))
+    : (configuracion["Demo:UsuarioOse"] ?? Consola.Preguntar("Usuario de eFact", datos.Emisor.Ruc), configuracion["Demo:ClaveOse"] ?? Consola.PreguntarOculto("Clave de eFact"));
 var claveCertificado = configuracion["Demo:ClaveCertificado"] ?? Consola.PreguntarOculto($"Clave del certificado {datos.Certificado}");
 
 using var registros = LoggerFactory.Create(b => b.AddConfiguration(configuracion.GetSection("Logging")).AddSimpleConsole(o => o.SingleLine = true));
@@ -62,8 +71,8 @@ EmisorCpe Emisor(bool amazonia, string clave, string? usuario = null) => new()
         Distrito = datos.Emisor.Distrito,
     },
     ExoneradoAmazonia = amazonia,
-    Canal = CanalEnvio.Sunat,
-    CredencialesSoap = new CredencialesSoap(usuario ?? usuarioSol, clave),
+    Canal = canal,
+    CredencialesSoap = new CredencialesSoap(usuario ?? usuarioEnvio, clave),
     Certificado = new CertificadoCpe(datos.Certificado, claveCertificado),
 };
 
@@ -149,64 +158,64 @@ while (true)
         switch (opcion)
         {
             case "1":
-                await Emitir(pashe, Emisor(amazonia: false, claveSol), Comprobante(TipoDocumentoSunat.Factura, datos.SerieFactura, Consola.Numero(), datos.Cliente, AfectacionIgv.GravadoOneroso));
+                await Emitir(pashe, Emisor(amazonia: false, claveEnvio), Comprobante(TipoDocumentoSunat.Factura, datos.SerieFactura, Consola.Numero(), datos.Cliente, AfectacionIgv.GravadoOneroso));
                 break;
             case "2":
-                await Emitir(pashe, Emisor(amazonia: true, claveSol), Comprobante(TipoDocumentoSunat.Factura, datos.SerieFactura, Consola.Numero(), datos.Cliente, null));
+                await Emitir(pashe, Emisor(amazonia: true, claveEnvio), Comprobante(TipoDocumentoSunat.Factura, datos.SerieFactura, Consola.Numero(), datos.Cliente, null));
                 break;
             case "3":
-                await Emitir(pashe, Emisor(amazonia: false, claveSol), Comprobante(TipoDocumentoSunat.BoletaDeVenta, datos.SerieBoleta, Consola.Numero(), datos.ClienteBoleta, AfectacionIgv.GravadoOneroso));
+                await Emitir(pashe, Emisor(amazonia: false, claveEnvio), Comprobante(TipoDocumentoSunat.BoletaDeVenta, datos.SerieBoleta, Consola.Numero(), datos.ClienteBoleta, AfectacionIgv.GravadoOneroso));
                 break;
             case "4":
-                await Emitir(pasheSinValidacion, Emisor(amazonia: false, claveSol), Comprobante(TipoDocumentoSunat.Factura, datos.SerieFactura, Consola.Numero(), datos.ClienteBoleta, AfectacionIgv.GravadoOneroso));
+                await Emitir(pasheSinValidacion, Emisor(amazonia: false, claveEnvio), Comprobante(TipoDocumentoSunat.Factura, datos.SerieFactura, Consola.Numero(), datos.ClienteBoleta, AfectacionIgv.GravadoOneroso));
                 break;
             case "5":
                 await Emitir(pashe, Emisor(amazonia: false, "CLAVE-ERRONEA", usuario: "NOEXISTE"), Comprobante(TipoDocumentoSunat.Factura, datos.SerieFactura, Consola.Numero(), datos.Cliente, AfectacionIgv.GravadoOneroso));
                 break;
             case "6":
-                Consola.Imprimir(await pashe.Cpe.EnviarAsync(Emisor(amazonia: false, claveSol), Consola.Referencia(datos.Emisor.Ruc)));
+                Consola.Imprimir(await pashe.Cpe.EnviarAsync(Emisor(amazonia: false, claveEnvio), Consola.Referencia(datos.Emisor.Ruc)));
                 break;
             case "7":
-                Consola.Imprimir(await pashe.Cpe.ConsultarCdrAsync(Emisor(amazonia: false, claveSol), Consola.Referencia(datos.Emisor.Ruc)));
+                Consola.Imprimir(await pashe.Cpe.ConsultarCdrAsync(Emisor(amazonia: false, claveEnvio), Consola.Referencia(datos.Emisor.Ruc)));
                 break;
             case "8":
                 Consola.Imprimir(await pashe.Historial.ObtenerAsync(Consola.Referencia(datos.Emisor.Ruc)));
                 break;
             case "9":
-                await ResumenDiario(pasheResumen, Emisor(amazonia: false, claveSol), Consola.Numero());
+                await ResumenDiario(pasheResumen, Emisor(amazonia: false, claveEnvio), Consola.Numero());
                 break;
             case "10":
                 var resumen = Consola.ReferenciaResumen(datos.Emisor.Ruc, Consola.Preguntar("Tipo (RC resumen diario, RA comunicación de baja)", ReferenciaCpe.TipoResumenDiario));
-                Consola.Imprimir(await pasheResumen.Cpe.ConsultarTicketAsync(Emisor(amazonia: false, claveSol), resumen));
+                Consola.Imprimir(await pasheResumen.Cpe.ConsultarTicketAsync(Emisor(amazonia: false, claveEnvio), resumen));
                 await ImprimirDocumentos(pasheResumen, resumen);
                 break;
             case "11":
-                await Emitir(pashe, Emisor(amazonia: false, claveSol), FacturaAlCredito(Consola.Numero()));
+                await Emitir(pashe, Emisor(amazonia: false, claveEnvio), FacturaAlCredito(Consola.Numero()));
                 break;
             case "12":
-                await EmitirNota(pashe, Emisor(amazonia: false, claveSol), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.DevolucionTotal, "DEVOLUCION TOTAL DE LA MERCADERIA", LineasDeComprobante("PRODUCTO DE PRUEBA PASHECPE", 59.00m, 11.80m)));
+                await EmitirNota(pashe, Emisor(amazonia: false, claveEnvio), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.DevolucionTotal, "DEVOLUCION TOTAL DE LA MERCADERIA", LineasDeComprobante("PRODUCTO DE PRUEBA PASHECPE", 59.00m, 11.80m)));
                 break;
             case "13":
-                await EmitirNota(pashe, Emisor(amazonia: false, claveSol), Nota(TipoDocumentoSunat.NotaDeDebito, MotivoNotaDebito.InteresesPorMora, "INTERESES POR PAGO FUERA DE PLAZO", [new LineaCpe { CodigoInterno = "S002", Descripcion = "INTERESES POR MORA", TipoItem = TipoItem.Servicio, Cantidad = 1, ImporteUnitario = 11.80m, Afectacion = AfectacionIgv.GravadoOneroso }]));
+                await EmitirNota(pashe, Emisor(amazonia: false, claveEnvio), Nota(TipoDocumentoSunat.NotaDeDebito, MotivoNotaDebito.InteresesPorMora, "INTERESES POR PAGO FUERA DE PLAZO", [new LineaCpe { CodigoInterno = "S002", Descripcion = "INTERESES POR MORA", TipoItem = TipoItem.Servicio, Cantidad = 1, ImporteUnitario = 11.80m, Afectacion = AfectacionIgv.GravadoOneroso }]));
                 break;
             case "14":
-                await EmitirNota(pashe, Emisor(amazonia: false, claveSol), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.CorreccionDescripcion, "CORRECCION DE LA DESCRIPCION DEL PRODUCTO", LineasDeComprobante("PRODUCTO DE PRUEBA PASHECPE CORREGIDO", 0m, 0m)));
+                await EmitirNota(pashe, Emisor(amazonia: false, claveEnvio), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.CorreccionDescripcion, "CORRECCION DE LA DESCRIPCION DEL PRODUCTO", LineasDeComprobante("PRODUCTO DE PRUEBA PASHECPE CORREGIDO", 0m, 0m)));
                 break;
             case "15":
-                await EmitirNota(pashe, Emisor(amazonia: false, claveSol), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.CorreccionDescripcion, "CORRECCION DE LA DESCRIPCION DEL PRODUCTO", LineasDeComprobante("PRODUCTO DE PRUEBA PASHECPE CORREGIDO", 59.00m, 11.80m)));
+                await EmitirNota(pashe, Emisor(amazonia: false, claveEnvio), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.CorreccionDescripcion, "CORRECCION DE LA DESCRIPCION DEL PRODUCTO", LineasDeComprobante("PRODUCTO DE PRUEBA PASHECPE CORREGIDO", 59.00m, 11.80m)));
                 break;
             case "16":
-                await EmitirNota(pashe, Emisor(amazonia: false, claveSol), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.CorreccionMontoNetoPendientePago, "NUEVAS FECHAS DE PAGO DE LAS CUOTAS", [new LineaCpe { CodigoInterno = "P001", Descripcion = "AJUSTE DE CUOTAS", Cantidad = 1, ImporteUnitario = 0m, Afectacion = AfectacionIgv.GravadoOneroso }]) with
+                await EmitirNota(pashe, Emisor(amazonia: false, claveEnvio), Nota(TipoDocumentoSunat.NotaDeCredito, MotivoNotaCredito.CorreccionMontoNetoPendientePago, "NUEVAS FECHAS DE PAGO DE LAS CUOTAS", [new LineaCpe { CodigoInterno = "P001", Descripcion = "AJUSTE DE CUOTAS", Cantidad = 1, ImporteUnitario = 0m, Afectacion = AfectacionIgv.GravadoOneroso }]) with
                 {
                     FormaPago = Cuotas(decimal.Parse(Consola.Preguntar("Monto neto pendiente", "129.80"), CultureInfo.InvariantCulture)),
                 });
                 break;
             case "17":
-                await ComunicacionBaja(pashe, Emisor(amazonia: false, claveSol), Consola.Factura(datos.SerieFactura, "Factura que se da de baja:"));
+                await ComunicacionBaja(pashe, Emisor(amazonia: false, claveEnvio), Consola.Factura(datos.SerieFactura, "Factura que se da de baja:"));
                 break;
             case "18":
                 var vencida = DateOnly.FromDateTime(DateTime.Now).AddDays(-8);
-                Consola.Imprimir(await pashe.Cpe.GenerarBajaAsync(Emisor(amazonia: false, claveSol), Baja(datos.SerieFactura, Consola.Numero(), vencida)));
+                Consola.Imprimir(await pashe.Cpe.GenerarBajaAsync(Emisor(amazonia: false, claveEnvio), Baja(datos.SerieFactura, Consola.Numero(), vencida)));
                 break;
             case "0":
                 return;

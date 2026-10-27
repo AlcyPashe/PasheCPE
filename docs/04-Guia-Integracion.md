@@ -229,7 +229,41 @@ if (ra.Exito)
 - Al generar la RA, el historial del documento la anota en `Baja`. Cuando SUNAT la acepta, el documento queda `DeBaja`: ya no se reenvía, no se regenera y no admite notas. Si la RA se rechaza, el documento sigue `Aceptado` y se puede informar en otra RA.
 - El ticket queda en el historial de la RA: `ConsultarTicketAsync(emisor, referenciaRa)` lo consulta desde otro proceso u otro día.
 
-## 8. Guías de remisión
+## 8. Envío por OSE
+
+El contrato es el mismo: solo cambian el canal y las credenciales del emisor.
+
+```csharp
+EmisorCpe emisor = new()
+{
+    // … mismos datos que en §3
+    Canal = CanalEnvio.Ose("efact"),
+    CredencialesSoap = new(empresa.Ruc, Descifrar(empresa.ClaveOse)),   // en eFact el usuario es el RUC del emisor
+    Certificado = new("certificado-20601234567.pfx", Descifrar(empresa.ClaveCertificado))
+};
+```
+
+- **eFact viene configurado** para producción (`https://ose.efact.pe/ol-ti-itcpe/billService`). En el mismo servicio están `sendBill`, `sendSummary`, `getStatus` y `getStatusCdr`. Hasta el primer envío real, el log advierte que el endpoint aún no está verificado.
+- **eFact no tiene ambiente de pruebas.** Con `Ambiente = Beta` y el canal OSE, el envío devuelve `PCPE-4004` sin llamar a nadie.
+- **El usuario se envía tal cual**, sin anteponer el RUC como se hace con SUNAT. En eFact es el RUC del emisor; la clave la asigna eFact.
+- **Los mensajes al cajero** dicen «el OSE» en lugar de «SUNAT» (por ejemplo, «Comprobante aceptado por el OSE.»).
+- **Otro OSE se agrega por configuración**, con la clave `OSE:{nombre}` y `CanalEnvio.Ose("{nombre}")`:
+
+```json
+"PasheCPE": {
+  "Endpoints": [
+    { "Canal": "OSE:otro", "Ambiente": "Produccion", "Servicio": "Comprobantes", "Url": "https://…/billService", "SoapAction": "urn:{operacion}" },
+    { "Canal": "OSE:otro", "Ambiente": "Produccion", "Servicio": "ConsultaCdr", "Url": "https://…/billService", "SoapAction": "urn:{operacion}" }
+  ]
+}
+```
+
+  Sin el endpoint `ConsultaCdr`, el canal no consulta el CDR. Ante una respuesta incierta, se reenvía el mismo ZIP, como en beta.
+- **Pendiente de confirmar con el primer cliente:**
+  - qué responde eFact cuando la consulta no encuentra el documento. Mientras no se sepa, ese caso no se reenvía y el estado no cambia;
+  - qué responde al reenviar un documento que ya recibió.
+
+## 9. Guías de remisión
 
 ```csharp
 var r = await gre.EmitirAsync(emisor, guia, ct);   // genera, obtiene token, envía, espera ticket y genera el QR de SUNAT
@@ -237,7 +271,7 @@ var r = await gre.EmitirAsync(emisor, guia, ct);   // genera, obtiene token, env
 
 Las GRE solo existen en producción. En un sistema configurado con `Ambiente = Beta`, la librería no las envía.
 
-## 9. PDF
+## 10. PDF
 
 ```csharp
 var pdf = await generadorPdf.GenerarAsync(r.Generacion.Referencia, marca, ct: ct); // REPO\yyyy\MM\{nombre}.pdf
@@ -245,7 +279,7 @@ var pdf = await generadorPdf.GenerarAsync(r.Generacion.Referencia, marca, ct: ct
 
 `MarcaEmisor` lleva logo, teléfonos, correo y web. El PDF se arma desde el XML firmado, así que puede regenerarse cuando se necesite.
 
-## 10. Diagnóstico
+## 11. Diagnóstico
 
 - Historial de cada documento: `D:\CPE\LOG\yyyy\MM\{nombre}.json` o `IHistorialCpe.ObtenerAsync`.
 - Logs: categoría `PasheCPE` en el proveedor que use el sistema (Serilog, archivo, consola).

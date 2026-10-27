@@ -21,8 +21,8 @@ internal sealed record ContenidoSoap(string? ApplicationResponse, EstadoCdrSoap?
 
 /// <summary>
 /// Lee la respuesta SOAP con <see cref="XmlReader"/>, sin cargar el DOM (TRD §14): <c>applicationResponse</c> (ZIP del
-/// CDR en Base64), <c>statusCdr/statusCode/statusMessage/content</c>, <c>ticket</c>, <c>status/statusCode/content</c>
-/// o el fault. Devuelve null si el cuerpo no es un sobre SOAP legible (proxy, página de error…). Nunca lanza.
+/// CDR en Base64), <c>statusCdr/statusCode/statusMessage/content</c> (SUNAT) o <c>document</c> (getStatusCdr de eFact),
+/// <c>ticket</c>, <c>status/statusCode/content</c> o el fault. Devuelve null si el cuerpo no es un sobre SOAP legible (proxy, página de error…). Nunca lanza.
 /// </summary>
 internal sealed partial class LectorRespuestaSoap(CatalogoErrores errores)
 {
@@ -96,6 +96,10 @@ internal sealed partial class LectorRespuestaSoap(CatalogoErrores errores)
                         mensaje = Texto(lector, ref avanzado);
                         break;
                     case "content" when enStatusCdr:
+                        contenido = Texto(lector, ref avanzado);
+                        break;
+                    case "document" when !enFault && !enStatusCdr && !enStatus:
+                        // getStatusCdr de eFact (Fase 9): devuelve el ZIP del CDR directamente, sin statusCode ni statusMessage.
                         contenido = Texto(lector, ref avanzado);
                         break;
                     case "ticket" when !enFault:

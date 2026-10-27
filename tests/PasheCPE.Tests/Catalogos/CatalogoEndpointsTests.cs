@@ -41,7 +41,19 @@ public sealed class CatalogoEndpointsTests : IDisposable
 
     [Fact]
     public void Obtener_OseSinConfigurar_EsNull() =>
-        Assert.Null(Catalogo().Obtener(CanalEnvio.Ose("efact"), Ambiente.Produccion, ServicioSunat.Comprobantes));
+        Assert.Null(Catalogo().Obtener(CanalEnvio.Ose("otro-ose"), Ambiente.Produccion, ServicioSunat.Comprobantes));
+
+    /// <summary>eFact viene embebido: envío y consulta del CDR en el mismo billService, sin ambiente de pruebas.</summary>
+    [Theory]
+    [InlineData(ServicioSunat.Comprobantes)]
+    [InlineData(ServicioSunat.ConsultaCdr)]
+    public void Obtener_EfactProduccion_EmbebidoNoVerificado(ServicioSunat servicio)
+    {
+        var endpoint = Catalogo().Obtener(CanalEnvio.Ose("eFact"), Ambiente.Produccion, servicio);
+
+        Assert.Equal(("https://ose.efact.pe/ol-ti-itcpe/billService", "urn:{operacion}", false), (endpoint?.Url, endpoint?.SoapAction, endpoint?.Verificado));
+        Assert.Null(Catalogo().Obtener(CanalEnvio.Ose("efact"), Ambiente.Beta, servicio));
+    }
 
     [Fact]
     public void Obtener_EndpointConfigurado_TienePrioridad()

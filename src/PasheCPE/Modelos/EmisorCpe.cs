@@ -118,7 +118,7 @@ public sealed record CanalEnvio
     [JsonIgnore]
     public string Clave => Tipo == TipoCanal.Sunat ? ClaveSunat : $"OSE:{NombreOse}";
 
-    /// <summary>Envío por el OSE indicado; sus endpoints se configuran en <see cref="OpcionesPasheCpe.Endpoints"/>.</summary>
+    /// <summary>Envío por el OSE indicado: «efact» viene en <c>endpoints.json</c>; otro OSE se configura en <see cref="OpcionesPasheCpe.Endpoints"/>.</summary>
     public static CanalEnvio Ose(string nombre)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nombre);

@@ -32,6 +32,14 @@ internal static class RespuestasSoap
     public static string Status(string codigo, byte[]? cdrZip = null) =>
         $"""<?xml version="1.0" encoding="UTF-8"?><soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/"><soap-env:Header/><soap-env:Body><br:getStatusResponse xmlns:br="http://service.sunat.gob.pe"><status>{(cdrZip is null ? string.Empty : $"<content>{Convert.ToBase64String(cdrZip)}</content>")}<statusCode>{codigo}</statusCode></status></br:getStatusResponse></soap-env:Body></soap-env:Envelope>""";
 
+    /// <summary>getStatusCdr de eFact (WSDL de ose.efact.pe): el ZIP del CDR directamente en <c>document</c>.</summary>
+    public static string DocumentoEfact(byte[] cdrZip) =>
+        $"""<?xml version="1.0" encoding="UTF-8"?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><ns2:getStatusCdrResponse xmlns:ns2="http://service.sunat.gob.pe"><document>{Convert.ToBase64String(cdrZip)}</document></ns2:getStatusCdrResponse></S:Body></S:Envelope>""";
+
+    /// <summary>getStatus de eFact: statusResponse con <c>content</c>, <c>contentMessage</c> y <c>statusCode</c>.</summary>
+    public static string StatusEfact(string codigo, byte[]? cdrZip = null) =>
+        $"""<?xml version="1.0" encoding="UTF-8"?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><ns2:getStatusResponse xmlns:ns2="http://service.sunat.gob.pe"><status>{(cdrZip is null ? string.Empty : $"<content>{Convert.ToBase64String(cdrZip)}</content>")}<contentMessage>Procesado</contentMessage><statusCode>{codigo}</statusCode></status></ns2:getStatusResponse></S:Body></S:Envelope>""";
+
     /// <summary>CDR dorado real de un resumen diario aceptado.</summary>
     public static byte[] CdrDoradoResumen() =>
         File.ReadAllBytes(Path.Combine(LectorDorado.Carpeta("RC-Resumen"), "R-20611619767-RC-20261022-7.zip"));

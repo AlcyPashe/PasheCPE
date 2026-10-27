@@ -25,6 +25,22 @@
       "verificado": false
     },
     {
+      "canal": "OSE:efact",
+      "ambiente": "Produccion",
+      "servicio": "Comprobantes",
+      "url": "https://ose.efact.pe/ol-ti-itcpe/billService",
+      "soapAction": "urn:{operacion}",
+      "verificado": false
+    },
+    {
+      "canal": "OSE:efact",
+      "ambiente": "Produccion",
+      "servicio": "ConsultaCdr",
+      "url": "https://ose.efact.pe/ol-ti-itcpe/billService",
+      "soapAction": "urn:{operacion}",
+      "verificado": false
+    },
+    {
       "canal": "SUNAT",
       "ambiente": "Produccion",
       "servicio": "GreToken",
