@@ -283,7 +283,7 @@ Otros resultados:
 
 **Aceptación:** PDF de factura exonerada, boleta, NC, ND y GRE 09 generados desde XML dorados (la 31 pasa a la Fase 10b); montos `S/ 0,000.00`, fechas `DD/MM/AAAA`, QR 3.5 × 3.5 cm; revisión visual del desarrollador.
 
-**Estado:** implementada el 27/10/2026 (971 pruebas en verde: 880 + 60 + 31); falta la revisión visual del desarrollador.
+**Estado:** completada el 27/10/2026 (971 pruebas en verde: 880 + 60 + 31). El desarrollador aprobó el diseño tras la revisión visual.
 - Decisiones con el desarrollador:
   - `InternalsVisibleTo` a `PasheCPE.Pdf`, como excepción al TRD §2. El paquete depende de la versión exacta de PasheCPE (`[0.1.0]`, comprobado con `dotnet pack`);
   - la marca para la generación automática se registra por RUC (`OpcionesPasheCpePdf.Marcas`) o por defecto;
@@ -293,7 +293,12 @@ Otros resultados:
 - QR reconstruido desde el XML firmado, igual al de la generación (también con `CerosNumero` y `SeparadorFinal`). Medido sobre la página rasterizada: 35 mm con la zona de silencio (≈ 4 mm, al menos 1 mm).
 - Generación automática solo para aceptados y boletas del resumen diario; si el PDF falla, la emisión sigue igual con `PCPE-5001`.
 - Demo: `GenerarPdfAutomaticamente = true`, marca en `PasheCPE:Pdf` y caso 21 (generar o regenerar el PDF de un documento).
-- **[Desarrollador]** Revisión visual de los 6 PDF y una emisión en beta desde la demo con el PDF automático.
+- Ajustes pedidos en la revisión visual:
+  - color por defecto #065986;
+  - pie «Diseñado por Pashe Soluciones. www.pashesoluciones.net.pe» en lugar del texto de la marca;
+  - leyendas de la Amazonía sin mayúsculas sostenidas, en letra menor y gris;
+  - sin bloque de información adicional (se evaluará con un cliente grande).
+- Pendiente para la próxima ejecución de la demo: una emisión en beta con el PDF automático.
 
 ---
 
