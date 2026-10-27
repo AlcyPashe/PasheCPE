@@ -16,6 +16,7 @@ public sealed class LectorCdrTests
         { "07-NotaCredito", "R-20611619767-07-F001-841.zip", "F001-841" },
         { "09-GRE", "R-20611619767-09-T001-31093.zip", "T001-31093" },
         { "RC-Resumen", "R-20611619767-RC-20261021-11.zip", "RC-20261021-11" },
+        { "RA-Baja", "R-20493400364-RA-20261027-1.zip", "RA-20261027-1" },
     };
 
     [Theory]
@@ -63,6 +64,19 @@ public sealed class LectorCdrTests
         var cdr = LectorCdr.Leer(File.ReadAllBytes(Path.Combine(LectorDorado.Carpeta(carpeta), archivo)), verificarFirma: true)!;
 
         Assert.True(cdr.FirmaValida);
+    }
+
+    /// <summary>
+    /// Hallazgo (Fase 8): beta no firma sus CDR; la firma trae textos de relleno («Private key 'BetaPublicCert' not up»).
+    /// Con <see cref="OpcionesPasheCpe.VerificarFirmaCdr"/> un CDR de beta queda observado (PCPE-4009).
+    /// </summary>
+    [Fact]
+    public void Leer_VerificandoFirma_CdrDeBetaSinFirmaReal()
+    {
+        var cdr = LectorCdr.Leer(File.ReadAllBytes(Path.Combine(LectorDorado.Carpeta("RA-Baja"), "R-20493400364-RA-20261027-1.zip")), verificarFirma: true)!;
+
+        Assert.Equal("0", cdr.Codigo);
+        Assert.False(cdr.FirmaValida);
     }
 
     /// <summary>

@@ -170,7 +170,8 @@ internal sealed partial class LectorCdr(AlmacenCpe almacen, Microsoft.Extensions
             firma.LoadXml(elemento);
             return firma.CheckSignature();
         }
-        catch (Exception ex) when (ex is CryptographicException or XmlException)
+        // FormatException: beta no firma sus CDR y deja textos de relleno en SignatureValue y X509Certificate.
+        catch (Exception ex) when (ex is CryptographicException or XmlException or FormatException)
         {
             return false;
         }

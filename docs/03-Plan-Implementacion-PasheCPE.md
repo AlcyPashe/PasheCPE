@@ -205,7 +205,13 @@ Otros resultados:
 
 **Aceptación:** **(manual, beta)** baja de una factura aceptada concluye correctamente; plazo vencido produce error local.
 
-**Estado:** implementada el 27/10/2026 (828 pruebas en verde); pendiente la prueba manual en beta del desarrollador (casos 17 y 18 de la demo). Decisiones con el desarrollador:
+**Estado:** completada el 27/10/2026 (832 pruebas en verde). Prueba manual en beta del desarrollador (RUC 20493400364, MODDATOS):
+- caso 17: `RA-20261027-1` de la factura F001-1 (emitida el 23/10/2026), ticket `1793115601451` aceptado en la primera consulta (2 s), con el CDR en `RPTA`; la factura quedó `DeBaja` con la RA anotada en su historial;
+- caso 18: la baja de F001-2, emitida hace 8 días, dio `PCPE-1510` sin generar ni enviar nada.
+- La RA y su CDR quedan como dorado (`tests/Datos/Dorados/RA-Baja`): pasa el XSD y la XSL sin hallazgos y coincide con lo que genera `MapeadorVoided`.
+- Hallazgo: beta no firma sus CDR (la firma trae textos de relleno). Con `VerificarFirmaCdr = true`, `LectorCdr` lanzaba `FormatException`; ahora el CDR queda con la firma no válida (`PCPE-4009`).
+
+Decisiones con el desarrollador:
 - el plazo se cuenta desde la **emisión** del documento (regla 2957 del Excel, que prevalece); antes el TRD decía «desde la recepción del CDR». Las series numéricas no tienen plazo;
 - nuevo estado `EstadoCpe.DeBaja` para el documento cuya RA aceptó SUNAT;
 - solo facturas y notas de serie F o numérica; las boletas y notas B se anulan con el estado 3 del resumen diario.

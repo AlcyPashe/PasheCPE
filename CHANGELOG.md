@@ -5,6 +5,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 27/10/2026 — Fase 8, tras la prueba en beta: `RA-20261027-1` de F001-1 aceptada en la primera consulta del ticket y la factura en `DeBaja`; la baja fuera de plazo dio `PCPE-1510` sin enviar. La RA y su CDR quedan como dorado (`tests/Datos/Dorados/RA-Baja`), con pruebas de XSD, XSL, mapeo y lectura del CDR.
 - 27/10/2026 — Fase 8 (comunicación de baja):
   - `IServicioCpe.GenerarBajaAsync(EmisorCpe, ComunicacionBajaCpe)`: una RA por llamada (`RUC-RA-yyyyMMdd-n`, correlativo propio del día), en DATA, FIRMA, ENVIO y LOG. `EnviarAsync`, `ConsultarTicketAsync` y `EsperarTicketAsync` admiten la RA (sendSummary y getStatus, como el RC).
   - UBL: `VoidedDocuments` / `VoidedDocumentsLine` (UBL 2.0, perfil 1.0, prefijo `sac`) y `MapeadorVoided`; el XSD `UBLPE-VoidedDocuments-1.0.xsd` va en el conjunto UBL 2.0; serializador precalentado. `MapeadorComun.Cuenta` se comparte con el RC.
@@ -139,6 +140,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 - 22/10/2026 — Fase 0: repositorio git (`main`, remoto `origin`), solución `PasheCPE.slnx` con `src/PasheCPE`, `src/PasheCPE.Pdf`, `tests/PasheCPE.Tests`, `tests/PasheCPE.Pdf.Tests` y `samples/PasheCPE.Demo`; `Directory.Packages.props` (CPM) con las dependencias del TRD §1; `src/` y `tests/Directory.Build.props`; metadatos NuGet (licencia propietaria `LICENSE.txt`, README, Source Link del SDK, PDB embebido); pruebas de humo de los dos ensamblados; `tests/Datos/`.
 
 ### Corregido
+- 27/10/2026 — `LectorCdr` lanzaba `FormatException` al verificar la firma de un CDR de beta, que trae textos de relleno en lugar de la firma (lo encontró el dorado de la RA). Ahora la firma queda como no válida (`PCPE-4009`), sin lanzar.
 - 23/10/2026 — `Validacion.Modelo` y `Validacion.Esquema` no tenían efecto: `GeneradorInvoice` siempre validaba el modelo y el XSD (lo encontró la prueba manual en beta, caso de rechazo forzado). Los errores del cálculo y de los totales siguen bloqueando siempre.
 
 ### Cambiado

@@ -50,6 +50,45 @@ public sealed class ValidacionSunatBajaTests : IDisposable
         Assert.Empty(resultado.Observaciones);
     }
 
+    /// <summary>
+    /// Dorado: RA aceptada en beta el 27/10/2026 (F001-1 del RUC piloto). Se valida con el reloj en esa fecha porque la
+    /// XSL rechaza una fecha de generación futura (2301).
+    /// </summary>
+    [Fact]
+    public void Validar_RaDoradaAceptadaEnBeta_PasaElXsdYLaXslSinHallazgos()
+    {
+        using var servicios = new ServiciosPrueba(ahora: CasosTributarios.Ahora(new DateOnly(2026, 10, 27)));
+        var ruta = Path.Combine(Dorados.LectorDorado.Carpeta("RA-Baja"), "20493400364-RA-20261027-1.xml");
+        var xml = File.ReadAllBytes(ruta);
+
+        var resultado = servicios.Obtener<ValidadorSunat>().Validar(xml, Dorados.LectorDorado.Referencia(ruta));
+
+        Assert.Empty(servicios.Obtener<ValidadorEsquema>().Validar(xml));
+        Assert.Empty(resultado.Errores);
+        Assert.Empty(resultado.Observaciones);
+    }
+
+    [Fact]
+    public void Mapear_MismosDatosQueLaRaDorada_MismaEstructuraYValores()
+    {
+        var dorado = XDocument.Load(Path.Combine(Dorados.LectorDorado.Carpeta("RA-Baja"), "20493400364-RA-20261027-1.xml")).Root!;
+        var emisor = Ejemplos.Emisor() with
+        {
+            Ruc = "20493400364",
+            RazonSocial = dorado.Elemento(Cac + "AccountingSupplierParty", Cac + "Party", Cac + "PartyLegalEntity", Cbc + "RegistrationName").Value,
+        };
+        var lote = new LoteBaja(
+            emisor,
+            ReferenciaCpe.Baja(emisor.Ruc, new DateOnly(2026, 10, 27), 1),
+            new DateOnly(2026, 10, 23),
+            [new DocumentoBajaCpe { TipoDocumento = TipoDocumentoSunat.Factura, Serie = "F001", Numero = 1, Motivo = "ERROR EN LOS DATOS DEL CLIENTE" }]);
+        var generado = XDocument.Parse(System.Text.Encoding.UTF8.GetString(SerializadorUbl.Serializar(_servicios.Obtener<MapeadorVoided>().Mapear(lote)))).Root!;
+
+        var diferencias = Dorados.ComparadorXml.Comparar(dorado, generado, new HashSet<string>(StringComparer.Ordinal) { "ext:UBLExtensions", "cac:Signature" });
+
+        Assert.True(diferencias.Count == 0, string.Join(Environment.NewLine, diferencias));
+    }
+
     [Fact]
     public void Serializar_IdaYVuelta_SinCambios()
     {
