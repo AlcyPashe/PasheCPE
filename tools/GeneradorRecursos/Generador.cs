@@ -15,8 +15,9 @@ internal sealed record ResultadoGenerador(
 
 /// <summary>
 /// Excel de reglas de SUNAT (TRD §3.2) → <c>catalogos.json</c>, <c>catalogos/cat_XX.xml</c>,
-/// <c>errores-sunat.json</c>, <c>reglas-cpe.json</c> y <c>CodigosSunat.g.cs</c>. Todo se calcula en memoria;
-/// <c>Program</c> escribe en disco solo lo que cambió.
+/// <c>errores-sunat.json</c>, <c>reglas-cpe.json</c> y <c>CodigosSunat.g.cs</c>; el Excel GRE → <c>reglas-gre.json</c> y
+/// los catálogos y códigos de retorno que el Excel CPE no trae. Todo se calcula en memoria; <c>Program</c> escribe en
+/// disco solo lo que cambió.
 /// </summary>
 internal static class Generador
 {
@@ -31,14 +32,14 @@ internal static class Generador
         var datos = DatosCurados.Cargar(raiz, nombresConstantes);
 
         using var libro = new LibroExcel(rutaExcel);
-        var catalogos = LectorCatalogos.Leer(libro.Hoja("Catálogos"), datos);
+        var catalogos = LectorCatalogos.Leer(libro.Hoja("Catálogos"), datos).ToList();
         var duplicadosCatalogo = catalogos.GroupBy(c => c.Numero, StringComparer.Ordinal).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
         if (duplicadosCatalogo.Count > 0)
         {
             throw new InvalidDataException($"Catálogos repetidos en el Excel: {string.Join(", ", duplicadosCatalogo)}.");
         }
 
-        var errores = LectorErrores.Leer(libro.Hoja("CódigosRetorno"), libro.Hoja("General "), datos, out var erroresDuplicados);
+        IReadOnlyList<ErrorSunat> errores = LectorErrores.Leer(libro.Hoja("CódigosRetorno"), libro.Hoja("General "), datos, out var erroresDuplicados);
         var cambios = LectorReglas.LeerCambios(libro.Hoja("Control de Cambios"));
         var reglas = new List<ReglaSunat>();
         var resumen = new List<string>
@@ -59,6 +60,55 @@ internal static class Generador
 
         resumen.Add($"Control de Cambios: {cambios.Count} filas (con fecha de vigencia: {cambios.Count(c => c.FechaVigencia is not null)})");
 
+        // Excel GRE (Fase 10): sus reglas van aparte; de sus catálogos y códigos se agrega lo que el Excel CPE no trae
+        // (catálogos nuevos y códigos que faltan en los comunes, como el motivo 19 o los documentos 91-95); en lo común
+        // prevalece el texto del Excel CPE.
+        var rutaGre = BuscarExcel(raiz, "GRE");
+        var archivoGre = Path.GetRelativePath(raiz, rutaGre).Replace('\\', '/');
+        var fuenteGre = new Fuente(archivoGre, Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(rutaGre))));
+        var datosGre = datos with { Vigencias = [], Transitorios = [], EnProceso = [] };
+        using var libroGre = new LibroExcel(rutaGre);
+        resumen.Add($"Excel GRE: {archivoGre} (SHA-256 {fuenteGre.Sha256})");
+
+        var porNumero = catalogos.ToDictionary(c => c.Numero, StringComparer.Ordinal);
+        var catalogosGre = LectorCatalogos.Leer(libroGre.Hoja("Catálogos"), datosGre);
+        var catalogosNuevos = catalogosGre.Where(c => !porNumero.ContainsKey(c.Numero)).DistinctBy(c => c.Numero).ToList();
+        var codigosAgregados = new List<string>();
+        foreach (var gre in catalogosGre.Where(c => porNumero.ContainsKey(c.Numero) && c.Formato is null))
+        {
+            var cpe = porNumero[gre.Numero];
+            var faltantes = gre.Items.Where(i => cpe.Items.All(c => c.Codigo != i.Codigo)).ToList();
+            if (faltantes.Count > 0)
+            {
+                catalogos[catalogos.IndexOf(cpe)] = porNumero[gre.Numero] = cpe with { Items = [.. cpe.Items, .. faltantes] };
+                codigosAgregados.Add($"{gre.Numero} ({faltantes.Count})");
+            }
+        }
+
+        catalogos.AddRange(catalogosNuevos);
+        catalogos.Add(ProductosBienesNormalizados(porNumero["62"]));
+        var soloFormato = datos.Formatos.Where(f => f.Nombre is not null && catalogos.TrueForAll(c => c.Numero != f.Catalogo)).ToList();
+        catalogos.AddRange(soloFormato.Select(f => new Catalogo(f.Catalogo, f.Nombre!, ["Código"], f.Formato, [], null, null, [])));
+        resumen.Add($"Catálogos GRE: {catalogosGre.Count} (nuevos: {string.Join(", ", catalogosNuevos.Select(c => c.Numero))}; códigos agregados a los del Excel CPE: {(codigosAgregados.Count == 0 ? "ninguno" : string.Join(", ", codigosAgregados))}); derivado: 62A; solo formato curados: {string.Join(", ", soloFormato.Select(f => f.Catalogo))}");
+
+        var erroresGre = LectorErrores.Leer(libroGre.Hoja("CódigosRetorno"), libroGre.Hoja("General"), datosGre, out _);
+        var codigosCpe = errores.Select(e => e.Codigo).ToHashSet(StringComparer.Ordinal);
+        var erroresSoloGre = erroresGre.Where(e => !codigosCpe.Contains(e.Codigo)).ToList();
+        errores = [.. errores.Concat(erroresSoloGre).OrderBy(e => e.Codigo, StringComparer.Ordinal)];
+        resumen.Add($"CódigosRetorno GRE: {erroresGre.Count} códigos (solo GRE, agregados: {erroresSoloGre.Count})");
+
+        var cambiosGre = LectorReglas.LeerCambios(libroGre.Hoja("Control de Cambios"));
+        var reglasGre = new List<ReglaSunat>();
+        foreach (var (hoja, documento) in LectorReglas.HojasGre)
+        {
+            var reglasHoja = LectorReglas.Leer(libroGre.Hoja(hoja, aplicarCombinadas: true), documento, cambiosGre, out var sinCodigo);
+            reglasGre.AddRange(reglasHoja);
+            reglasPorDocumento[documento] = reglasHoja.Count;
+            resumen.Add($"{hoja}: {reglasHoja.Count} reglas (XSL: {reglasHoja.Count(r => r.Capa == "XSL")}; REST: {reglasHoja.Count(r => r.Capa == "REST")}; con vigencia: {reglasHoja.Count(r => r.Vigencia is not null)}; validaciones sin código: {sinCodigo})");
+        }
+
+        resumen.Add($"Control de Cambios GRE: {cambiosGre.Count} filas");
+
         var (codigoConstantes, nombres, nuevas, retiradas) = GeneradorConstantes.Generar(catalogos, datos.Clases, datos.Unidades, archivoExcel);
         resumen.Add($"Constantes: {nombres.Count} clases, {nombres.Sum(n => n.Constantes.Count)} constantes (nuevas: {nuevas}; retiradas: {retiradas}); {datos.Unidades.Clase}: {datos.Unidades.Unidades.Count} unidades curadas");
 
@@ -67,6 +117,7 @@ internal static class Generador
             [$"{CarpetaRecursos}/catalogos.json"] = CatalogosJson(fuente, catalogos),
             [$"{CarpetaRecursos}/errores-sunat.json"] = ErroresJson(fuente, errores),
             [$"{CarpetaRecursos}/reglas-cpe.json"] = ReglasJson(fuente, reglas, cambios),
+            [$"{CarpetaRecursos}/reglas-gre.json"] = ReglasJson(fuenteGre, reglasGre, cambiosGre),
             [ArchivoConstantes] = Escritura.Utf8(codigoConstantes),
             [DatosCurados.ArchivoNombres] = NombresJson(nombres),
         };
@@ -78,12 +129,29 @@ internal static class Generador
         return new ResultadoGenerador(archivos, resumen, catalogos.Count, errores.Count, reglasPorDocumento, cambios.Count, nuevas);
     }
 
-    /// <summary>El Excel de reglas CPE más reciente de <c>recursos/VALIDACIONES</c> (la fecha va en el nombre).</summary>
-    public static string BuscarExcel(string raiz)
+    /// <summary>El Excel de reglas («CPE» o «GRE») más reciente de <c>recursos/VALIDACIONES</c> (la fecha va en el nombre).</summary>
+    public static string BuscarExcel(string raiz, string tipo = "CPE")
     {
         var carpeta = Path.Combine(raiz, "recursos", "VALIDACIONES");
-        return Directory.GetFiles(carpeta, "ReglasValidacion-CPE-*.xlsx").Order(StringComparer.Ordinal).LastOrDefault()
-            ?? throw new FileNotFoundException($"No se encontró ReglasValidacion-CPE-*.xlsx en {carpeta}.");
+        return Directory.GetFiles(carpeta, $"ReglasValidacion-{tipo}-*.xlsx").Order(StringComparer.Ordinal).LastOrDefault()
+            ?? throw new FileNotFoundException($"No se encontró ReglasValidacion-{tipo}-*.xlsx en {carpeta}.");
+    }
+
+    /// <summary>
+    /// 62A: códigos de producto SUNAT de los bienes normalizados (columna del catálogo N.° 62). La XSL GRE valida contra
+    /// él el código de producto de un bien normalizado; no se publica aparte.
+    /// </summary>
+    private static Catalogo ProductosBienesNormalizados(Catalogo bienes)
+    {
+        const string columna = "Código de producto SUNAT";
+        var items = bienes.Items
+            .Select(i => (Codigo: i.Extras.FirstOrDefault(e => e.Key == columna).Value, i.Descripcion))
+            .Where(i => !string.IsNullOrEmpty(i.Codigo))
+            .DistinctBy(i => i.Codigo)
+            .OrderBy(i => i.Codigo, StringComparer.Ordinal)
+            .Select(i => new ItemCatalogo(i.Codigo!, i.Descripcion, [], null, null))
+            .ToList();
+        return new Catalogo("62A", "Código de producto SUNAT de los bienes normalizados (derivado del N.° 62)", ["Código", "Descripción"], null, [], null, null, items);
     }
 
     /// <summary>Raíz del repositorio: la primera carpeta, hacia arriba, que contiene <c>PasheCPE.slnx</c>.</summary>
@@ -208,6 +276,7 @@ internal static class Generador
             Escritura.TextoOpcional(json, "mensaje", regla.Mensaje);
             Escritura.TextoOpcional(json, "listados", regla.Listados);
             Escritura.Fecha(json, "vigencia", regla.Vigencia);
+            Escritura.TextoOpcional(json, "capa", regla.Capa);
             json.WriteEndObject();
         }
 

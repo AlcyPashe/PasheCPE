@@ -48,11 +48,12 @@ public sealed class GeneradorTests(EjecucionesGenerador ejecuciones) : IClassFix
     {
         var resultado = ejecuciones.Primera;
 
-        Assert.Equal(45, resultado.Catalogos);
-        Assert.Equal(2077, resultado.Errores);
+        // 45 del Excel CPE + D37 (Excel GRE) + 62A (derivado) + 65A y 66 (solo formato); 2077 códigos + 59 propios de la GRE.
+        Assert.Equal(49, resultado.Catalogos);
+        Assert.Equal(2136, resultado.Errores);
         Assert.Equal(562, resultado.Cambios);
         Assert.Equal(0, resultado.ConstantesNuevas);
-        Assert.Equal(["01", "03", "07", "08", "RA", "RC"], resultado.ReglasPorDocumento.Keys.Order(StringComparer.Ordinal));
+        Assert.Equal(["01", "03", "07", "08", "09", "31", "RA", "RC"], resultado.ReglasPorDocumento.Keys.Order(StringComparer.Ordinal));
         Assert.All(resultado.ReglasPorDocumento.Values, cantidad => Assert.True(cantidad > 40));
         Assert.Contains(resultado.Resumen, linea => linea.StartsWith("Catálogos: 45", StringComparison.Ordinal));
     }
@@ -194,6 +195,27 @@ public sealed class GeneradorTests(EjecucionesGenerador ejecuciones) : IClassFix
         Assert.Equal(1, resultado.ConstantesNuevas);
         Assert.Contains("public const string Penalidades = \"13\";", codigo, StringComparison.Ordinal);
         Assert.DoesNotContain("Inexistente", codigo, StringComparison.Ordinal);
+    }
+
+    /// <summary>Excel GRE 25/09/2026: reglas de la remitente y la transportista con su capa (XSL o REST).</summary>
+    [Fact]
+    public void Ejecutar_ExcelGre_ReglasCatalogosYCodigos()
+    {
+        var resultado = ejecuciones.Primera;
+        using var reglas = Json("src/PasheCPE/Recursos/reglas-gre.json");
+        using var catalogos = Json("src/PasheCPE/Recursos/catalogos.json");
+        var filas = reglas.RootElement.GetProperty("reglas").EnumerateArray().ToList();
+
+        Assert.Equal((521, 269), (resultado.ReglasPorDocumento["09"], resultado.ReglasPorDocumento["31"]));
+        Assert.EndsWith("ReglasValidacion-GRE-2026-09-25.xlsx", reglas.RootElement.GetProperty("fuente").GetProperty("archivo").GetString(), StringComparison.Ordinal);
+        Assert.Equal(453, filas.Count(f => f.GetProperty("documento").GetString() == "09" && f.TryGetProperty("capa", out var c) && c.GetString() == "XSL"));
+        Assert.Contains(resultado.Resumen, linea => linea.StartsWith("CódigosRetorno GRE: 2040 códigos (solo GRE, agregados: 59)", StringComparison.Ordinal));
+        var porNumero = catalogos.RootElement.GetProperty("catalogos");
+        Assert.Equal(13, porNumero.GetProperty("D37").GetProperty("items").GetArrayLength());
+        Assert.True(porNumero.GetProperty("62A").GetProperty("items").GetArrayLength() > 0);
+        Assert.True(porNumero.GetProperty("66").GetProperty("soloFormato").GetBoolean());
+        Assert.Contains(porNumero.GetProperty("20").GetProperty("items").EnumerateArray(), i => i.GetProperty("codigo").GetString() == "19");
+        Assert.Contains(porNumero.GetProperty("61").GetProperty("items").EnumerateArray(), i => i.GetProperty("codigo").GetString() == "91");
     }
 
     private JsonDocument Json(string ruta) => JsonDocument.Parse(ejecuciones.Primera.Archivos[ruta]);

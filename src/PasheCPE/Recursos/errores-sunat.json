@@ -9512,6 +9512,204 @@
       "transitorio": false
     },
     {
+      "codigo": "3463",
+      "descripcion": "Si existe documento relacionado con codigo '91', no debe existir otro documento con codigo '50' o '52'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3464",
+      "descripcion": "No existe el numero de Manifiesto de carga",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3465",
+      "descripcion": "La Declaracion Aduanera de Mercancias (DAM) o el Declaracion Simplificada (DS) encontrada se encuentra en estado 'Anulada' o 'Legajada'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3466",
+      "descripcion": "El documento de transpote del Manifiesto de carga no cumple con el formato establecido",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3467",
+      "descripcion": "El documento de transporte consignado no coincide con algun documento de transporte en el Manifiesto de carga",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3468",
+      "descripcion": "El Numero de detalle del Manifiesto de carga no cumple con el formato establecido",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3469",
+      "descripcion": "El Numero de detalle no existe como Numero de detalle del Documento de transporte consignado",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3470",
+      "descripcion": "El Numero de contenedor del Manifiesto de carga no cumple con el formato establecido",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3471",
+      "descripcion": "El Numero de contenedor no existe como Numero de contenedor en el Documento de transporte consignado",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3472",
+      "descripcion": "El numero de detalle mas el documento de transporte no puede estar duplicado",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3473",
+      "descripcion": "Los codigos de concepto no corresponden al motivo de traslado consignado",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3474",
+      "descripcion": "El precinto no cumple con el formato establecido",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3475",
+      "descripcion": "El precinto no coincide con el/los Precinto(s) del Contenedor consignado",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3476",
+      "descripcion": "El indicador de contenedor vacio es invalido",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3477",
+      "descripcion": "El Indicador de contenedor vacio no coincide con el Indicador de contenedor vacio en el Documento de transporte consignado",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3478",
+      "descripcion": "El Indicador de contenedor en el Manifiesto de carga solo se consigna cuando el motivo de traslado es 19 - Traslado de mercancia extranjera y existe documento relacionado '91'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3479",
+      "descripcion": "El dato ingresado como codigo del centro de atencion de frontera no corresponde a un valor esperado",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3480",
+      "descripcion": "Si el Motivo de traslado es 19-Traslado de mercancia extranjera y existe el Indicador de contenedor en el Manifiesto de carga, debe consignar el Contenedor del MC",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3481",
+      "descripcion": "Si el Motivo de traslado es 19-Traslado de mercancia extranjera y existe el Indicador de contenedor en el Manifiesto de carga, y existe el Tag con valor '7028' y (cbc:Value)='0'(No es contenedor vacio), debe consignar el Precinto",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3482",
+      "descripcion": "Si el Motivo de traslado es 19-Traslado de mercancia extranjera y existe el Indicador de contenedor en el Manifiesto de carga, debe consignar el Indicador de contenedor vacio",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3483",
+      "descripcion": "Para el motivo de traslado 19-Traslado de mercancia extranjera, debe consignar obligatoriamente un puerto o aeropuerto",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3484",
+      "descripcion": "SI ingresa el Tipo de locacion debe consignar el Codigo de puerto/aeropuerto",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3485",
+      "descripcion": "El indicador 'SUNAT_Envio_IndicadorTrasladoTotalDAMoDS' solo aplica para documento relacionado '50' o '52'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3486",
+      "descripcion": "El numero de contenedor no se encuentra consignado como 'Numero de contenedor 1' o 'Numero de contenedor 2'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3487",
+      "descripcion": "Si el traslado se realiza en contenedor, existe Indicador de contenedor en el Manifiesto de carga, debe consignar al menos un contenedor",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3488",
+      "descripcion": "El Numero de RUC asociado al punto de llegada debe ser el igual al Numero de RUC del destinatario",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3489",
+      "descripcion": "El valor ingresado como numero de bultos o pallets no cumple con el estandar",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3490",
+      "descripcion": "Si el Motivo de traslado es 19-Traslado de mercancia extranjera y existe documento relacionado '91'-Manifiesto de carga, debe consignar el Documento de transporte del MC",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3491",
+      "descripcion": "Si el Motivo de traslado es 19-Traslado de mercancia extranjera y existe documento relacionado '91'-Manifiesto de carga, debe consignar el Numero de detalle del MC",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3492",
+      "descripcion": "El numero de detalle mas el documento de transporte mas el contenedor del MC no puede estar duplicado",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3493",
+      "descripcion": "No se ha ingresado el tipo Declaracion Aduanera de Mercancias (DAM), el Declaracion Simplificada (DS), el Manifiesto de carga o Cita/Orden Entrega Mercancías del Terminal Portuario para el motivo de traslado seleccionado",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3494",
+      "descripcion": "Solo se permite un Manifiesto de carga para el motivo de traslado seleccionado",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3495",
+      "descripcion": "Si existe Numero de contenedor y a nivel de linea de detalle el indicador del Contenedor Vacio es '0' (No es contenedor vacio), debe indicarse el Numero de precinto",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
       "codigo": "3496",
       "descripcion": "El Código producto de SUNAT no es válido",
       "tipo": "rechazo",
@@ -9976,6 +10174,150 @@
     {
       "codigo": "3605",
       "descripcion": "La actividad economica para el RUC esta impedida de presentar la declaracion",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3612",
+      "descripcion": "Solo se permite una Cita/Orden Entrega Mercancías del Terminal Portuario, para el motivo de traslado seleccionado",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3613",
+      "descripcion": "Si existe documento relacionado con codigo '92', no debe existir otro documento con codigo '50', '52' o '91'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3614",
+      "descripcion": "El Numero de RUC del emisor del documento relacionado no existe",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3615",
+      "descripcion": "Para la modalidad de traslado Publico no debe consignarse simultaneamente los indicadores 'Indicador de registro de vehiculos y conductores del transportista' e 'Indicador de Transbordo Programado'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3616",
+      "descripcion": "La Fecha de inicio de traslado debe ser mayor o igual a la Fecha de entrega de bienes al Transportista",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3617",
+      "descripcion": "No ha ingresado el campo de “Fecha de entrega de bienes al transportista” o esta vacio",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3618",
+      "descripcion": "La Fecha de entrega de bienes al transportista debe ser mayor o igual a la Fecha de emision del documento",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3619",
+      "descripcion": "El valor ingresado como fecha de entrega no cumple con el estandar (YYYY-MM-DD)",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3620",
+      "descripcion": "En la GRE-Remitente ya se ha consignado vehículos y conductores del transportista, no es necesario emitir una GRE-Transportista",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3621",
+      "descripcion": "(Si el Motivo de traslado es 08-Importacion, 09-Exportacion, 19-Traslado de mercancia extranjera, y el documento relacionado es igual a '50' o '52') o (Si el Motivo de traslado es 19-Traslado de mercancia extranjera, y el documento relacionado es igual a '91'), existe algun 'Numero de contenedor' y 'Numero de Bultos o Pallets', no puede consignar ambos datos",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3622",
+      "descripcion": "La serie y numero de la GRE consignada como documento relacionado se encuentra registrado con baja",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3623",
+      "descripcion": "Si el motivo de traslado es 19-Traslado de mercancía extranjera y Código de tipo de documento relacionado es 92, no debe consignar el campo 'Peso bruto total de los items seleccionados'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3624",
+      "descripcion": "Si el motivo de traslado es 19-Traslado de mercancía extranjera y Código de tipo de documento relacionado es 92, no debe consignar el campo 'Sustento de la diferencia del Peso bruto total de la carga'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3625",
+      "descripcion": "Si el motivo de traslado es 19-Traslado de mercancía extranjera y Código de tipo de documento relacionado es 92, no debe consignar el campo 'Peso bruto total de la carga'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3626",
+      "descripcion": "Si el motivo de traslado es 19-Traslado de mercancía extranjera y Código de tipo de documento relacionado es 92, no debe consignar el campo 'Número de Bultos o Pallets'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3627",
+      "descripcion": "Si el motivo de traslado es 19-Traslado de mercancía extranjera y Código de tipo de documento relacionado es 92, no debe consignar el campo 'Número de contenedor'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3628",
+      "descripcion": "Si el motivo de traslado es 19-Traslado de mercancía extranjera y Código de tipo de documento relacionado es 92, no debe consignar el campo 'Número de precinto'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3629",
+      "descripcion": "Si el motivo de traslado es 19-Traslado de mercancía extranjera y Código de tipo de documento relacionado es 92, no debe existir algún bien a transportar",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3630",
+      "descripcion": "Si el motivo de traslado es 19-Traslado de mercancía extranjera y Código de tipo de documento relacionado es 92, solo se permite ingresar un cac:DespatchLine",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3631",
+      "descripcion": "Si el Motivo de traslado es 08-Importacion, 19-Traslado de mercancia extranjera y el documento relacionado es igual a '50' o '52', se trata de un traslado total de la DAM o DS y no existe algun 'Numero de contenedor', debe ingresar el 'Numero de Bultos o Pallets'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3632",
+      "descripcion": "Si el Motivo de traslado es 19-Traslado de mercancia extranjera y el documento relacionado es igual a '50' o '52', no se trata de un traslado total de la DAM o DS y no existe algun tag 'cac:Package', debe ingresar el 'Numero de Bultos o Pallets'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3633",
+      "descripcion": "Si el Motivo de traslado es 08-Importación y el documento relacionado es igual a '50' o '52', no se trata de un traslado total de la DAM o DS y no existe algun 'Bien a trasladar', no debe consignar el campo 'Peso bruto total de los items seleccionados'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3634",
+      "descripcion": "Si el Motivo de traslado es 08-Importación y el documento relacionado es igual a '50' o '52', no se trata de un traslado total de la DAM o DS y no existe algun 'Bien a trasladar', no debe consignar el campo 'Sustento de la diferencia del Peso bruto total de la carga'",
+      "tipo": "rechazo",
+      "transitorio": false
+    },
+    {
+      "codigo": "3635",
+      "descripcion": "Si existe documento relacionado con codigo '50', no debe existir otro documento con codigo diferente a '50'",
       "tipo": "rechazo",
       "transitorio": false
     },
@@ -12464,6 +12806,12 @@
       "transitorio": false
     },
     {
+      "codigo": "4442",
+      "descripcion": "El Numero de contenedor contiene menos documentos de transporte declarados en los detalles de la guia que los registrados en el Contenedor",
+      "tipo": "observacion",
+      "transitorio": false
+    },
+    {
       "codigo": "4443",
       "descripcion": "El comprobante fue informado fuera del plazo establecido",
       "tipo": "observacion",
@@ -12508,6 +12856,12 @@
     {
       "codigo": "4451",
       "descripcion": "El dato ingresado en el campo Tipo de documento relacionado no cumple con el formato establecido.",
+      "tipo": "observacion",
+      "transitorio": false
+    },
+    {
+      "codigo": "4468",
+      "descripcion": "Si el Motivo de traslado es 08-Importacion, y el punto de partida no es un puerto ni aeropuerto, el Numero de Ruc del establecimiento debe corresponder al numero de RUC del deposito temporal consignado en la DAM o DS",
       "tipo": "observacion",
       "transitorio": false
     },

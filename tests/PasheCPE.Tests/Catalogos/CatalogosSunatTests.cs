@@ -112,7 +112,7 @@ public sealed class CatalogosSunatTests
             .ToList();
 
         // 16 clases de catálogos con listado y UnidadMedida (catálogo N.° 03, validado por formato).
-        Assert.Equal(17, clases.Count);
+        Assert.Equal(21, clases.Count);
         foreach (var (tipo, numero) in clases)
         {
             var codigos = tipo.GetFields(BindingFlags.Public | BindingFlags.Static)

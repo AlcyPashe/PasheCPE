@@ -253,15 +253,25 @@ Otros resultados:
 
 ## Fase 10 — Guías de remisión (REST + OAuth2)
 
-**Objetivo:** GRE remitente (09) y transportista (31) en producción.
+**Objetivo:** GRE remitente (09) y transportista (31) en producción. Partida el 27/10/2026 en 10a (remitente) y 10b (transportista).
 
-1. Modelo de entrada `GuiaRemisionCpe` (TRD §4) a partir del Excel GRE 25.09.2026, constantes de los catálogos 18, 20, 61 y 62 en `nombres-constantes.json`, clases perfil `DespatchAdvice`, `MapeadorDespatchAdvice` (09 y 31: modalidades 01/02, vehículos, conductores, M1/L, documentos relacionados, bienes).
-2. Validación modelo + XSD + reglas C# del Excel GRE (09 y 31). La XSL `ValidaExprRegGuiaRemitente-2.0.1.xsl` es de la GRE 1.0 y da errores falsos con las GRE 2.0 aceptadas (Fase 3): al preparar esta fase, revisar si SUNAT publicó una XSL de la GRE 2.0 junto al Excel GRE y, si existe, evaluarla con los dorados de `09-GRE` antes de decidir.
+1. Modelo de entrada `GuiaRemisionCpe` (TRD §4) a partir del Excel GRE 25.09.2026, constantes de los catálogos 18, 20, 61 y D-37 en `nombres-constantes.json`, clases perfil `DespatchAdvice`, `MapeadorDespatchAdvice` (modalidades 01/02, vehículos, conductores, M1/L, documentos relacionados, bienes).
+2. Validación modelo + XSD + XSL GRE 2.0 de SUNAT (01/10/2026, en `recursos\GRE\XSL`) y cobertura de todas las filas del Excel GRE.
 3. `ProveedorTokenGre`, `ClienteGre` (envío, ticket, CDR, QR del CDR), manejo 401/422/5xx, protección `PermitirEnvioConAmbienteBeta`.
 4. `IServicioGre` completo.
 5. **[Desarrollador]** Credenciales de API SUNAT del emisor y un traslado real para el primer envío controlado.
 
-**Aceptación:** pruebas con respuestas grabadas (token, ticket 98→0, 99 con y sin CDR, 401, 422); token reutilizado entre envíos; **(manual, producción)** una GRE remitente aceptada con su QR generado.
+**Aceptación:** pruebas con respuestas grabadas (token, ticket 98→0, 99 con y sin CDR, 401, 422); token reutilizado entre envíos; **(manual, producción, cuando haya un cliente)** una GRE remitente aceptada con su QR generado.
+
+**Estado de la 10a (remitente 09):** implementada el 27/10/2026, solo con pruebas sin red (906 en verde). SUNAT no tiene ambiente de pruebas para guías y no se emiten guías oficiales sin un cliente real: el primer envío queda pendiente.
+- Material nuevo del desarrollador: XSL GRE 2.0 remitente y transportista (01/10/2026) y el manual de servicios web de la plataforma nueva GRE (token y errores; no trae el JSON del envío ni de la consulta).
+- La XSL GRE 2.0 corre con la emulación DataPower (plantillas nuevas, `include` de la ruta del SFS, parámetro `nombreArchivoEnviado`) y con los dorados da solo la 4391 que también trae su CDR.
+- Generador: `reglas-gre.json` (09: 521 filas; 31: 269), 59 códigos propios de la GRE, catálogo D37, códigos que faltaban en los catálogos 20, 55, 61 y 65, 62A derivado y 65A/66 solo formato.
+- Cobertura: las 521 filas de la 09 las cubre un código activo de la XSL o están clasificadas en `ajustes-xsl.json` (67: 4 `modelo`, 63 `noVerificable`, casi todas validaciones REST contra padrones).
+- El XML generado con los datos de T001-31093 es igual al dorado; el digest de los CDR GRE no coincide porque SUNAT los vuelve a serializar tras firmarlos.
+- **[verificar]** con el primer envío real: JSON de envío y consulta, `hashZip`, respuesta a un reenvío.
+
+**10b (transportista 31):** pendiente; la XSL ya compila y el generador ya produce sus reglas.
 
 ---
 
@@ -306,5 +316,5 @@ Otros resultados:
 | Fase 2 | XML aceptados por SUNAT para dorados |
 | Fase 5 | RUC y usuario beta, certificado de prueba |
 | Fase 9 | ✅ OSE eFact: endpoint de producción y usuario = RUC. Pendiente: un cliente activo para la prueba real |
-| Fase 10 | ✅ Excel de reglas de validación GRE `ReglasValidacion-GRE-2026-09-25.xlsx` en `recursos\VALIDACIONES`. Pendientes: credenciales API SUNAT y un traslado real |
+| Fase 10 | ✅ Excel GRE en `recursos\VALIDACIONES`; ✅ XSL GRE 2.0 y manual de servicios en `recursos\GRE`. Pendientes: credenciales API SUNAT y un traslado real de un cliente |
 | Fase 13 | PAT de GitHub con `read:packages` en el servidor del cliente |

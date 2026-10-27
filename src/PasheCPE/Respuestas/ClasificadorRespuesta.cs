@@ -163,6 +163,33 @@ internal sealed class ClasificadorRespuesta(CatalogoErrores errores, CatalogoRes
         return Crear(contexto, soap, final, estado.Codigo, error.Descripcion) with { Ticket = ticket, Errores = [error] };
     }
 
+    /// <summary>
+    /// Error de la API de guías (manual GRE §1.3): HTTP 4xx con <c>{cod, msg}</c> y, con 422, los errores funcionales
+    /// (<c>errors[].codError/desError</c>). SUNAT no procesó la guía: error de servicio con esos errores.
+    /// </summary>
+    public ResultadoEnvio DesdeErrorGre(ContextoEnvio contexto, RespuestaSoap respuesta, Transporte.Gre.ErrorApiGre? error)
+    {
+        ArgumentNullException.ThrowIfNull(respuesta);
+        List<ErrorCpe> lista = [.. (error?.Errores ?? []).Select(e => ErrorSunat(e.Codigo, e.Descripcion))];
+        var codigo = lista.Count > 0 ? lista[0].Codigo : error?.Cod ?? respuesta.Http?.ToString(CultureInfo.InvariantCulture);
+        var descripcion = lista.Count > 0 ? lista[0].Descripcion : error?.Msg ?? $"HTTP {respuesta.Http}";
+        return Crear(contexto, respuesta, EstadoCpe.ErrorServicio, codigo, descripcion) with
+        {
+            Errores = lista.Count > 0 ? lista : [ErrorSunat(codigo, descripcion)],
+        };
+    }
+
+    /// <summary>
+    /// Ticket de la guía terminado con error y sin CDR (codRespuesta 99 con <c>error{numError, desError}</c>): un código
+    /// de rechazo (2000–3999) deja la guía rechazada; cualquier otro, error de servicio.
+    /// </summary>
+    public ResultadoEnvio DesdeErrorTicketGre(ContextoEnvio contexto, RespuestaSoap respuesta, string? numError, string? desError, string ticket)
+    {
+        var codigo = Numero(numError) is { } n ? n.ToString("0000", CultureInfo.InvariantCulture) : numError;
+        var estado = Numero(codigo) is >= 2000 and < 4000 ? EstadoCpe.Rechazado : EstadoCpe.ErrorServicio;
+        return Crear(contexto, respuesta, estado, codigo, desError) with { Ticket = ticket, Errores = [ErrorSunat(codigo, desError)] };
+    }
+
     /// <summary>Error que impide la operación sin llamar a SUNAT (validación local, configuración, no soportado).</summary>
     public ResultadoEnvio Local(ContextoEnvio contexto, EstadoCpe estado, ErrorCpe error)
     {

@@ -92,10 +92,11 @@ internal static class LectorCatalogos
 
     private static bool EsInicioBloque(FilaExcel fila) => Texto.Clave(fila["A"]) == "NO.";
 
+    /// <summary>«1» → «01»; los listados «D-37» del Excel GRE quedan «D37», como los nombran las XSL.</summary>
     private static string NumeroCatalogo(string? valor)
     {
         var numero = Texto.UnaLinea(valor);
-        return numero.Length == 1 ? "0" + numero : numero;
+        return numero.Length == 1 ? "0" + numero : numero.Replace("-", string.Empty, StringComparison.Ordinal);
     }
 
     private static List<Catalogo> AplicarVigencias(List<Catalogo> catalogos, IReadOnlyList<VigenciaCurada> vigencias)

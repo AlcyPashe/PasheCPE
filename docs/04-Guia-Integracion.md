@@ -265,11 +265,37 @@ EmisorCpe emisor = new()
 
 ## 9. Guías de remisión
 
+La guía remitente (09) va por la API REST de SUNAT, que **solo existe en producción**: toda guía enviada es oficial.
+
 ```csharp
-var r = await gre.EmitirAsync(emisor, guia, ct);   // genera, obtiene token, envía, espera ticket y genera el QR de SUNAT
+EmisorCpe emisor = /* … como en §3 */ with
+{
+    CredencialesGre = new(empresa.GreClientId, Descifrar(empresa.GreClientSecret), empresa.UsuarioSol, Descifrar(empresa.ClaveSol)),
+};
+var guia = new GuiaRemisionCpe
+{
+    Serie = "T001", Numero = 125,
+    Destinatario = new ClienteCpe { TipoDocumento = TipoDocumentoIdentidad.Ruc, NumeroDocumento = "20611619767", RazonSocial = "CLIENTE S.A.C." },
+    Motivo = MotivoTraslado.Venta,
+    Modalidad = ModalidadTraslado.TransportePublico,
+    FechaInicioTraslado = hoy,
+    PesoBruto = 12.5m,                                            // KGM por defecto (o TNE)
+    Partida = new PuntoTrasladoCpe { Ubigeo = "160101", Direccion = "AV. AUGUSTO FREYRE 727" },
+    Llegada = new PuntoTrasladoCpe { Ubigeo = "160101", Direccion = "CAL CALVO 1004" },
+    Transportista = new TransportistaCpe { Ruc = "20607254720", RazonSocial = "TRANSPORTES S.A.C.", RegistroMtc = "0001234CNG" },
+    DocumentosRelacionados = [new DocumentoTrasladoCpe { Tipo = DocumentoRelacionadoTraslado.Factura, Numero = "F001-125" }],
+    Bienes = [new BienGuiaCpe { Descripcion = "BEBIDA DE ALMENDRA 946ML", Cantidad = 3 }],
+};
+var r = await pashe.Gre.EmitirAsync(emisor, guia, ct);   // genera, pide o reutiliza el token, envía, espera el ticket y genera el QR
 ```
 
-Las GRE solo existen en producción. En un sistema configurado con `Ambiente = Beta`, la librería no las envía.
+- **Modalidad privada:** en lugar del transportista, `Vehiculos` (el primero es el principal) y `Conductores` (el primero es el principal), hasta 2 secundarios de cada uno. Con `Indicadores.VehiculoM1L` no se piden.
+- **Validación local:** el modelo (`PCPE-16xx`), el XSD y la XSL GRE 2.0 de SUNAT (01/10/2026). Las observaciones de SUNAT, como la 4391 sin registro MTC del transportista, llegan en las advertencias.
+- **Plazo:** SUNAT recibe la guía hasta 1 día después de la emisión (`PCPE-1604`, `PCPE-4006`).
+- **Token:** se pide con el `client_id`, el `client_secret` y el usuario y la clave SOL (menú SOL → Credenciales de API SUNAT). Dura 1 hora y lo reutilizan todos los envíos y consultas de ese periodo; vencido o rechazado (401), la librería pide otro.
+- **Ticket:** `EnviarAsync` devuelve `EnProceso` con el ticket; `ConsultarTicketAsync` o `EsperarTicketAsync` traen el CDR. Al aceptarse, `ContenidoQr` es el enlace de SUNAT y el PNG queda en `QR\yyyy\MM`.
+- **Ambiente:** con `Ambiente = Beta` la librería no envía guías (`PCPE-4602`), salvo `PasheCPE:Gre:PermitirEnvioConAmbienteBeta = true`. Aunque el emisor envíe sus comprobantes por OSE, la guía va a SUNAT.
+- **Pendiente de confirmar con el primer envío real:** el JSON del envío y de la consulta, el formato de `hashZip` y la respuesta a un reenvío.
 
 ## 10. PDF
 

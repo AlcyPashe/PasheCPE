@@ -150,7 +150,8 @@ internal sealed record ReglaExcelSunat(
     string? TipoAnterior,
     string Codigo,
     string? Mensaje,
-    DateOnly? Vigencia);
+    DateOnly? Vigencia,
+    string? Capa = null);
 
 internal sealed record ArchivoAjustesXsl(
     string Descripcion,

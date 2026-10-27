@@ -45,7 +45,12 @@ public sealed class TablaPlazosTests : IDisposable
 
     [Fact]
     public void FechaLimite_DocumentoSinPlazo_EsNull() =>
-        Assert.Null(new TablaPlazos(_almacen.OpcionesDi()).FechaLimite(TipoDocumentoSunat.GuiaDeRemisionRemitente, null, _emision));
+        Assert.Null(new TablaPlazos(_almacen.OpcionesDi()).FechaLimite(TipoDocumentoSunat.GuiaDeRemisionTransportista, null, _emision));
+
+    /// <summary>GRE remitente: SUNAT la recibe hasta 1 día después de la emisión (2108 del Excel GRE).</summary>
+    [Fact]
+    public void FechaLimite_GreRemitente_UnDia() =>
+        Assert.Equal(_emision.AddDays(1), new TablaPlazos(_almacen.OpcionesDi()).FechaLimite(TipoDocumentoSunat.GuiaDeRemisionRemitente, null, _emision));
 
     [Fact]
     public void FechaLimite_ConPlazosConfigurados_ReemplazaLosEmbebidos()

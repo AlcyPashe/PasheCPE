@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<l id="65A" nombre="Unidades de medida de la GRE fuera de DAM o DS (formato UN/ECE Rec. 20)" soloFormato="true" formato="^[A-Z0-9]{1,3}$" />

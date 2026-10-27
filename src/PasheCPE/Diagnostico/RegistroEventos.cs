@@ -48,4 +48,16 @@ internal static partial class RegistroEventos
     [LoggerMessage(EventId = 1506, Level = LogLevel.Warning,
         Message = "Reintento {Intento} de {Operacion} de {Nombre} tras {Estado} {Codigo}.")]
     public static partial void Reintento(ILogger registro, int intento, string operacion, string nombre, EstadoCpe estado, string? codigo);
+
+    [LoggerMessage(EventId = 1601, Level = LogLevel.Debug,
+        Message = "GRE {Operacion} → {Url}: {Cuerpo}")]
+    public static partial void SolicitudGre(ILogger registro, string operacion, string url, SobreEnmascarado cuerpo);
+
+    [LoggerMessage(EventId = 1602, Level = LogLevel.Debug,
+        Message = "GRE {Operacion} ← HTTP {Http}: {Cuerpo}")]
+    public static partial void RespuestaGre(ILogger registro, string operacion, int http, SobreEnmascarado cuerpo);
+
+    [LoggerMessage(EventId = 1603, Level = LogLevel.Information,
+        Message = "Token GRE obtenido para {Usuario}; se renueva desde {Vence:u}.")]
+    public static partial void TokenGreObtenido(ILogger registro, string usuario, DateTimeOffset vence);
 }

@@ -912,6 +912,214 @@ public static class MedioPago
     public const string OtrosMediosDePago = "999";
 }
 
+/// <summary>Catálogo N.° 18 de SUNAT: Código de modalidad de transporte.</summary>
+public static class ModalidadTraslado
+{
+    /// <summary>Número del catálogo SUNAT.</summary>
+    public const string NumeroCatalogo = "18";
+
+    /// <summary><c>01</c>: Transporte público</summary>
+    public const string TransportePublico = "01";
+
+    /// <summary><c>02</c>: Transporte privado</summary>
+    public const string TransportePrivado = "02";
+}
+
+/// <summary>Catálogo N.° 20 de SUNAT: Código de motivo de traslado.</summary>
+public static class MotivoTraslado
+{
+    /// <summary>Número del catálogo SUNAT.</summary>
+    public const string NumeroCatalogo = "20";
+
+    /// <summary><c>01</c>: Venta</summary>
+    public const string Venta = "01";
+
+    /// <summary><c>02</c>: Compra</summary>
+    public const string Compra = "02";
+
+    /// <summary><c>03</c>: Venta con entrega a terceros</summary>
+    public const string VentaConEntregaATerceros = "03";
+
+    /// <summary><c>04</c>: Traslado entre establecimientos de la misma empresa</summary>
+    public const string TrasladoEntreEstablecimientosDeLaMisma = "04";
+
+    /// <summary><c>05</c>: Consignación</summary>
+    public const string Consignacion = "05";
+
+    /// <summary><c>06</c>: Devolución</summary>
+    public const string Devolucion = "06";
+
+    /// <summary><c>07</c>: Recojo de bienes transformados</summary>
+    public const string RecojoDeBienesTransformados = "07";
+
+    /// <summary><c>08</c>: Importación</summary>
+    public const string Importacion = "08";
+
+    /// <summary><c>09</c>: Exportación</summary>
+    public const string Exportacion = "09";
+
+    /// <summary><c>13</c>: Otros</summary>
+    public const string Otros = "13";
+
+    /// <summary><c>14</c>: Venta sujeta a confirmación del comprador</summary>
+    public const string VentaSujetaAConfirmacionDelComprador = "14";
+
+    /// <summary><c>17</c>: Traslado de bienes para transformación</summary>
+    public const string TrasladoDeBienesParaTransformacion = "17";
+
+    /// <summary><c>18</c>: Traslado emisor itinerante CP</summary>
+    public const string TrasladoEmisorItineranteCp = "18";
+
+    /// <summary><c>19</c>: Traslado de mercancía extranjera</summary>
+    public const string TrasladoDeMercanciaExtranjera = "19";
+}
+
+/// <summary>Catálogo N.° 61 de SUNAT: Documentos relacionados al transporte de mercancías.</summary>
+public static class DocumentoRelacionadoTraslado
+{
+    /// <summary>Número del catálogo SUNAT.</summary>
+    public const string NumeroCatalogo = "61";
+
+    /// <summary><c>01</c>: Factura</summary>
+    public const string Factura = "01";
+
+    /// <summary><c>03</c>: Boleta de Venta</summary>
+    public const string BoletaDeVenta = "03";
+
+    /// <summary><c>04</c>: Liquidación de Compra</summary>
+    public const string LiquidacionDeCompra = "04";
+
+    /// <summary><c>09</c>: Guía de Remisión Remitente</summary>
+    public const string GuiaDeRemisionRemitente = "09";
+
+    /// <summary><c>12</c>: Ticket o cinta emitido por máquina registradora</summary>
+    public const string TicketOCintaEmitidoPorMaquina = "12";
+
+    /// <summary><c>31</c>: Guía de Remisión Transportista</summary>
+    public const string GuiaDeRemisionTransportista = "31";
+
+    /// <summary><c>48</c>: Comprobante de Operaciones – Ley N° 29972</summary>
+    public const string ComprobanteDeOperacionesLeyN29972 = "48";
+
+    /// <summary><c>49</c>: Constancia de Depósito - IVAP (Ley 28211)</summary>
+    public const string ConstanciaDeDepositoIvapLey28211 = "49";
+
+    /// <summary><c>50</c>: Declaración Aduanera de Mercancías</summary>
+    public const string DeclaracionAduaneraDeMercancias = "50";
+
+    /// <summary><c>52</c>: Declaración Simplificada (DS)</summary>
+    public const string DeclaracionSimplificadaDs = "52";
+
+    /// <summary><c>65</c>: Autorización de Circulación para transportar MATPEL – Callao</summary>
+    public const string AutorizacionDeCirculacionParaTransportarMatpel = "65";
+
+    /// <summary><c>66</c>: Autorización de Circulación para transporte de carga y mercancías en Lima Metropolitana</summary>
+    public const string AutorizacionDeCirculacionParaTransporteDe = "66";
+
+    /// <summary><c>67</c>: Permiso de Operación Especial para el servicio de transporte de MATPEL - MTC</summary>
+    public const string PermisoDeOperacionEspecialParaEl = "67";
+
+    /// <summary><c>68</c>: Habilitación Sanitaria de Transporte Terrestre de Productos Pesqueros y Acuícolas</summary>
+    public const string HabilitacionSanitariaDeTransporteTerrestreDe = "68";
+
+    /// <summary><c>69</c>: Permiso / Autorización de operación de transporte de mercancías</summary>
+    public const string PermisoAutorizacionDeOperacionDeTransporte = "69";
+
+    /// <summary><c>71</c>: Resolución de Adjudicación de bienes – SUNAT</summary>
+    public const string ResolucionDeAdjudicacionDeBienesSunat = "71";
+
+    /// <summary><c>72</c>: Resolución de Comiso de bienes – SUNAT</summary>
+    public const string ResolucionDeComisoDeBienesSunat = "72";
+
+    /// <summary><c>73</c>: Guía de Transporte Forestal o de Fauna - SERFOR</summary>
+    public const string GuiaDeTransporteForestalODe = "73";
+
+    /// <summary><c>74</c>: Guía de Tránsito – SUCAMEC</summary>
+    public const string GuiaDeTransitoSucamec = "74";
+
+    /// <summary><c>75</c>: Autorización para operar como empresa de Saneamiento Ambiental – MINSA -</summary>
+    public const string AutorizacionParaOperarComoEmpresaDe = "75";
+
+    /// <summary><c>76</c>: Autorización para manejo y recojo de residuos sólidos peligrosos y no peligrosos</summary>
+    public const string AutorizacionParaManejoYRecojoDe = "76";
+
+    /// <summary><c>77</c>: Certificado fitosanitario la movilización de plantas, productos vegetales, y otros artículos reglamentados</summary>
+    public const string CertificadoFitosanitarioLaMovilizacionDePlantas = "77";
+
+    /// <summary><c>78</c>: Registro Único de Usuarios y Transportistas de Alcohol Etílico</summary>
+    public const string RegistroUnicoDeUsuariosYTransportistas = "78";
+
+    /// <summary><c>80</c>: Constancia de Depósito – Detracción</summary>
+    public const string ConstanciaDeDepositoDetraccion = "80";
+
+    /// <summary><c>81</c>: Código de autorización emitida por el SCOP</summary>
+    public const string CodigoDeAutorizacionEmitidaPorEl = "81";
+
+    /// <summary><c>82</c>: Declaración jurada de mudanza</summary>
+    public const string DeclaracionJuradaDeMudanza = "82";
+
+    /// <summary><c>91</c>: Manifiesto de carga (MC)</summary>
+    public const string ManifiestoDeCargaMc = "91";
+
+    /// <summary><c>92</c>: Cita/Orden Entrega Mercancías del Terminal Portuario</summary>
+    public const string CitaOrdenEntregaMercanciasDelTerminal = "92";
+
+    /// <summary><c>93</c>: Documento ZOFRATACNA</summary>
+    public const string DocumentoZofratacna = "93";
+
+    /// <summary><c>94</c>: Solicitud traslado - ZED</summary>
+    public const string SolicitudTrasladoZed = "94";
+
+    /// <summary><c>95</c>: Solicitud de traslado - ZOFRATACNA</summary>
+    public const string SolicitudDeTrasladoZofratacna = "95";
+}
+
+/// <summary>Catálogo N.° D37 de SUNAT: Entidades que emiten autorizaciones especiales para el traslado.</summary>
+public static class EntidadAutorizacionEspecial
+{
+    /// <summary>Número del catálogo SUNAT.</summary>
+    public const string NumeroCatalogo = "D37";
+
+    /// <summary><c>01</c>: Superintendencia Nacional de Control de Servicios de Seguridad, Armas, Municiones y Explosivos de Uso Civil</summary>
+    public const string SuperintendenciaNacionalDeControlDeServicios = "01";
+
+    /// <summary><c>02</c>: Dirección General de Medicamentos Insumos y Drogas</summary>
+    public const string DireccionGeneralDeMedicamentosInsumosY = "02";
+
+    /// <summary><c>03</c>: Dirección General de Salud Ambiental</summary>
+    public const string DireccionGeneralDeSaludAmbiental = "03";
+
+    /// <summary><c>04</c>: Servicio Nacional de Sanidad Agraria</summary>
+    public const string ServicioNacionalDeSanidadAgraria = "04";
+
+    /// <summary><c>05</c>: Servicio Nacional Forestal y de Fauna Silvestre</summary>
+    public const string ServicioNacionalForestalYDeFauna = "05";
+
+    /// <summary><c>06</c>: Ministerio de Transportes y Comunicaciones</summary>
+    public const string MinisterioDeTransportesYComunicaciones = "06";
+
+    /// <summary><c>07</c>: Ministerio de la Producción</summary>
+    public const string MinisterioDeLaProduccion = "07";
+
+    /// <summary><c>08</c>: Ministerio del Ambiente</summary>
+    public const string MinisterioDelAmbiente = "08";
+
+    /// <summary><c>09</c>: Organismo Nacional de Sanidad Pesquera</summary>
+    public const string OrganismoNacionalDeSanidadPesquera = "09";
+
+    /// <summary><c>10</c>: Municipalidad Metropolitana de Lima</summary>
+    public const string MunicipalidadMetropolitanaDeLima = "10";
+
+    /// <summary><c>11</c>: Ministerio de Salud</summary>
+    public const string MinisterioDeSalud = "11";
+
+    /// <summary><c>12</c>: Gobierno Regional</summary>
+    public const string GobiernoRegional = "12";
+
+    /// <summary><c>13</c>: Organismo Supervisor de la Inversión en Energía y Minería</summary>
+    public const string OrganismoSupervisorDeLaInversionEn = "13";
+}
+
 /// <summary>
 /// Catálogo N.° 03 de SUNAT: Código de tipo de unidad de medida comercial. UN/ECE Recomendaciones 20 y 21. El Excel de SUNAT publica el catálogo N.° 03 solo como enlace: estas son las unidades de uso habitual en los sistemas de venta de Pashe; cualquier otro código con el formato del catálogo se acepta.
 /// </summary>

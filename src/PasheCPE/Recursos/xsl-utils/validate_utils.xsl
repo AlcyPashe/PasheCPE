@@ -311,6 +311,68 @@
         </xsl:if>
     </xsl:template>
 
+    <!--
+      Variantes de findElementInCatalogProperty que usan las XSL GRE 2.0 (01/10/2026): la propiedad «gre-r»/«gre-t» del
+      N.° 61 (documento relacionado aplicable a la guía remitente o transportista, columna «GRE Aplicable») y el ubigeo de
+      un puerto o aeropuerto (N.° 63/64) frente al ubigeo de partida. Mismos parámetros y mismo comportamiento.
+    -->
+    <xsl:template name="findElementInCatalog61rProperty">
+        <xsl:param name="errorCodeValidate"/>
+        <xsl:param name="idCatalogo"/>
+        <xsl:param name="catalogo"/>
+        <xsl:param name="propiedad"/>
+        <xsl:param name="valorPropiedad"/>
+        <xsl:param name="isError" select="true()"/>
+        <xsl:param name="descripcion"/>
+        <xsl:call-template name="findElementInCatalogProperty">
+            <xsl:with-param name="errorCodeValidate" select="$errorCodeValidate"/>
+            <xsl:with-param name="idCatalogo" select="$idCatalogo"/>
+            <xsl:with-param name="catalogo" select="$catalogo"/>
+            <xsl:with-param name="propiedad" select="$propiedad"/>
+            <xsl:with-param name="valorPropiedad" select="$valorPropiedad"/>
+            <xsl:with-param name="isError" select="$isError"/>
+            <xsl:with-param name="descripcion" select="$descripcion"/>
+        </xsl:call-template>
+    </xsl:template>
+
+    <xsl:template name="findElementInCatalog61tProperty">
+        <xsl:param name="errorCodeValidate"/>
+        <xsl:param name="idCatalogo"/>
+        <xsl:param name="catalogo"/>
+        <xsl:param name="propiedad"/>
+        <xsl:param name="valorPropiedad"/>
+        <xsl:param name="isError" select="true()"/>
+        <xsl:param name="descripcion"/>
+        <xsl:call-template name="findElementInCatalogProperty">
+            <xsl:with-param name="errorCodeValidate" select="$errorCodeValidate"/>
+            <xsl:with-param name="idCatalogo" select="$idCatalogo"/>
+            <xsl:with-param name="catalogo" select="$catalogo"/>
+            <xsl:with-param name="propiedad" select="$propiedad"/>
+            <xsl:with-param name="valorPropiedad" select="$valorPropiedad"/>
+            <xsl:with-param name="isError" select="$isError"/>
+            <xsl:with-param name="descripcion" select="$descripcion"/>
+        </xsl:call-template>
+    </xsl:template>
+
+    <xsl:template name="findElementInCatalogGREUbigeoProperty">
+        <xsl:param name="errorCodeValidate"/>
+        <xsl:param name="idCatalogo"/>
+        <xsl:param name="catalogo"/>
+        <xsl:param name="propiedad"/>
+        <xsl:param name="valorPropiedad"/>
+        <xsl:param name="isError" select="true()"/>
+        <xsl:param name="descripcion"/>
+        <xsl:call-template name="findElementInCatalogProperty">
+            <xsl:with-param name="errorCodeValidate" select="$errorCodeValidate"/>
+            <xsl:with-param name="idCatalogo" select="$idCatalogo"/>
+            <xsl:with-param name="catalogo" select="$catalogo"/>
+            <xsl:with-param name="propiedad" select="$propiedad"/>
+            <xsl:with-param name="valorPropiedad" select="$valorPropiedad"/>
+            <xsl:with-param name="isError" select="$isError"/>
+            <xsl:with-param name="descripcion" select="$descripcion"/>
+        </xsl:call-template>
+    </xsl:template>
+
     <!-- Rechazo incondicional. -->
     <xsl:template name="rejectCall">
         <xsl:param name="errorCode"/>

@@ -13,6 +13,7 @@ using PasheCPE.Respuestas;
 using PasheCPE.Servicios;
 using PasheCPE.Tiempo;
 using PasheCPE.Transporte;
+using PasheCPE.Transporte.Gre;
 using PasheCPE.Transporte.Soap;
 using PasheCPE.Tributos;
 using PasheCPE.Validacion;
@@ -73,6 +74,9 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<MapeadorVoided>();
         services.TryAddSingleton<ValidadorBaja>();
         services.TryAddSingleton<GeneradorVoided>();
+        services.TryAddSingleton<MapeadorDespatchAdvice>();
+        services.TryAddSingleton<ValidadorGuia>();
+        services.TryAddSingleton<GeneradorGuia>();
         services.TryAddSingleton<LectorBoletaFirmada>();
         services.TryAddSingleton<AsignadorCorrelativos>();
         services.TryAddSingleton<ValidadorEsquema>();
@@ -115,6 +119,10 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<SoporteEnvio>();
         services.TryAddSingleton<EnvioComprobantes>();
         services.TryAddSingleton<EnvioResumenes>();
+        services.TryAddSingleton<ClienteGre>();
+        services.TryAddSingleton<ProveedorTokenGre>();
+        services.TryAddSingleton<EnvioGre>();
+        services.TryAddSingleton<IServicioGre, ServicioGre>();
         services.TryAddSingleton<GeneracionResumenes>();
         services.TryAddSingleton<IServicioCpe, ServicioCpe>();
         return services;

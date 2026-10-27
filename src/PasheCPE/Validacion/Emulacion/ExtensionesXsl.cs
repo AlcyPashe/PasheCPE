@@ -144,6 +144,9 @@ internal sealed class ExtensionesPasheCpe(CatalogosSunat catalogos, DateOnly hoy
         ["07"] = ["igv", "iva", "exp", "gra", "exo", "ina", "oth"],
         ["22"] = ["tasa"],
         ["51"] = ["factura", "boleta"],
+        ["61"] = ["gre-r", "gre-t"],
+        ["63"] = ["ubigeo"],
+        ["64"] = ["ubigeo"],
     };
 
     private static readonly FrozenDictionary<string, string[]> _tributosAfectacion = new Dictionary<string, string[]>(StringComparer.Ordinal)
@@ -189,6 +192,9 @@ internal sealed class ExtensionesPasheCpe(CatalogosSunat catalogos, DateOnly hoy
             ("22", "tasa") => catalogos.Extra(catalogo, codigo, "Porcentaje %") ?? string.Empty,
             ("51", "factura") => Indicador(TiposAsociados(catalogos.Extra(catalogo, codigo, "Tipo de Comprobante asociado")).Contains("factura")),
             ("51", "boleta") => Indicador(TiposAsociados(catalogos.Extra(catalogo, codigo, "Tipo de Comprobante asociado")).Contains("boleta")),
+            ("61", "gre-r") => Indicador(GreAplicable(catalogos.Extra(catalogo, codigo, "GRE Aplicable"), "remitente")),
+            ("61", "gre-t") => Indicador(GreAplicable(catalogos.Extra(catalogo, codigo, "GRE Aplicable"), "transportista")),
+            ("63" or "64", "ubigeo") => catalogos.Extra(catalogo, codigo, "Ubigeo") ?? string.Empty,
             _ => throw new PropiedadCatalogoDesconocidaException(catalogo, propiedad),
         };
     }
@@ -208,6 +214,10 @@ internal sealed class ExtensionesPasheCpe(CatalogosSunat catalogos, DateOnly hoy
     }
 
     private static string Indicador(bool valor) => valor ? "1" : "0";
+
+    /// <summary>«remitente, transportista», «solo remitente» o «solo transportista» (columna «GRE Aplicable» del N.° 61).</summary>
+    private static bool GreAplicable(string? texto, string guia) =>
+        texto is not null && texto.Contains(guia, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>«1016 o 9996» → {1016, 9996}.</summary>
     private static HashSet<string> Codigos(string? texto)

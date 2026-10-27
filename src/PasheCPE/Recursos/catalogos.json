@@ -1200,6 +1200,10 @@
         {
           "codigo": "18",
           "descripcion": "Traslado emisor itinerante CP"
+        },
+        {
+          "codigo": "19",
+          "descripcion": "Traslado de mercancía extranjera"
         }
       ]
     },
@@ -3438,6 +3442,26 @@
         {
           "codigo": "7023",
           "descripcion": "Numero de serie en la DAM o DS"
+        },
+        {
+          "codigo": "7024",
+          "descripcion": "Documento de transporte del Manifiesto de Carga (MC)"
+        },
+        {
+          "codigo": "7025",
+          "descripcion": "Numero de detalle del MC"
+        },
+        {
+          "codigo": "7026",
+          "descripcion": "Contenedor del MC"
+        },
+        {
+          "codigo": "7027",
+          "descripcion": "Precinto"
+        },
+        {
+          "codigo": "7028",
+          "descripcion": "Indicador de contenedor vacio"
         }
       ]
     },
@@ -3832,6 +3856,41 @@
         {
           "codigo": "82",
           "descripcion": "Declaración jurada de mudanza",
+          "extras": {
+            "GRE Aplicable": "solo transportista"
+          }
+        },
+        {
+          "codigo": "91",
+          "descripcion": "Manifiesto de carga (MC)",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "92",
+          "descripcion": "Cita/Orden Entrega Mercancías del Terminal Portuario",
+          "extras": {
+            "GRE Aplicable": "solo remitente"
+          }
+        },
+        {
+          "codigo": "93",
+          "descripcion": "Documento ZOFRATACNA",
+          "extras": {
+            "GRE Aplicable": "solo transportista"
+          }
+        },
+        {
+          "codigo": "94",
+          "descripcion": "Solicitud traslado - ZED",
+          "extras": {
+            "GRE Aplicable": "solo transportista"
+          }
+        },
+        {
+          "codigo": "95",
+          "descripcion": "Solicitud de traslado - ZOFRATACNA",
           "extras": {
             "GRE Aplicable": "solo transportista"
           }
@@ -4990,8 +5049,952 @@
         {
           "codigo": "YD2",
           "descripcion": "YARDA CUADRADA"
+        },
+        {
+          "codigo": "UNI",
+          "descripcion": "UNIDADES (UNI)"
+        },
+        {
+          "codigo": "AE",
+          "descripcion": "AEROSOL"
+        },
+        {
+          "codigo": "AP",
+          "descripcion": "AMPOULE, PROTECTED"
+        },
+        {
+          "codigo": "AT",
+          "descripcion": "ATOMIZER"
+        },
+        {
+          "codigo": "ATD",
+          "descripcion": "ATADOS"
+        },
+        {
+          "codigo": "BA",
+          "descripcion": "BARREL"
+        },
+        {
+          "codigo": "BB",
+          "descripcion": "BOBBIN"
+        },
+        {
+          "codigo": "BC",
+          "descripcion": "BOTTLECRATE, BOTTLERACK"
+        },
+        {
+          "codigo": "BD",
+          "descripcion": "BOARD"
+        },
+        {
+          "codigo": "BE",
+          "descripcion": "BUNDLE"
+        },
+        {
+          "codigo": "BF",
+          "descripcion": "BALLOON, NON-PROTECTED"
+        },
+        {
+          "codigo": "BG",
+          "descripcion": "BAG"
+        },
+        {
+          "codigo": "BH",
+          "descripcion": "BUNCH"
+        },
+        {
+          "codigo": "BI",
+          "descripcion": "BIN"
+        },
+        {
+          "codigo": "BJ",
+          "descripcion": "BUCKET"
+        },
+        {
+          "codigo": "BK",
+          "descripcion": "BASKET"
+        },
+        {
+          "codigo": "BL",
+          "descripcion": "BALE, COMPRESSED"
+        },
+        {
+          "codigo": "BLL",
+          "descripcion": "BULLET"
+        },
+        {
+          "codigo": "BN",
+          "descripcion": "BALE, NON-COMPRESSED"
+        },
+        {
+          "codigo": "BO",
+          "descripcion": "BOTTLE, NON-PROTECTED, CYLINDRICAL"
+        },
+        {
+          "codigo": "BP",
+          "descripcion": "BALLOON, PROTECTED"
+        },
+        {
+          "codigo": "BQ",
+          "descripcion": "BOTTLE, PROTECTED CYLINDRICAL"
+        },
+        {
+          "codigo": "BR",
+          "descripcion": "BAR"
+        },
+        {
+          "codigo": "BS",
+          "descripcion": "BOTTLE, NON-PROTECTED, BULBOUS"
+        },
+        {
+          "codigo": "BT",
+          "descripcion": "BOLT"
+        },
+        {
+          "codigo": "BU",
+          "descripcion": "BUTT"
+        },
+        {
+          "codigo": "BUL",
+          "descripcion": "BULTOS"
+        },
+        {
+          "codigo": "BV",
+          "descripcion": "BOTTLE, PROTECTED BULBOUS"
+        },
+        {
+          "codigo": "BX",
+          "descripcion": "BOX"
+        },
+        {
+          "codigo": "BY",
+          "descripcion": "BOARD, IN BUNDLE/BUNCH/TRUSS"
+        },
+        {
+          "codigo": "BZ",
+          "descripcion": "BARS, IN BUNDLE/BUNCH/TRUSS"
+        },
+        {
+          "codigo": "CA",
+          "descripcion": "CAN, RECTANGULAR"
+        },
+        {
+          "codigo": "CB",
+          "descripcion": "BEER CRATE"
+        },
+        {
+          "codigo": "CC",
+          "descripcion": "CHURN"
+        },
+        {
+          "codigo": "CE",
+          "descripcion": "CREEL"
+        },
+        {
+          "codigo": "CF",
+          "descripcion": "COFFER"
+        },
+        {
+          "codigo": "CG",
+          "descripcion": "CAGE"
+        },
+        {
+          "codigo": "CH",
+          "descripcion": "CHEST"
+        },
+        {
+          "codigo": "CI",
+          "descripcion": "CANISTER"
+        },
+        {
+          "codigo": "CJ",
+          "descripcion": "COFFIN"
+        },
+        {
+          "codigo": "CK",
+          "descripcion": "CASK"
+        },
+        {
+          "codigo": "CKD",
+          "descripcion": "COMPLETELY KNOCKDOWN"
+        },
+        {
+          "codigo": "CL",
+          "descripcion": "COIL"
+        },
+        {
+          "codigo": "CNT",
+          "descripcion": "CIENTOS"
+        },
+        {
+          "codigo": "CO",
+          "descripcion": "CARBOY, NON-PROTECTED"
+        },
+        {
+          "codigo": "CP",
+          "descripcion": "CARBOY, PROTECTED"
+        },
+        {
+          "codigo": "CR",
+          "descripcion": "CRATE"
+        },
+        {
+          "codigo": "CS",
+          "descripcion": "CASE"
+        },
+        {
+          "codigo": "CT",
+          "descripcion": "CARTON"
+        },
+        {
+          "codigo": "CTN",
+          "descripcion": "CONTENEDOR (CTN)"
+        },
+        {
+          "codigo": "CU",
+          "descripcion": "CUP"
+        },
+        {
+          "codigo": "CUB",
+          "descripcion": "CUBETA"
+        },
+        {
+          "codigo": "CUN",
+          "descripcion": "CUYETES"
+        },
+        {
+          "codigo": "CV",
+          "descripcion": "COVER"
+        },
+        {
+          "codigo": "CX",
+          "descripcion": "CAN, CYLINDRICAL"
+        },
+        {
+          "codigo": "CY",
+          "descripcion": "CYLINDER"
+        },
+        {
+          "codigo": "CZ",
+          "descripcion": "CANVAS"
+        },
+        {
+          "codigo": "DJ",
+          "descripcion": "DEMIJOHN, NON-PROTECTED"
+        },
+        {
+          "codigo": "DOC",
+          "descripcion": "DOCENA (DOC)"
+        },
+        {
+          "codigo": "DP",
+          "descripcion": "DEMIJOHN, PROTECTED"
+        },
+        {
+          "codigo": "DPA",
+          "descripcion": "DOCENA DE PARES"
+        },
+        {
+          "codigo": "DR",
+          "descripcion": "DRUM"
+        },
+        {
+          "codigo": "EN",
+          "descripcion": "ENVELOPE"
+        },
+        {
+          "codigo": "ENG",
+          "descripcion": "ENGRADADOS"
+        },
+        {
+          "codigo": "ERJ",
+          "descripcion": "ENREJADOS"
+        },
+        {
+          "codigo": "ESQ",
+          "descripcion": "ESQUELETOS"
+        },
+        {
+          "codigo": "EST",
+          "descripcion": "ESTIBAS"
+        },
+        {
+          "codigo": "FAR",
+          "descripcion": "FARDOS"
+        },
+        {
+          "codigo": "FC",
+          "descripcion": "FRUIT CRATE"
+        },
+        {
+          "codigo": "FD",
+          "descripcion": "FRAMED CRATE"
+        },
+        {
+          "codigo": "FI",
+          "descripcion": "FIRKIN"
+        },
+        {
+          "codigo": "FL",
+          "descripcion": "FLASK"
+        },
+        {
+          "codigo": "FO",
+          "descripcion": "FOOTLOCKER"
+        },
+        {
+          "codigo": "FP",
+          "descripcion": "FILMPACK"
+        },
+        {
+          "codigo": "FR",
+          "descripcion": "FRAME"
+        },
+        {
+          "codigo": "GB",
+          "descripcion": "GAS BOTTLE"
+        },
+        {
+          "codigo": "GI",
+          "descripcion": "GIRDER"
+        },
+        {
+          "codigo": "GRM",
+          "descripcion": "GRAMOS"
+        },
+        {
+          "codigo": "GRN",
+          "descripcion": "GRANEL"
+        },
+        {
+          "codigo": "GZ",
+          "descripcion": "GIRDERS, IN BUNDLE/BUNCH/TRUSS"
+        },
+        {
+          "codigo": "HG",
+          "descripcion": "HOGSHEAD"
+        },
+        {
+          "codigo": "HR",
+          "descripcion": "HAMPER"
+        },
+        {
+          "codigo": "HUA",
+          "descripcion": "HUACALES"
+        },
+        {
+          "codigo": "IN",
+          "descripcion": "INGOT"
+        },
+        {
+          "codigo": "IZ",
+          "descripcion": "INGOTS, IN BUNDLE/BUNCH/TRUSS"
+        },
+        {
+          "codigo": "JAB",
+          "descripcion": "JABAS"
+        },
+        {
+          "codigo": "JC",
+          "descripcion": "JERRICAN, RECTANGULAR"
+        },
+        {
+          "codigo": "JG",
+          "descripcion": "JUG"
+        },
+        {
+          "codigo": "JR",
+          "descripcion": "JAR"
+        },
+        {
+          "codigo": "JT",
+          "descripcion": "JUTEBAG"
+        },
+        {
+          "codigo": "JY",
+          "descripcion": "JERRICAN, CYLINDRICAL"
+        },
+        {
+          "codigo": "KGS",
+          "descripcion": "KILOGRAMOS"
+        },
+        {
+          "codigo": "KLW",
+          "descripcion": "KILOWATTS"
+        },
+        {
+          "codigo": "LBS",
+          "descripcion": "LIBRAS (LBS)"
+        },
+        {
+          "codigo": "LG",
+          "descripcion": "LOG"
+        },
+        {
+          "codigo": "LIT",
+          "descripcion": "LITROS"
+        },
+        {
+          "codigo": "LOT",
+          "descripcion": "LOTES"
+        },
+        {
+          "codigo": "LZ",
+          "descripcion": "LOGS, IN BUNDLE/BUNCH/TRUSS"
+        },
+        {
+          "codigo": "MB",
+          "descripcion": "MULTIPLY BAG"
+        },
+        {
+          "codigo": "MC",
+          "descripcion": "MILK CRATE"
+        },
+        {
+          "codigo": "MS",
+          "descripcion": "MULTIWALL SACK"
+        },
+        {
+          "codigo": "MT",
+          "descripcion": "MAT"
+        },
+        {
+          "codigo": "MTS",
+          "descripcion": "METROS LINEALES"
+        },
+        {
+          "codigo": "MT2",
+          "descripcion": "METROS CUADRADOS"
+        },
+        {
+          "codigo": "MT3",
+          "descripcion": "METROS CUBICOS"
+        },
+        {
+          "codigo": "MX",
+          "descripcion": "MATCH BOX"
+        },
+        {
+          "codigo": "NE",
+          "descripcion": "UNPACKED OR UNPACKAGED"
+        },
+        {
+          "codigo": "NS",
+          "descripcion": "NEST"
+        },
+        {
+          "codigo": "NT",
+          "descripcion": "NET"
+        },
+        {
+          "codigo": "ONZ",
+          "descripcion": "ONZAS (ONZ)"
+        },
+        {
+          "codigo": "PA",
+          "descripcion": "PACKET"
+        },
+        {
+          "codigo": "PAR",
+          "descripcion": "PARES"
+        },
+        {
+          "codigo": "PC",
+          "descripcion": "PARCEL"
+        },
+        {
+          "codigo": "PCH",
+          "descripcion": "PLANCHAS (PCH)"
+        },
+        {
+          "codigo": "PG",
+          "descripcion": "PLATE"
+        },
+        {
+          "codigo": "PGS",
+          "descripcion": "PULGADAS (PGS)"
+        },
+        {
+          "codigo": "PG2",
+          "descripcion": "PULGADAS CUADRADAS"
+        },
+        {
+          "codigo": "PH",
+          "descripcion": "PITCHER"
+        },
+        {
+          "codigo": "PI",
+          "descripcion": "PIPE"
+        },
+        {
+          "codigo": "PIE",
+          "descripcion": "PIE"
+        },
+        {
+          "codigo": "PK",
+          "descripcion": "PACKAGE"
+        },
+        {
+          "codigo": "PN",
+          "descripcion": "PLANK"
+        },
+        {
+          "codigo": "PO",
+          "descripcion": "POUCH"
+        },
+        {
+          "codigo": "PQT",
+          "descripcion": "PAQUETES"
+        },
+        {
+          "codigo": "PT",
+          "descripcion": "POT"
+        },
+        {
+          "codigo": "PTE",
+          "descripcion": "POTES"
+        },
+        {
+          "codigo": "PTF",
+          "descripcion": "PLATAFORMAS"
+        },
+        {
+          "codigo": "PU",
+          "descripcion": "TRAY"
+        },
+        {
+          "codigo": "PY",
+          "descripcion": "PLATES, IN BUNDLE/BUNCH/TRUSS"
+        },
+        {
+          "codigo": "PZ",
+          "descripcion": "PIPES, IN BUNDLE/BUNCH/TRUSS"
+        },
+        {
+          "codigo": "PZS",
+          "descripcion": "PIEZAS (PZS)"
+        },
+        {
+          "codigo": "QLT",
+          "descripcion": "QUILATES"
+        },
+        {
+          "codigo": "RD",
+          "descripcion": "ROD"
+        },
+        {
+          "codigo": "RG",
+          "descripcion": "RING"
+        },
+        {
+          "codigo": "RL",
+          "descripcion": "REEL"
+        },
+        {
+          "codigo": "RLL",
+          "descripcion": "ROLLOS (RLL)"
+        },
+        {
+          "codigo": "RO",
+          "descripcion": "ROLL"
+        },
+        {
+          "codigo": "RT",
+          "descripcion": "REDNET"
+        },
+        {
+          "codigo": "RZ",
+          "descripcion": "RODS, IN BUNDLE/BUNCH/TRUSS"
+        },
+        {
+          "codigo": "SA",
+          "descripcion": "SACK"
+        },
+        {
+          "codigo": "SC",
+          "descripcion": "SHALLOW CRATE"
+        },
+        {
+          "codigo": "SD",
+          "descripcion": "SPINDLE"
+        },
+        {
+          "codigo": "SE",
+          "descripcion": "SEA-CHEST"
+        },
+        {
+          "codigo": "SH",
+          "descripcion": "SACHET"
+        },
+        {
+          "codigo": "SK",
+          "descripcion": "SKELETON CASE"
+        },
+        {
+          "codigo": "SKI",
+          "descripcion": "SKIDS"
+        },
+        {
+          "codigo": "SL",
+          "descripcion": "SLIPSHEET"
+        },
+        {
+          "codigo": "SM",
+          "descripcion": "SHEETMETAL"
+        },
+        {
+          "codigo": "ST",
+          "descripcion": "SHEET"
+        },
+        {
+          "codigo": "SU",
+          "descripcion": "SUITCASE"
+        },
+        {
+          "codigo": "SW",
+          "descripcion": "SHRINKWRAPPED"
+        },
+        {
+          "codigo": "SZ",
+          "descripcion": "SHEETS, IN BUNDLE/BUNCH/TRUSS"
+        },
+        {
+          "codigo": "TB",
+          "descripcion": "TUB"
+        },
+        {
+          "codigo": "TD",
+          "descripcion": "COLLAPSIBLE TUBE"
+        },
+        {
+          "codigo": "TK",
+          "descripcion": "TANK, RECTANGULAR"
+        },
+        {
+          "codigo": "TN",
+          "descripcion": "TIN"
+        },
+        {
+          "codigo": "TNM",
+          "descripcion": "TONELADAS METRICAS"
+        },
+        {
+          "codigo": "TO",
+          "descripcion": "TUN"
+        },
+        {
+          "codigo": "TR",
+          "descripcion": "TRUNK"
+        },
+        {
+          "codigo": "TS",
+          "descripcion": "TRUSS"
+        },
+        {
+          "codigo": "TU",
+          "descripcion": "TUBE"
+        },
+        {
+          "codigo": "TY",
+          "descripcion": "TANK, CYLINDRICAL"
+        },
+        {
+          "codigo": "TZ",
+          "descripcion": "TUBES, IN BUNDLE/BUNCH/TRUSS"
+        },
+        {
+          "codigo": "VA",
+          "descripcion": "VAT"
+        },
+        {
+          "codigo": "VEI",
+          "descripcion": "VEHICULO"
+        },
+        {
+          "codigo": "VG",
+          "descripcion": "BULK, GAS (AT 1031 MBAR AND 15ØC)"
+        },
+        {
+          "codigo": "VI",
+          "descripcion": "VIAL"
+        },
+        {
+          "codigo": "VL",
+          "descripcion": "BULK, LIQUID"
+        },
+        {
+          "codigo": "VO",
+          "descripcion": "BULK, SOLID, LARGE PARTICLES (\"NODULES\")"
+        },
+        {
+          "codigo": "VP",
+          "descripcion": "VACUUM-PACKED"
+        },
+        {
+          "codigo": "VQ",
+          "descripcion": "BULK, LIQUEFIED GAS (AT ABNORMAL TEMPERATURE/PRESSURE)"
+        },
+        {
+          "codigo": "VR",
+          "descripcion": "BULK, SOLID, GRANULAR PARTICLES (\"GRAINS\")"
+        },
+        {
+          "codigo": "VY",
+          "descripcion": "BULK, SOLID, FINE PARTICLES (\"POWDERS\")"
+        },
+        {
+          "codigo": "WAT",
+          "descripcion": "WATT"
+        },
+        {
+          "codigo": "WB",
+          "descripcion": "WICKERBOTTLE"
+        },
+        {
+          "codigo": "YRD",
+          "descripcion": "YARDAS"
+        },
+        {
+          "codigo": "Z1",
+          "descripcion": "PALETA"
+        },
+        {
+          "codigo": "Z2",
+          "descripcion": "CONTENEDOR (Z2)"
+        },
+        {
+          "codigo": "Z3",
+          "descripcion": "UNIDADES (Z3)"
+        },
+        {
+          "codigo": "Otros Listados",
+          "descripcion": ""
         }
       ]
+    },
+    "D37": {
+      "nombre": "Entidades que emiten autorizaciones especiales para el traslado",
+      "columnas": [
+        "Código",
+        "Nombre",
+        "Abreviatura"
+      ],
+      "items": [
+        {
+          "codigo": "01",
+          "descripcion": "Superintendencia Nacional de Control de Servicios de Seguridad, Armas, Municiones y Explosivos de Uso Civil",
+          "extras": {
+            "Abreviatura": "SUCAMEC"
+          }
+        },
+        {
+          "codigo": "02",
+          "descripcion": "Dirección General de Medicamentos Insumos y Drogas",
+          "extras": {
+            "Abreviatura": "DIGEMID"
+          }
+        },
+        {
+          "codigo": "03",
+          "descripcion": "Dirección General de Salud Ambiental",
+          "extras": {
+            "Abreviatura": "DIGESA"
+          }
+        },
+        {
+          "codigo": "04",
+          "descripcion": "Servicio Nacional de Sanidad Agraria",
+          "extras": {
+            "Abreviatura": "SENASA"
+          }
+        },
+        {
+          "codigo": "05",
+          "descripcion": "Servicio Nacional Forestal y de Fauna Silvestre",
+          "extras": {
+            "Abreviatura": "SERFOR"
+          }
+        },
+        {
+          "codigo": "06",
+          "descripcion": "Ministerio de Transportes y Comunicaciones",
+          "extras": {
+            "Abreviatura": "MTC"
+          }
+        },
+        {
+          "codigo": "07",
+          "descripcion": "Ministerio de la Producción",
+          "extras": {
+            "Abreviatura": "PRODUCE"
+          }
+        },
+        {
+          "codigo": "08",
+          "descripcion": "Ministerio del Ambiente",
+          "extras": {
+            "Abreviatura": "MIN. AMBIENTE"
+          }
+        },
+        {
+          "codigo": "09",
+          "descripcion": "Organismo Nacional de Sanidad Pesquera",
+          "extras": {
+            "Abreviatura": "SANIPES"
+          }
+        },
+        {
+          "codigo": "10",
+          "descripcion": "Municipalidad Metropolitana de Lima",
+          "extras": {
+            "Abreviatura": "MML"
+          }
+        },
+        {
+          "codigo": "11",
+          "descripcion": "Ministerio de Salud",
+          "extras": {
+            "Abreviatura": "MINSA"
+          }
+        },
+        {
+          "codigo": "12",
+          "descripcion": "Gobierno Regional",
+          "extras": {
+            "Abreviatura": "GR"
+          }
+        },
+        {
+          "codigo": "13",
+          "descripcion": "Organismo Supervisor de la Inversión en Energía y Minería",
+          "extras": {
+            "Abreviatura": "OSINERGMIN"
+          }
+        }
+      ]
+    },
+    "62A": {
+      "nombre": "Código de producto SUNAT de los bienes normalizados (derivado del N.° 62)",
+      "columnas": [
+        "Código",
+        "Descripción"
+      ],
+      "items": [
+        {
+          "codigo": "11101600",
+          "descripcion": "Los demás"
+        },
+        {
+          "codigo": "11101601",
+          "descripcion": "Sin aglomerar"
+        },
+        {
+          "codigo": "11101602",
+          "descripcion": "Minerales de titanio y sus concentrados"
+        },
+        {
+          "codigo": "11101603",
+          "descripcion": "Minerales de uranio y sus concentrados"
+        },
+        {
+          "codigo": "11101604",
+          "descripcion": "Minerales de cobre y sus concentrados"
+        },
+        {
+          "codigo": "11101605",
+          "descripcion": "Minerales de aluminio y sus concentrados"
+        },
+        {
+          "codigo": "11101606",
+          "descripcion": "Minerales de níquel y sus concentrados"
+        },
+        {
+          "codigo": "11101607",
+          "descripcion": "Minerales de plata y sus concentrados"
+        },
+        {
+          "codigo": "11101608",
+          "descripcion": "Minerales de plomo y sus concentrados"
+        },
+        {
+          "codigo": "11101609",
+          "descripcion": "Concentrado de cinc de baja ley"
+        },
+        {
+          "codigo": "11101610",
+          "descripcion": "Minerales de estaño y sus concentrados"
+        },
+        {
+          "codigo": "11101611",
+          "descripcion": "Minerales de manganeso y sus concentrados, incluidos los minerales de manganeso ferruginosos y sus concentrados con un contenido de manganeso superior o igual al 20 % en peso, sobre producto seco."
+        },
+        {
+          "codigo": "11101612",
+          "descripcion": "Minerales de cromo y sus concentrados"
+        },
+        {
+          "codigo": "11101613",
+          "descripcion": "Minerales de volframio (tungsteno) y sus concentrados"
+        },
+        {
+          "codigo": "11101614",
+          "descripcion": "Tostados"
+        },
+        {
+          "codigo": "11101615",
+          "descripcion": "Minerales de cobalto y sus concentrados"
+        },
+        {
+          "codigo": "11101616",
+          "descripcion": "Minerales de oro y sus concentrados"
+        },
+        {
+          "codigo": "11101620",
+          "descripcion": "Minerales de torio y sus concentrados"
+        },
+        {
+          "codigo": "11101622",
+          "descripcion": "Minerales de antimonio y sus concentrados"
+        },
+        {
+          "codigo": "11101623",
+          "descripcion": "Minerales de circonio y sus concentrados"
+        },
+        {
+          "codigo": "11101701",
+          "descripcion": "Escorias granuladas (arena de escorias) de la siderurgia"
+        },
+        {
+          "codigo": "12352104",
+          "descripcion": "Alcohol etílico sin desnaturalizar con grado alcohólico volumétrico superior o igual al 80 % vol"
+        },
+        {
+          "codigo": "50161509",
+          "descripcion": "Azúcar de caña"
+        },
+        {
+          "codigo": "50221101",
+          "descripcion": "Arroz descascarillado (arroz cargo o arroz pardo)"
+        }
+      ]
+    },
+    "65A": {
+      "nombre": "Unidades de medida de la GRE fuera de DAM o DS (formato UN/ECE Rec. 20)",
+      "columnas": [
+        "Código"
+      ],
+      "soloFormato": true,
+      "formato": "^[A-Z0-9]{1,3}$",
+      "items": []
+    },
+    "66": {
+      "nombre": "Centros de Atención en Frontera (sin lista oficial publicada)",
+      "columnas": [
+        "Código"
+      ],
+      "soloFormato": true,
+      "formato": "^[A-Z0-9]{1,10}$",
+      "items": []
     }
   }
 }

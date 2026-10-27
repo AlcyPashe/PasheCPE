@@ -9,9 +9,10 @@ namespace PasheCPE.Tests.Validacion;
 
 /// <summary>
 /// Cobertura de <c>ajustes-xsl.json</c>: toda fila de 01/03/07/08/RC/RA del Excel posterior a las XSL (06/09/2022) está clasificada,
-/// cada código suprimido tiene su regla C# de reemplazo y cada regla C# respalda sus filas.
+/// toda fila de la GRE remitente (09) la cubre la XSL GRE 2.0 o está clasificada, cada código suprimido tiene su regla C#
+/// de reemplazo y cada regla C# respalda sus filas.
 /// </summary>
-public sealed class AjustesXslTests : IDisposable
+public sealed partial class AjustesXslTests : IDisposable
 {
     private static readonly DateOnly _fechaXsl = new(2022, 9, 6);
 
@@ -31,10 +32,30 @@ public sealed class AjustesXslTests : IDisposable
             .Select(r => (r.Documento, r.Fila, r.Codigo))
             .Order()
             .ToList();
-        var clasificadas = Ajustes.Clasificacion.Select(c => (c.Documento, c.Fila, c.Codigo)).Order().ToList();
+        var clasificadas = Ajustes.Clasificacion.Where(c => c.Documento != TipoDocumentoSunat.GuiaDeRemisionRemitente).Select(c => (c.Documento, c.Fila, c.Codigo)).Order().ToList();
 
         Assert.Equal(posteriores, clasificadas);
         Assert.All(Ajustes.Clasificacion, c => Assert.False(string.IsNullOrWhiteSpace(c.Motivo), $"{c.Documento}/{c.Fila} sin motivo"));
+    }
+
+    /// <summary>
+    /// GRE remitente: la XSL GRE 2.0 (01/10/2026) es posterior al Excel GRE (25/09/2026), así que cada fila de la hoja la
+    /// cubre un código activo de la XSL; las demás (en su mayoría validaciones REST contra padrones de SUNAT) están
+    /// clasificadas, y una fila clasificada no tiene su código activo en la XSL.
+    /// </summary>
+    [Fact]
+    public void ClasificacionGre_CadaFilaLaCubreLaXslOEstaClasificada()
+    {
+        var xsl = File.ReadAllText(LectorDorado.RutaXsl(MotorXslSunat.XslGreRemitente));
+        var activos = CodigoXsl().Matches(Comentario().Replace(xsl, string.Empty)).Select(m => m.Groups[1].Value).ToHashSet(StringComparer.Ordinal);
+        var filas = _servicios.Obtener<ReglasExcelSunat>().Todas.Where(r => r.Documento == TipoDocumentoSunat.GuiaDeRemisionRemitente).ToList();
+        var clasificadas = Ajustes.Clasificacion.Where(c => c.Documento == TipoDocumentoSunat.GuiaDeRemisionRemitente).ToDictionary(c => c.Fila);
+
+        Assert.True(filas.Count > 500, $"Filas de la 09: {filas.Count}");
+        Assert.All(filas, r => Assert.True(
+            activos.Contains(r.Codigo) ^ clasificadas.ContainsKey(r.Fila),
+            $"09/{r.Fila} ({r.Codigo}): {(activos.Contains(r.Codigo) ? "la XSL lo emite y además está clasificada" : "no lo emite la XSL ni está clasificada")}."));
+        Assert.All(clasificadas.Values, c => Assert.Equal(filas.Single(r => r.Fila == c.Fila).Codigo, c.Codigo));
     }
 
     [Fact]
@@ -110,10 +131,16 @@ public sealed class AjustesXslTests : IDisposable
         foreach (var suprimido in Ajustes.Suprimidos)
         {
             var archivo = MotorXslSunat.XslPorDocumento[suprimido.Documento];
-            var xsl = XDocument.Load(Path.Combine(LectorDorado.Raiz(), "recursos", "XSL", archivo));
+            var xsl = XDocument.Load(LectorDorado.RutaXsl(archivo));
             var activo = xsl.Descendants().Any(e => e.Name.LocalName == "with-param" && (string?)e.Attribute("select") == $"'{suprimido.Codigo}'");
 
             Assert.True(activo, $"El código {suprimido.Codigo} ya no está activo en {archivo}: revise ajustes-xsl.json.");
         }
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"select=""'(\d{4})'""")]
+    private static partial System.Text.RegularExpressions.Regex CodigoXsl();
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"<!--.*?-->", System.Text.RegularExpressions.RegexOptions.Singleline)]
+    private static partial System.Text.RegularExpressions.Regex Comentario();
 }

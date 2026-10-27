@@ -26,12 +26,16 @@ public sealed class PasheCpe : IDisposable, IAsyncDisposable
     {
         _proveedor = proveedor;
         Cpe = proveedor.GetRequiredService<IServicioCpe>();
+        Gre = proveedor.GetRequiredService<IServicioGre>();
         Historial = proveedor.GetRequiredService<IHistorialCpe>();
         Conectividad = proveedor.GetRequiredService<IVerificadorConectividad>();
     }
 
     /// <summary>Comprobantes de pago: factura y boleta.</summary>
     public IServicioCpe Cpe { get; }
+
+    /// <summary>Guías de remisión remitente (solo producción).</summary>
+    public IServicioGre Gre { get; }
 
     /// <summary>Historial de envíos.</summary>
     public IHistorialCpe Historial { get; }

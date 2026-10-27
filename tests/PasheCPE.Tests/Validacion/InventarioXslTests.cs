@@ -34,7 +34,7 @@ public sealed partial class InventarioXslTests : IDisposable
 
     private static XDocument Utilidades => XDocument.Load(Path.Combine(LectorDorado.Raiz(), "src", "PasheCPE", "Recursos", "xsl-utils", "validate_utils.xsl"));
 
-    private static XDocument Cargar(string archivo) => XDocument.Load(Path.Combine(LectorDorado.Raiz(), "recursos", "XSL", archivo));
+    private static XDocument Cargar(string archivo) => XDocument.Load(LectorDorado.RutaXsl(archivo));
 
     [Theory]
     [MemberData(nameof(Xsl))]

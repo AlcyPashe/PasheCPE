@@ -98,6 +98,18 @@
     { "codigo": "PCPE-1512", "descripcion": "El documento {0} ya fue dado de baja en SUNAT (2323)." },
     { "codigo": "PCPE-1513", "descripcion": "El documento {0} ya está en la comunicación de baja {1}, que aún no concluye: envíe o consulte esa comunicación en lugar de generar otra (2323)." },
     { "codigo": "PCPE-1514", "descripcion": "La fecha de emisión de {0} en su historial ({1}) no es la fecha de los documentos de la comunicación de baja ({2}) (2375)." },
+    { "codigo": "PCPE-1601", "descripcion": "La serie '{0}' no es válida para la guía de remisión remitente: debe ser T seguida de 3 letras mayúsculas o dígitos (1001)." },
+    { "codigo": "PCPE-1602", "descripcion": "El número {0} de la guía está fuera del rango 1 a 99999999 (1001)." },
+    { "codigo": "PCPE-1603", "descripcion": "La fecha de emisión de la guía {0} es posterior a la fecha actual de Lima ({1}) (2329)." },
+    { "codigo": "PCPE-1604", "descripcion": "El plazo para enviar la guía {0} venció el {1}: SUNAT la recibe hasta 1 día después de la emisión (2108). Emita una nueva guía." },
+    { "codigo": "PCPE-1605", "descripcion": "El motivo de traslado 13 (otros) requiere la descripción del motivo (3457)." },
+    { "codigo": "PCPE-1606", "descripcion": "El peso bruto {0} no es válido: debe ser mayor que cero, con hasta 3 decimales, en KGM o TNE (2523)." },
+    { "codigo": "PCPE-1607", "descripcion": "La guía no tiene bienes." },
+    { "codigo": "PCPE-1608", "descripcion": "El bien {0} no tiene descripción o su cantidad no es mayor que cero (2781, 2780)." },
+    { "codigo": "PCPE-1609", "descripcion": "En la modalidad de transporte público se informa el transportista (RUC y razón social), salvo el traslado en vehículos M1 o L (2558)." },
+    { "codigo": "PCPE-1610", "descripcion": "En la modalidad de transporte privado se informan el vehículo y el conductor principal, salvo el traslado en vehículos M1 o L (2566, 3357)." },
+    { "codigo": "PCPE-1611", "descripcion": "La guía tiene {0} {1}: se admiten el principal y hasta 2 secundarios (4389)." },
+    { "codigo": "PCPE-1612", "descripcion": "La fecha de inicio del traslado ({0}) es anterior a la fecha de emisión ({1}) (3343)." },
     { "codigo": "PCPE-2001", "descripcion": "El XML no cumple el esquema UBL de SUNAT: {0}" },
     { "codigo": "PCPE-2101", "descripcion": "La XSL {0} pidió la variable de DataPower '{1}', que PasheCPE no emula. Revise la emulación (TRD §9.3)." },
     { "codigo": "PCPE-2102", "descripcion": "No se pudo ejecutar la XSL de SUNAT {0}: {1}" },
@@ -122,6 +134,11 @@
     { "codigo": "PCPE-4011", "descripcion": "El documento {0} no tiene ticket en su historial: envíelo antes de consultar el ticket." },
     { "codigo": "PCPE-4012", "descripcion": "El estado del ticket {0} no está en estados-ticket.json: {1}" },
     { "codigo": "PCPE-4013", "descripcion": "El ticket {0} terminó con el estado {1} y SUNAT no devolvió el CDR." },
-    { "codigo": "PCPE-4015", "descripcion": "El ticket se consulta con la referencia del resumen diario (RC) o de la comunicación de baja (RA), no con {0}: sus documentos se actualizan al consultar el resumen o la baja que los informa." }
+    { "codigo": "PCPE-4015", "descripcion": "El ticket se consulta con la referencia del resumen diario (RC) o de la comunicación de baja (RA), no con {0}: sus documentos se actualizan al consultar el resumen o la baja que los informa." },
+    { "codigo": "PCPE-4601", "descripcion": "El emisor no tiene credenciales de la API de guías de SUNAT (client_id, client_secret, usuario y clave SOL)." },
+    { "codigo": "PCPE-4602", "descripcion": "La guía {0} no se envió: las guías de remisión solo existen en producción y PasheCPE está configurado con Ambiente = Beta. Para enviarla de todos modos, active PasheCPE:Gre:PermitirEnvioConAmbienteBeta." },
+    { "codigo": "PCPE-4603", "descripcion": "SUNAT no entregó el token de la API de guías (HTTP {0}): {1}. Revise el client_id, el client_secret y el usuario y la clave SOL del emisor." },
+    { "codigo": "PCPE-4604", "descripcion": "La referencia {0} no es una guía de remisión remitente (09)." },
+    { "codigo": "PCPE-4605", "descripcion": "La API de guías respondió a {0} con HTTP {1} sin el ticket o el estado esperado: {2}" }
   ]
 }

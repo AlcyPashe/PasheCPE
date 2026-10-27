@@ -6,8 +6,9 @@ using System.Text.RegularExpressions;
 namespace PasheCPE.Tests.Utilidades;
 
 /// <summary>
-/// SUNAT falso: un <see cref="HttpMessageHandler"/> que responde lo programado por operación (sendBill, sendSummary…)
-/// y guarda cada solicitud. Sin respuesta programada falla la prueba: ninguna prueba llega a la red.
+/// SUNAT falso: un <see cref="HttpMessageHandler"/> que responde lo programado por operación (sendBill, sendSummary…
+/// o, en la API de guías, tokenGre, envioGre y consultaGre según la URL) y guarda cada solicitud. Sin respuesta
+/// programada falla la prueba: ninguna prueba llega a la red.
 /// </summary>
 internal sealed partial class SunatFalso : HttpMessageHandler
 {
@@ -51,9 +52,14 @@ internal sealed partial class SunatFalso : HttpMessageHandler
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var cuerpo = request.Content is null ? string.Empty : await request.Content.ReadAsStringAsync(cancellationToken);
-        var operacion = Operacion().Match(cuerpo) is { Success: true } m ? m.Groups[1].Value : "?";
+        var url = request.RequestUri!.AbsoluteUri;
+        var operacion = Operacion().Match(cuerpo) is { Success: true } m ? m.Groups[1].Value
+            : url.Contains("/oauth2/token", StringComparison.Ordinal) ? "tokenGre"
+            : url.Contains("/comprobantes/envios/", StringComparison.Ordinal) ? "consultaGre"
+            : url.Contains("/comprobantes/", StringComparison.Ordinal) ? "envioGre"
+            : "?";
         var accion = request.Headers.TryGetValues("SOAPAction", out var valores) ? valores.Single() : null;
-        _solicitudes.Enqueue(new SolicitudRecibida(operacion, request.RequestUri!, accion, request.Content?.Headers.ContentType?.ToString(), cuerpo));
+        _solicitudes.Enqueue(new SolicitudRecibida(operacion, request.RequestUri!, accion, request.Content?.Headers.ContentType?.ToString(), cuerpo, request.Headers.Authorization?.ToString(), request.Method));
         if (!_respuestas.TryGetValue(operacion, out var cola) || !cola.TryDequeue(out var respuesta))
         {
             throw new InvalidOperationException($"SunatFalso: no hay respuesta programada para {operacion}.");
@@ -70,7 +76,7 @@ internal sealed partial class SunatFalso : HttpMessageHandler
 }
 
 /// <summary>Solicitud recibida por <see cref="SunatFalso"/>.</summary>
-internal sealed record SolicitudRecibida(string Operacion, Uri Url, string? SoapAction, string? ContentType, string Cuerpo);
+internal sealed record SolicitudRecibida(string Operacion, Uri Url, string? SoapAction, string? ContentType, string Cuerpo, string? Autorizacion = null, HttpMethod? Metodo = null);
 
 /// <summary>Red falsa del verificador de conectividad: por defecto hay red y todo responde.</summary>
 internal sealed class RedFalsa : global::PasheCPE.Conectividad.ISondaRed

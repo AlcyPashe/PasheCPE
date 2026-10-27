@@ -29,6 +29,10 @@ internal static class LectorDorado
         throw new DirectoryNotFoundException("No se encontró la raíz del repositorio (PasheCPE.slnx).");
     }
 
+    /// <summary>Ruta de una XSL oficial: las GRE 2.0 están en recursos\GRE\XSL, las demás en recursos\XSL.</summary>
+    public static string RutaXsl(string archivo) =>
+        Path.Combine(Raiz(), "recursos", archivo.StartsWith("ValidaExprRegGre", StringComparison.Ordinal) ? Path.Combine("GRE", "XSL") : "XSL", archivo);
+
     public static XElement Cargar(string ruta) => XDocument.Load(ruta, LoadOptions.None).Root!;
 
     /// <summary>Referencia a partir del nombre oficial del archivo: RUC-TT-SERIE-NUMERO.xml o RUC-RC-yyyyMMdd-n.xml.</summary>

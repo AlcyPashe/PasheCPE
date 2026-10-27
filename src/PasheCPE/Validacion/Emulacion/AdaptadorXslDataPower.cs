@@ -13,6 +13,8 @@ namespace PasheCPE.Validacion.Emulacion;
 /// <item>Variable local declarada otra vez en su ámbito → se renombra la nueva declaración y sus referencias
 /// posteriores, que es lo mismo que sombrearla.</item>
 /// <item>Variables usadas sin declarar → variables globales de respaldo (<c>xsl-compatibilidad.json</c>).</item>
+/// <item><c>xsl:include</c> de las utilidades con la ruta del servidor de SUNAT (las XSL GRE 2.0 incluyen
+/// <c>/cpe/data/sunat_archivos/sfs/VALI/commons/error/validate_utils.xsl</c>) → la ruta <c>local:///</c> equivalente.</item>
 /// </list>
 /// </summary>
 internal static partial class AdaptadorXslDataPower
@@ -22,6 +24,8 @@ internal static partial class AdaptadorXslDataPower
     private static readonly XName _variable = XName.Get("variable", EspacioXslt);
     private static readonly XName _param = XName.Get("param", EspacioXslt);
     private static readonly XName _template = XName.Get("template", EspacioXslt);
+    private static readonly XName _include = XName.Get("include", EspacioXslt);
+    private const string _utilidades = "/commons/error/validate_utils.xsl";
 
     /// <summary>Copia adaptada de la XSL y las correcciones aplicadas.</summary>
     public static (XDocument Xsl, CorreccionesXsl Correcciones) Adaptar(XDocument original, IEnumerable<VariableRespaldoXsl> respaldos)
@@ -30,6 +34,15 @@ internal static partial class AdaptadorXslDataPower
         ArgumentNullException.ThrowIfNull(respaldos);
         var xsl = new XDocument(original);
         var raiz = xsl.Root ?? throw new InvalidOperationException("La XSL no tiene elemento raíz.");
+
+        foreach (var inclusion in raiz.Elements(_include))
+        {
+            if (inclusion.Attribute("href") is { } href && !href.Value.StartsWith("local:", StringComparison.Ordinal)
+                && href.Value.EndsWith(_utilidades, StringComparison.Ordinal))
+            {
+                href.Value = "local://" + _utilidades;
+            }
+        }
 
         var concat = CorregirConcat(raiz);
         var redeclaradas = new List<string>();

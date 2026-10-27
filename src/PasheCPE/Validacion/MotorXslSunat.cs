@@ -18,7 +18,7 @@ namespace PasheCPE.Validacion;
 /// </summary>
 internal sealed class MotorXslSunat(CatalogosSunat catalogos, CatalogoErrores errores, RelojCpe reloj)
 {
-    /// <summary>XSL que se usa para cada tipo de documento. La GRE (09) se compila pero no se usa: es de la GRE 1.0.</summary>
+    /// <summary>XSL que se usa para cada tipo de documento. La GRE usa las XSL GRE 2.0 de SUNAT (01/10/2026, Fase 10).</summary>
     public static FrozenDictionary<string, string> XslPorDocumento { get; } = new Dictionary<string, string>(StringComparer.Ordinal)
     {
         ["01"] = "ValidaExprRegFactura-2.0.1.xsl",
@@ -27,10 +27,20 @@ internal sealed class MotorXslSunat(CatalogosSunat catalogos, CatalogoErrores er
         ["08"] = "ValidaExprRegND-2.0.1.xsl",
         [ReferenciaCpe.TipoResumenDiario] = "ValidaExprRegSummary-1.1.0.xsl",
         [ReferenciaCpe.TipoComunicacionBaja] = "ValidaExprRegSummaryVoided-1.0.1.xsl",
+        [TipoDocumentoSunat.GuiaDeRemisionRemitente] = XslGreRemitente,
     }.ToFrozenDictionary(StringComparer.Ordinal);
 
-    /// <summary>Todas las XSL embebidas, incluida la de la GRE (solo se compila).</summary>
-    public static IReadOnlyList<string> XslEmbebidas { get; } = [.. XslPorDocumento.Values, "ValidaExprRegGuiaRemitente-2.0.1.xsl"];
+    /// <summary>Parámetro global con el nombre del archivo enviado (XSL GRE 2.0).</summary>
+    public const string ParametroNombreArchivo = "nombreArchivoEnviado";
+
+    /// <summary>XSL de la GRE remitente 2.0 (en <c>recursos\GRE\XSL</c>).</summary>
+    public const string XslGreRemitente = "ValidaExprRegGreRemitente-2.0.1.xsl";
+
+    /// <summary>XSL de la GRE transportista 2.0: se compila; se usa desde la Fase 10b.</summary>
+    public const string XslGreTransportista = "ValidaExprRegGreTransportista-2.0.1.xsl";
+
+    /// <summary>Todas las XSL embebidas, incluida la de la GRE transportista (solo se compila).</summary>
+    public static IReadOnlyList<string> XslEmbebidas { get; } = [.. XslPorDocumento.Values, XslGreTransportista];
 
     private static readonly Lazy<IReadOnlyList<VariableRespaldoXsl>> _respaldos = new(() =>
         RecursosEmbebidos.Leer("xsl-compatibilidad.json", DatosJson.Default.ArchivoCompatibilidadXsl).VariablesRespaldo);
@@ -70,6 +80,8 @@ internal sealed class MotorXslSunat(CatalogosSunat catalogos, CatalogoErrores er
         {
             var argumentos = new XsltArgumentList();
             var ahora = reloj.AhoraLima();
+            // Las XSL GRE 2.0 (variante SFS) reciben el nombre del archivo como parámetro global en vez de dp:variable.
+            argumentos.AddParam(ParametroNombreArchivo, string.Empty, NombreArchivoCpe.Xml(referencia));
             argumentos.AddExtensionObject(ExtensionesDataPower.Espacio, new ExtensionesDataPower(NombreArchivoCpe.Xml(referencia)));
             argumentos.AddExtensionObject(ExtensionesExsltFechas.Espacio, new ExtensionesExsltFechas(ahora));
             argumentos.AddExtensionObject(ExtensionesExsltRegexp.Espacio, new ExtensionesExsltRegexp());

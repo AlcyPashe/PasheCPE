@@ -19,7 +19,8 @@ internal sealed record ReglaSunat(
     string Codigo,
     string Mensaje,
     string Listados,
-    DateOnly? Vigencia);
+    DateOnly? Vigencia,
+    string Capa = "");
 
 /// <summary>Fila normalizada de «Control de Cambios».</summary>
 internal sealed record CambioSunat(
@@ -52,13 +53,23 @@ internal static partial class LectorReglas
         ("Comunicación de Baja1_0", "RA"),
     ];
 
+    /// <summary>Hojas del Excel GRE (TRD §3.2) y documento que representan.</summary>
+    public static readonly IReadOnlyList<(string Hoja, string Documento)> HojasGre =
+    [
+        ("Guía-Remitente2_0", "09"),
+        ("Guía-Transportista2_0", "31"),
+    ];
+
     public static IReadOnlyList<CambioSunat> LeerCambios(HojaExcel hoja)
     {
         var encabezado = hoja.Filas.First(f => f.Celdas.Values.Any(v => Texto.Clave(v) == "FECHA VIGENCIA"));
         string Columna(string clave) => encabezado.Celdas.First(c => Texto.Clave(c.Value).StartsWith(clave, StringComparison.Ordinal)).Key;
         var (version, codigos, campo, tipo, detalle, comprobante, vigencia) = (
             Columna("VERSION EXCEL"), Columna("ERROR/OBSERVACION"), Columna("CAMPO"), Columna("TIPO"),
-            Columna("DETALLE"), Columna("COMPROBANTE"), Columna("FECHA VIGENCIA"));
+            Columna("DETALLE"), ColumnaDocumento(), Columna("FECHA VIGENCIA"));
+        // El Excel CPE llama «COMPROBANTE» a la columna que el Excel GRE llama «DOCUMENTO».
+        string ColumnaDocumento() => encabezado.Celdas.First(c =>
+            Texto.Clave(c.Value).StartsWith("COMPROBANTE", StringComparison.Ordinal) || Texto.Clave(c.Value).StartsWith("DOCUMENTO", StringComparison.Ordinal)).Key;
 
         var cambios = new List<CambioSunat>();
         foreach (var fila in hoja.Filas.Where(f => f.Numero > encabezado.Numero))
@@ -132,7 +143,8 @@ internal static partial class LectorReglas
                 Texto.UnaLinea(Valor(fila, "listados")) is "-" ? string.Empty : Texto.UnaLinea(Valor(fila, "listados")),
                 cambios
                     .Where(c => c.FechaVigencia is not null && c.Documentos.Contains(documento) && c.Codigos.Contains(codigo))
-                    .Max(c => c.FechaVigencia)));
+                    .Max(c => c.FechaVigencia),
+                Texto.Clave(Valor(fila, "capa"))));
         }
 
         return reglas;
@@ -150,6 +162,7 @@ internal static partial class LectorReglas
         "TIPO DE RETORNO" => "tipo",
         "MENSAJE DE RETORNO" => "mensaje",
         "LISTADOS" => "listados",
+        "REST O XSL" => "capa",
         _ when encabezado.StartsWith("FORMATO", StringComparison.Ordinal) => "formato",
         _ when encabezado.StartsWith("VALIDACION", StringComparison.Ordinal) => "validacion",
         _ when encabezado.Contains("CODIGO", StringComparison.Ordinal) && encabezado.Contains("RETORNO", StringComparison.Ordinal) => "codigo",
@@ -210,6 +223,17 @@ internal static partial class LectorReglas
         if (Palabra("RA").IsMatch(clave) || clave.Contains("COMUNICACION DE BAJA", StringComparison.Ordinal))
         {
             documentos.Add("RA");
+        }
+
+        // Excel GRE: «GRE-R», «GRE-T» o «GRE-R y GRE-T».
+        if (clave.Contains("GRE-R", StringComparison.Ordinal))
+        {
+            documentos.Add("09");
+        }
+
+        if (clave.Contains("GRE-T", StringComparison.Ordinal))
+        {
+            documentos.Add("31");
         }
 
         return documentos;

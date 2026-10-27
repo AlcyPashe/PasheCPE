@@ -95,6 +95,10 @@ public sealed class Party
     /// <summary>cac:PartyLegalEntity.</summary>
     [XmlElement("PartyLegalEntity", Namespace = EspaciosUbl.Cac, Order = 2)]
     public Collection<PartyLegalEntity> PartyLegalEntity { get; } = [];
+
+    /// <summary>cac:AgentParty (GRE: autorización especial del transportista o del remitente).</summary>
+    [XmlElement("AgentParty", Namespace = EspaciosUbl.Cac, Order = 3)]
+    public Party? AgentParty { get; set; }
 }
 
 /// <summary>cac:PartyIdentification. No es parte del contrato estable.</summary>
@@ -123,12 +127,16 @@ public sealed class PartyLegalEntity
     [XmlElement("RegistrationName", Namespace = EspaciosUbl.Cbc, Order = 0)]
     public string? RegistrationName { get; set; }
 
+    /// <summary>cbc:CompanyID (GRE: número de registro MTC o de la autorización especial, con la entidad en schemeID).</summary>
+    [XmlElement("CompanyID", Namespace = EspaciosUbl.Cbc, Order = 1)]
+    public IdentifierType? CompanyID { get; set; }
+
     /// <summary>cac:RegistrationAddress.</summary>
-    [XmlElement("RegistrationAddress", Namespace = EspaciosUbl.Cac, Order = 1)]
+    [XmlElement("RegistrationAddress", Namespace = EspaciosUbl.Cac, Order = 2)]
     public Address? RegistrationAddress { get; set; }
 
     /// <summary>cac:ShareholderParty (contrato de colaboración empresarial).</summary>
-    [XmlElement("ShareholderParty", Namespace = EspaciosUbl.Cac, Order = 2)]
+    [XmlElement("ShareholderParty", Namespace = EspaciosUbl.Cac, Order = 3)]
     public Collection<ShareholderParty> ShareholderParty { get; } = [];
 }
 
@@ -411,16 +419,20 @@ public sealed class DocumentReference
     [XmlElement("DocumentTypeCode", Namespace = EspaciosUbl.Cbc, Order = 1)]
     public CodeType? DocumentTypeCode { get; set; }
 
+    /// <summary>cbc:DocumentType (GRE: descripción del tipo de documento relacionado).</summary>
+    [XmlElement("DocumentType", Namespace = EspaciosUbl.Cbc, Order = 2)]
+    public string? DocumentType { get; set; }
+
     /// <summary>cbc:DocumentStatusCode (identificador del pago del anticipo).</summary>
-    [XmlElement("DocumentStatusCode", Namespace = EspaciosUbl.Cbc, Order = 2)]
+    [XmlElement("DocumentStatusCode", Namespace = EspaciosUbl.Cbc, Order = 3)]
     public CodeType? DocumentStatusCode { get; set; }
 
     /// <summary>cbc:DocumentDescription.</summary>
-    [XmlElement("DocumentDescription", Namespace = EspaciosUbl.Cbc, Order = 3)]
+    [XmlElement("DocumentDescription", Namespace = EspaciosUbl.Cbc, Order = 4)]
     public string? DocumentDescription { get; set; }
 
     /// <summary>cac:IssuerParty.</summary>
-    [XmlElement("IssuerParty", Namespace = EspaciosUbl.Cac, Order = 4)]
+    [XmlElement("IssuerParty", Namespace = EspaciosUbl.Cac, Order = 5)]
     public Party? IssuerParty { get; set; }
 }
 
@@ -491,6 +503,27 @@ public sealed class Item
     /// <summary>cac:CommodityClassification (código de producto SUNAT).</summary>
     [XmlElement("CommodityClassification", Namespace = EspaciosUbl.Cac, Order = 3)]
     public Collection<CommodityClassification> CommodityClassification { get; } = [];
+
+    /// <summary>cac:AdditionalItemProperty (GRE: propiedades del bien, catálogo N.° 55).</summary>
+    [XmlElement("AdditionalItemProperty", Namespace = EspaciosUbl.Cac, Order = 4)]
+    public Collection<ItemProperty> AdditionalItemProperty { get; } = [];
+}
+
+/// <summary>cac:AdditionalItemProperty. No es parte del contrato estable.</summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
+public sealed class ItemProperty
+{
+    /// <summary>cbc:Name (nombre del concepto).</summary>
+    [XmlElement("Name", Namespace = EspaciosUbl.Cbc, Order = 0)]
+    public string? Name { get; set; }
+
+    /// <summary>cbc:NameCode (código del concepto, catálogo N.° 55).</summary>
+    [XmlElement("NameCode", Namespace = EspaciosUbl.Cbc, Order = 1)]
+    public CodeType? NameCode { get; set; }
+
+    /// <summary>cbc:Value.</summary>
+    [XmlElement("Value", Namespace = EspaciosUbl.Cbc, Order = 2)]
+    public string? Value { get; set; }
 }
 
 /// <summary>cac:*ItemIdentification. No es parte del contrato estable.</summary>

@@ -56,8 +56,11 @@ internal sealed record DatosCurados(
 /// <summary>Vigencia de un código (o de todo el catálogo si <see cref="Codigo"/> es null).</summary>
 internal sealed record VigenciaCurada(string Catalogo, string? Codigo, DateOnly? Desde, DateOnly? Hasta, string Fuente);
 
-/// <summary>Catálogo que el Excel publica solo como enlace: se valida por formato.</summary>
-internal sealed record FormatoCurado(string Catalogo, string Formato, string Fuente);
+/// <summary>
+/// Catálogo que el Excel publica solo como enlace: se valida por formato. Con <see cref="Nombre"/>, catálogo que las
+/// XSL consultan y ningún Excel publica (p. ej. el 66 de la GRE): se crea solo con su formato.
+/// </summary>
+internal sealed record FormatoCurado(string Catalogo, string Formato, string Fuente, string? Nombre = null);
 
 /// <summary>
 /// Código de error de servicio que indica una falla temporal (se puede reintentar). <see cref="Grupo"/> (solo los

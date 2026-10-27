@@ -218,7 +218,17 @@ public sealed record EmisorCpe
 - `ResumenDiarioCpe`: fecha de referencia + líneas (boleta/nota, estado 1 adicionar / 2 modificar / 3 anular, cliente con razón social, totales por afectación con gratuitas desagregadas en gravadas/exoneradas/inafectas/exportación, IGV de gratuitas y tasa del IGV — campos 2027; sin tasa, la librería usa la vigente a la fecha de emisión, o la MYPE si el emisor la aplica). La librería asigna correlativos y divide en lotes de 500.
 - `DocumentoResumenCpe` (Fase 6, decidido con el desarrollador el 23/10/2026): tipo, serie, número y estado de una boleta o nota **ya generada por PasheCPE**; con esta vía la librería arma la línea leyendo su XML firmado de `FIRMA` (lo informado coincide con lo firmado).
 - `ComunicacionBajaCpe`: fecha de referencia (emisión de los documentos) + fecha de generación opcional + documentos (`DocumentoBajaCpe`: tipo 01, 07 u 08 de serie F o numérica, serie, número, motivo). Las boletas y sus notas se anulan en el resumen diario con el estado 3 (Fase 8).
-- `GuiaRemisionCpe` (09/31) — **se define en la Fase 10** a partir del Excel GRE; campos previstos: remitente/transportista, destinatario, motivo (Cat.20) y descripción, modalidad (Cat.18: 01 público / 02 privado), fecha de inicio de traslado, peso bruto y unidad, bultos, partida y llegada (ubigeo, dirección, código de establecimiento), vehículos (placa, autorización), conductores (documento, nombres, licencia), transportista (RUC, razón social, MTC), indicador M1/L, documentos relacionados (Cat.61), bienes (código, descripción, unidad, cantidad, bien normalizado Cat.62).
+- `GuiaRemisionCpe` (09, Fase 10a; la 31 en la Fase 10b) — definido con el Excel GRE 25/09/2026, la XSL GRE 2.0 y los dorados:
+  - serie `T` + 3 caracteres, número, fecha y hora de emisión, observaciones;
+  - destinatario y, según el motivo, proveedor (02) o comprador (03) (`ClienteCpe`);
+  - motivo (Cat. 20) y descripción, modalidad (Cat. 18), fecha de inicio del traslado, peso bruto (KGM/TNE, 3 decimales) y bultos;
+  - partida y llegada (`PuntoTrasladoCpe`: ubigeo, dirección, RUC y código de establecimiento);
+  - transportista (`TransportistaCpe`: RUC, razón social, registro MTC, autorización especial D-37);
+  - vehículos (`VehiculoCpe`: placa, TUCE o certificado, autorización) y conductores (`ConductorCpe`), el primero principal y hasta 2 secundarios;
+  - indicadores (`IndicadoresTrasladoCpe`: M1/L, retorno vacío, retorno con envases, transbordo, traslado total DAM/DS, vehículos del transportista);
+  - puerto o aeropuerto (`PuertoCpe`), documentos relacionados (`DocumentoTrasladoCpe`, Cat. 61);
+  - bienes (`BienGuiaCpe`: descripción, cantidad, unidad, código interno, código SUNAT, bien normalizado 7022, partida 7020, DAM 7021, serie 7023).
+  - Fuera de alcance por ahora: contenedores y precintos del manifiesto de carga (motivo 19 con documento 91), coordenadas y autorización especial del remitente.
 - `ReferenciaCpe`: `(Ruc, TipoDocumento, Serie, Numero, Fecha)` o `(Ruc, Tipo RC/RA, Fecha, Correlativo)`; resuelve nombre de archivo y periodo.
 
 Todos son `record` inmutables, serializables con `System.Text.Json` mediante el contexto público generado `PasheCpeJson` (`JsonSerializerContext`), que incluye modelos, resultados e historial. `EmisorCpe` queda fuera del contexto porque contiene credenciales; sus claves llevan `[JsonIgnore]` y el `ToString()` de los records de credenciales las enmascara.
@@ -321,11 +331,13 @@ public interface IServicioCpe   // 01, 03, 07, 08, RC, RA
     Task<ResultadoValidacion> ValidarAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default);             // nivel 1 + documento modificado
 }
 
-public interface IServicioGre   // 09, 31
+public interface IServicioGre   // 09 (Fase 10a); 31 en la Fase 10b
 {
     Task<ResultadoGeneracion> GenerarAsync(EmisorCpe emisor, GuiaRemisionCpe guia, CancellationToken ct = default);
+    Task<ResultadoValidacion> ValidarAsync(EmisorCpe emisor, GuiaRemisionCpe guia, CancellationToken ct = default);
     Task<ResultadoEnvio> EnviarAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default);   // → ticket
-    Task<ResultadoEnvio> ConsultarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string ticket, CancellationToken ct = default);
+    Task<ResultadoEnvio> ConsultarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default);  // sin ticket: el del historial
+    Task<ResultadoEnvio> EsperarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket = null, CancellationToken ct = default);
     Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, GuiaRemisionCpe guia, CancellationToken ct = default);     // genera, envía y espera ticket
 }
 
@@ -406,7 +418,7 @@ Archivo por documento:
 | 08 | `ValidaExprRegND-2.0.1.xsl` |
 | RC | `ValidaExprRegSummary-1.1.0.xsl` |
 | RA | `ValidaExprRegSummaryVoided-1.0.1.xsl` |
-| 09 | `ValidaExprRegGuiaRemitente-2.0.1.xsl`: **se compila pero no se usa**. Es de la GRE 1.0 (exige `CustomizationID` 1.0) y da errores falsos con las GRE 2.0 aceptadas; en la Fase 10 se revisa si SUNAT publicó una XSL de la GRE 2.0 y se evalúa con los dorados antes de decidir |
+| 09 | `recursos\GRE\XSL\ValidaExprRegGreRemitente-2.0.1.xsl` (GRE 2.0, SUNAT 01/10/2026, 375 validaciones; Fase 10a). Variante del Facturador SUNAT (SFS): incluye las utilidades con la ruta del servidor (`/cpe/data/sunat_archivos/sfs/VALI/commons/error/validate_utils.xsl`, que el adaptador lleva a `local:///`) y recibe el nombre del archivo como parámetro global `nombreArchivoEnviado` en vez de `dp:variable`. Usa tres plantillas nuevas (`findElementInCatalog61rProperty`, `findElementInCatalog61tProperty`, `findElementInCatalogGREUbigeoProperty`, iguales a `findElementInCatalogProperty`) y los catálogos D37 (Excel GRE), 62A (derivado del 62), 65A y 66 (solo formato, sin lista oficial). Con los dorados da solo la observación 4391, la misma del CDR de SUNAT. La XSL GRE 1.0 (`recursos\XSL\ValidaExprRegGuiaRemitente-2.0.1.xsl`) queda como referencia, sin uso. La transportista (`ValidaExprRegGreTransportista-2.0.1.xsl`) se compila y se usa desde la Fase 10b |
 | 31 | sin XSL oficial → XSD + reglas C# |
 
 Las XSL de SUNAT son XSLT 1.0 escritas para IBM DataPower. Lo que se encontró en los archivos (inventario automático en `InventarioXslTests`) y cómo se resuelve con `XslCompiledTransform`:
@@ -572,7 +584,7 @@ Notas: `endpoints.json` trae solo eFact; otro OSE se declara en `PasheCPE:Endpoi
 
 ## 15. Lectura del CDR
 
-`LectorCdr` (con `XmlReader` y `XmlNamespaceManager`): guarda `R-{nombre}.zip` íntegro en `RPTA\yyyy\MM\`; extrae en memoria; lee `cbc:ResponseDate`, `cbc:ResponseTime`, `cac:DocumentResponse/cac:Response/cbc:ResponseCode`, `cbc:Description`, `cbc:ReferenceID`, todas las `cbc:Note` (formato `"4252 - texto"` → `ObservacionCpe{Codigo, Descripcion}`), `cac:DocumentReference/cbc:ID` y, en GRE, el enlace del QR. Valida la firma del CDR solo si `VerificarFirmaCdr = true` (si no es válida, observación `PCPE-4009`). SUNAT agrega dentro de `Signature` elementos fuera del estándar (`Proposito`, `Revocacion`, `TSL`, `Expiracion`) que no están firmados: se retiran antes de verificar. Los CDR SOAP dorados verifican; en los de la GRE (API REST) el `SignedInfo` verifica pero el digest del documento no coincide (revisar en la Fase 10). Beta no firma sus CDR: `SignatureValue` y `X509Certificate` traen textos de relleno («Private key 'BetaPublicCert' not up»), así que con la verificación activa quedan con la firma no válida, sin lanzar (Fase 8). Los CDR de un OSE los firma el OSE, no SUNAT (en los dorados de eFact, RSA-SHA1 con el certificado de EFACT S.A.C., y los elementos `cbc` van en el namespace por defecto): la verificación usa la llave del propio `KeyInfo` y no comprueba que el certificado sea de SUNAT. El ZIP del CDR por SOAP trae además una entrada de carpeta `dummy/` (vista en los CDR reales): se ignoran las entradas que no son archivos XML.
+`LectorCdr` (con `XmlReader` y `XmlNamespaceManager`): guarda `R-{nombre}.zip` íntegro en `RPTA\yyyy\MM\`; extrae en memoria; lee `cbc:ResponseDate`, `cbc:ResponseTime`, `cac:DocumentResponse/cac:Response/cbc:ResponseCode`, `cbc:Description`, `cbc:ReferenceID`, todas las `cbc:Note` (formato `"4252 - texto"` → `ObservacionCpe{Codigo, Descripcion}`), `cac:DocumentReference/cbc:ID` y, en GRE, el enlace del QR. Valida la firma del CDR solo si `VerificarFirmaCdr = true` (si no es válida, observación `PCPE-4009`). SUNAT agrega dentro de `Signature` elementos fuera del estándar (`Proposito`, `Revocacion`, `TSL`, `Expiracion`) que no están firmados: se retiran antes de verificar. Los CDR SOAP dorados verifican; en los de la GRE (API REST: RSA-SHA512 con digest SHA-1 y C14N exclusiva con comentarios, firma con sangría) el `SignedInfo` verifica pero el digest del documento no coincide: SUNAT vuelve a serializar el CDR después de firmarlo, no se puede corregir de este lado (Fase 10a); con la verificación activa quedan con `PCPE-4009`. Beta no firma sus CDR: `SignatureValue` y `X509Certificate` traen textos de relleno («Private key 'BetaPublicCert' not up»), así que con la verificación activa quedan con la firma no válida, sin lanzar (Fase 8). Los CDR de un OSE los firma el OSE, no SUNAT (en los dorados de eFact, RSA-SHA1 con el certificado de EFACT S.A.C., y los elementos `cbc` van en el namespace por defecto): la verificación usa la llave del propio `KeyInfo` y no comprueba que el certificado sea de SUNAT. El ZIP del CDR por SOAP trae además una entrada de carpeta `dummy/` (vista en los CDR reales): se ignoran las entradas que no son archivos XML.
 
 ## 16. Tickets
 
@@ -594,11 +606,14 @@ Espera progresiva configurable (por defecto 2, 4, 8, 15, 30 s; máximo 5 consult
 
 ## 17. GRE — API REST con OAuth2
 
-1. **Token** (`ProveedorTokenGre`): `POST` form `grant_type=password`, `scope=https://api-cpe.sunat.gob.pe`, `client_id`, `client_secret`, `username={RUC}{UsuarioSOL}`, `password={ClaveSOL}`. Caché por `(client_id, username)` hasta `expires_in − 60 s`; renovación con bloqueo para evitar solicitudes simultáneas.
-2. **Envío**: `POST {api}/{RUC-TT-SERIE-NUMERO}` con `{"archivo":{"nomArchivo":"{nombre}.zip","arcGreZip":"<Base64>","hashZip":"<SHA-256>"}}` → `numTicket`, `fecRecepcion`. Formato del hash: hexadecimal en minúsculas **[verificar contra el manual GRE]**.
+Fuente: manual «Servicios web – Plataforma nueva GRE» (`recursos\GRE\Manual_Servicios_GRE.pdf`), que describe el token y los errores; el envío y la consulta no vienen en el manual y siguen este TRD **[verificar]** con el primer envío real (Fase 10a: implementado y probado solo con respuestas grabadas, porque SUNAT no tiene ambiente de pruebas para guías).
+
+1. **Token** (`ProveedorTokenGre`): `POST` form `grant_type=password`, `scope=https://api-cpe.sunat.gob.pe`, `client_id`, `client_secret`, `username={RUC}{UsuarioSOL}`, `password={ClaveSOL}` → `access_token`, `token_type`, `expires_in` (hoy 1 hora). Se usa como `Authorization: Bearer {token}` en todos los envíos y consultas de su vigencia. Caché en memoria por `(client_id, RUC+usuario)` hasta `expires_in − 60 s`; vencido, el siguiente envío pide otro. Un solo pedido a la vez por credencial (los envíos simultáneos reutilizan el token). Hasta 3 reintentos ante red o 5xx; credenciales rechazadas → `ErrorServicio` `PCPE-4603`.
+2. **Envío**: `POST {api}/{RUC-TT-SERIE-NUMERO}` con `{"archivo":{"nomArchivo":"{nombre}.zip","arcGreZip":"<Base64>","hashZip":"<SHA-256>"}}` → `numTicket`, `fecRecepcion`. Formato del hash: hexadecimal en minúsculas **[verificar]**. Nunca se reintenta dentro de la llamada; con ticket en el historial se consulta el ticket en vez de reenviar; sin ticket (respuesta incierta) se reenvía el mismo ZIP **[verificar]** la respuesta de SUNAT a un duplicado.
 3. **Consulta**: `GET {api}/envios/{numTicket}` → `codRespuesta` (0/98/99), `error{numError, desError}`, `arcCdr` (Base64), `indCdrGenerado`.
-4. Errores HTTP: 401 → renovar token y reintentar una vez; 400/404/422 → `ErrorServicio` con detalle; 500/503 → `ServicioNoDisponible`.
-5. Sin ambiente beta: la GRE **siempre** usa los endpoints de producción. Si `Ambiente = Beta`, la librería no envía GRE (devuelve `ErrorServicio` "GRE solo existe en producción") salvo que `Gre.PermitirEnvioConAmbienteBeta = true`. Es una protección contra emisiones reales accidentales durante pruebas. La demo pide confirmación explícita antes de enviar una GRE.
+4. Errores HTTP (manual §1.3): general `{cod, msg, exc}`; 422 con `errors[]{codError, desError}`. 401 → se descarta el token, se pide otro y se repite **una** vez; 400/403/404/405/406/415/422 → `ErrorServicio` con los errores; 502/503/504 o sin conexión → `ServicioNoDisponible` reintentable; 500 o sin respuesta en el envío → `RespuestaIncierta` (en la consulta, `ServicioNoDisponible`). Ticket: 98 → `EnProceso`; 0 → CDR (aceptada u observada, QR con el enlace del CDR en `QR\yyyy\MM`); 99 → CDR de rechazo o `error{numError, desError}` (2000–3999 → `Rechazado`; otro → `ErrorServicio`).
+5. Sin ambiente beta: la GRE **siempre** usa los endpoints de SUNAT en producción, aunque los comprobantes del emisor vayan por OSE. Si `Ambiente = Beta`, la librería no pide token ni envía (`ErrorValidacionLocal` `PCPE-4602`) salvo que `Gre.PermitirEnvioConAmbienteBeta = true`. Es una protección contra emisiones reales accidentales durante pruebas. La demo pide escribir `GRE REAL` antes de enviar.
+6. Plazo: SUNAT recibe la guía hasta 1 día después de la emisión (2108; `plazos.json`): `PCPE-1604` al generar y `PCPE-4006` al enviar.
 
 ## 18. Almacenamiento e historial
 

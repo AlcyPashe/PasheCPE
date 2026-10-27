@@ -1,6 +1,7 @@
 // Demo de PasheCPE: envíos reales a SUNAT (beta o producción), ejecutados manualmente por el desarrollador.
 // Configuración en appsettings.json; credenciales en user-secrets (Demo:UsuarioSol, Demo:ClaveSol, Demo:ClaveCertificado y,
-// para el canal OSE eFact, Demo:UsuarioOse y Demo:ClaveOse).
+// para el canal OSE eFact, Demo:UsuarioOse y Demo:ClaveOse; para las guías, Demo:GreClientId y Demo:GreClientSecret,
+// con el usuario y la clave SOL).
 // Si falta una clave, se pide en pantalla sin mostrarla y no se guarda. La demo nunca lee el .pfx: lo hace la librería.
 using System.Globalization;
 using System.Text;
@@ -54,6 +55,10 @@ var opcionesResumen = new OpcionesPasheCpe();
 configuracion.GetSection("PasheCPE").Bind(opcionesResumen);
 opcionesResumen.ModoEnvioBoletas = ModoEnvioBoletas.ResumenDiario;
 using var pasheResumen = PasheCpe.Crear(opcionesResumen, registros);
+
+// Guías (casos 19 y 20): se crean al usarlas.
+CredencialesGre? credencialesGre = null;
+PasheCpe? pasheGre = null;
 
 EmisorCpe Emisor(bool amazonia, string clave, string? usuario = null) => new()
 {
@@ -151,6 +156,8 @@ while (true)
     Console.WriteLine("16. Nota de crédito por ajuste de cuotas (13) de una factura al crédito aceptada (caso 11)");
     Console.WriteLine("17. Comunicación de baja de una factura aceptada: RA, envío y espera del ticket");
     Console.WriteLine("18. Comunicación de baja fuera de plazo (emitida hace 8 días): error local, no se envía");
+    Console.WriteLine("19. Guía de remisión remitente (09): genera y valida; solo la envía si confirma (producción, guía oficial)");
+    Console.WriteLine("20. Consultar el ticket de una guía de remisión ya enviada");
     Console.WriteLine("0. Salir");
     var opcion = Consola.Preguntar("Opción");
     try
@@ -217,6 +224,14 @@ while (true)
                 var vencida = DateOnly.FromDateTime(DateTime.Now).AddDays(-8);
                 Consola.Imprimir(await pashe.Cpe.GenerarBajaAsync(Emisor(amazonia: false, claveEnvio), Baja(datos.SerieFactura, Consola.Numero(), vencida)));
                 break;
+            case "19":
+                await GuiaRemision();
+                break;
+            case "20":
+                var referenciaGuia = ReferenciaCpe.Guia(datos.Emisor.Ruc, TipoDocumentoSunat.GuiaDeRemisionRemitente, Consola.Preguntar("Serie", "T001"), Consola.Numero(),
+                    DateOnly.ParseExact(Consola.Preguntar("Fecha de emisión (yyyy-MM-dd)", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)), "yyyy-MM-dd", CultureInfo.InvariantCulture));
+                Consola.Imprimir(await PasheGre().Gre.ConsultarTicketAsync(EmisorGre(), referenciaGuia));
+                break;
             case "0":
                 return;
         }
@@ -225,6 +240,83 @@ while (true)
     {
         Console.WriteLine("Cancelado.");
     }
+}
+
+// Guía remitente (09): la genera y valida (DATA, FIRMA, ENVIO). SUNAT no tiene ambiente de pruebas para guías: el envío
+// es a producción y emite una guía oficial, así que solo se hace si se escribe GRE REAL.
+async Task GuiaRemision()
+{
+    var publica = Consola.Preguntar("Modalidad: 1 = transporte público, 2 = transporte privado", "1") == "1";
+    var hoy = DateOnly.FromDateTime(DateTime.Now);
+    var guia = new GuiaRemisionCpe
+    {
+        Serie = Consola.Preguntar("Serie", "T001"),
+        Numero = Consola.Numero(),
+        FechaEmision = hoy,
+        Destinatario = new ClienteCpe { TipoDocumento = datos.Cliente.TipoDocumento, NumeroDocumento = datos.Cliente.NumeroDocumento, RazonSocial = datos.Cliente.RazonSocial },
+        Motivo = MotivoTraslado.Venta,
+        DescripcionMotivo = "VENTA",
+        Modalidad = publica ? ModalidadTraslado.TransportePublico : ModalidadTraslado.TransportePrivado,
+        FechaInicioTraslado = hoy,
+        PesoBruto = decimal.Parse(Consola.Preguntar("Peso bruto (KGM)", "10"), CultureInfo.InvariantCulture),
+        Partida = new PuntoTrasladoCpe { Ubigeo = datos.Emisor.Ubigeo ?? "160101", Direccion = datos.Emisor.Direccion },
+        Llegada = new PuntoTrasladoCpe { Ubigeo = Consola.Preguntar("Ubigeo de llegada", datos.Emisor.Ubigeo), Direccion = Consola.Preguntar("Dirección de llegada", "CAL CALVO 1004") },
+        Transportista = publica
+            ? new TransportistaCpe { Ruc = Consola.Preguntar("RUC del transportista"), RazonSocial = Consola.Preguntar("Razón social del transportista"), RegistroMtc = Consola.Preguntar("Registro MTC (opcional)") is { Length: > 0 } mtc ? mtc : null }
+            : null,
+        Vehiculos = publica ? [] : [new VehiculoCpe { Placa = Consola.Preguntar("Placa del vehículo (sin guion)") }],
+        Conductores = publica ? [] :
+        [
+            new ConductorCpe
+            {
+                TipoDocumento = TipoDocumentoIdentidad.Dni,
+                NumeroDocumento = Consola.Preguntar("DNI del conductor"),
+                Nombres = Consola.Preguntar("Nombres del conductor"),
+                Apellidos = Consola.Preguntar("Apellidos del conductor"),
+                Licencia = Consola.Preguntar("Licencia de conducir"),
+            },
+        ],
+        Bienes = [new BienGuiaCpe { CodigoInterno = "P001", Descripcion = "PRODUCTO DE PRUEBA PASHECPE", Cantidad = 2, Unidad = UnidadMedida.Unidad }],
+    };
+
+    var generacion = await pashe.Gre.GenerarAsync(EmisorGre(), guia);
+    Consola.Imprimir(generacion);
+    if (!generacion.Exito || !Consola.Confirmar("ATENCIÓN: la guía se envía a SUNAT en PRODUCCIÓN y queda como guía oficial. Escriba GRE REAL para enviarla", "GRE REAL"))
+    {
+        return;
+    }
+
+    var envio = await PasheGre().Gre.EnviarAsync(EmisorGre(), generacion.Referencia);
+    Consola.Imprimir(envio);
+    if (envio.Estado == EstadoCpe.EnProceso)
+    {
+        Console.WriteLine("  Esperando el ticket (2, 4, 8, 15 y 30 s)…");
+        Consola.Imprimir(await PasheGre().Gre.EsperarTicketAsync(EmisorGre(), generacion.Referencia));
+    }
+}
+
+// Emisor con las credenciales de la API de guías (se piden la primera vez si no están en user-secrets).
+EmisorCpe EmisorGre() => Emisor(amazonia: false, claveEnvio) with
+{
+    CredencialesGre = credencialesGre ??= new CredencialesGre(
+        configuracion["Demo:GreClientId"] ?? Consola.Preguntar("client_id de la API de guías"),
+        configuracion["Demo:GreClientSecret"] ?? Consola.PreguntarOculto("client_secret de la API de guías"),
+        configuracion["Demo:UsuarioSol"] ?? Consola.Preguntar("Usuario secundario SOL (sin el RUC)"),
+        configuracion["Demo:ClaveSol"] ?? Consola.PreguntarOculto("Clave SOL")),
+};
+
+// Instancia que envía guías aunque el ambiente sea Beta: solo se usa después de confirmar GRE REAL o para consultar.
+PasheCpe PasheGre()
+{
+    if (pasheGre is null)
+    {
+        var opcionesGre = new OpcionesPasheCpe();
+        configuracion.GetSection("PasheCPE").Bind(opcionesGre);
+        opcionesGre.Gre.PermitirEnvioConAmbienteBeta = true;
+        pasheGre = PasheCpe.Crear(opcionesGre, registros);
+    }
+
+    return pasheGre;
 }
 
 // Genera dos boletas (sin enviarlas), arma el RC leyendo sus XML firmados, lo envía y espera el ticket.

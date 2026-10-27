@@ -138,10 +138,8 @@ internal sealed class EnvioResumenes(
     /// </summary>
     public async Task<ResultadoEnvio> EsperarTicketAsync(EmisorCpe emisor, ReferenciaCpe referencia, string? ticket, CancellationToken ct)
     {
-        var configuradas = opciones.Value.Tickets.EsperasSegundos;
-        IReadOnlyList<TimeSpan> esperasTicket = configuradas.Count > 0 ? [.. configuradas.Select(s => TimeSpan.FromSeconds(s))] : _esperasTicketPorDefecto;
         ResultadoEnvio? resultado = null;
-        foreach (var espera in esperasTicket)
+        foreach (var espera in EsperasTicket(opciones.Value))
         {
             await Task.Delay(espera, tiempo, ct).ConfigureAwait(false);
             resultado = await ConsultarTicketAsync(emisor, referencia, ticket, ct).ConfigureAwait(false);
@@ -152,6 +150,14 @@ internal sealed class EnvioResumenes(
         }
 
         return resultado ?? await ConsultarTicketAsync(emisor, referencia, ticket, ct).ConfigureAwait(false);
+    }
+
+    /// <summary>Esperas entre consultas del ticket: las de <see cref="OpcionesTickets.EsperasSegundos"/> o 2, 4, 8, 15 y 30 s (también las usa la GRE).</summary>
+    public static IReadOnlyList<TimeSpan> EsperasTicket(OpcionesPasheCpe opciones)
+    {
+        ArgumentNullException.ThrowIfNull(opciones);
+        var configuradas = opciones.Tickets.EsperasSegundos;
+        return configuradas.Count > 0 ? [.. configuradas.Select(s => TimeSpan.FromSeconds(s))] : _esperasTicketPorDefecto;
     }
 
     /// <summary>sendSummary, reintentado solo ante faults de disponibilidad (SUNAT no recibió el archivo).</summary>

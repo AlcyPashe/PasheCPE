@@ -1155,6 +1155,270 @@
           "nombre": "OtrosMediosDePago"
         }
       ]
+    },
+    {
+      "catalogo": "18",
+      "clase": "ModalidadTraslado",
+      "constantes": [
+        {
+          "codigo": "01",
+          "nombre": "TransportePublico"
+        },
+        {
+          "codigo": "02",
+          "nombre": "TransportePrivado"
+        }
+      ]
+    },
+    {
+      "catalogo": "20",
+      "clase": "MotivoTraslado",
+      "constantes": [
+        {
+          "codigo": "01",
+          "nombre": "Venta"
+        },
+        {
+          "codigo": "02",
+          "nombre": "Compra"
+        },
+        {
+          "codigo": "03",
+          "nombre": "VentaConEntregaATerceros"
+        },
+        {
+          "codigo": "04",
+          "nombre": "TrasladoEntreEstablecimientosDeLaMisma"
+        },
+        {
+          "codigo": "05",
+          "nombre": "Consignacion"
+        },
+        {
+          "codigo": "06",
+          "nombre": "Devolucion"
+        },
+        {
+          "codigo": "07",
+          "nombre": "RecojoDeBienesTransformados"
+        },
+        {
+          "codigo": "08",
+          "nombre": "Importacion"
+        },
+        {
+          "codigo": "09",
+          "nombre": "Exportacion"
+        },
+        {
+          "codigo": "13",
+          "nombre": "Otros"
+        },
+        {
+          "codigo": "14",
+          "nombre": "VentaSujetaAConfirmacionDelComprador"
+        },
+        {
+          "codigo": "17",
+          "nombre": "TrasladoDeBienesParaTransformacion"
+        },
+        {
+          "codigo": "18",
+          "nombre": "TrasladoEmisorItineranteCp"
+        },
+        {
+          "codigo": "19",
+          "nombre": "TrasladoDeMercanciaExtranjera"
+        }
+      ]
+    },
+    {
+      "catalogo": "61",
+      "clase": "DocumentoRelacionadoTraslado",
+      "constantes": [
+        {
+          "codigo": "01",
+          "nombre": "Factura"
+        },
+        {
+          "codigo": "03",
+          "nombre": "BoletaDeVenta"
+        },
+        {
+          "codigo": "04",
+          "nombre": "LiquidacionDeCompra"
+        },
+        {
+          "codigo": "09",
+          "nombre": "GuiaDeRemisionRemitente"
+        },
+        {
+          "codigo": "12",
+          "nombre": "TicketOCintaEmitidoPorMaquina"
+        },
+        {
+          "codigo": "31",
+          "nombre": "GuiaDeRemisionTransportista"
+        },
+        {
+          "codigo": "48",
+          "nombre": "ComprobanteDeOperacionesLeyN29972"
+        },
+        {
+          "codigo": "49",
+          "nombre": "ConstanciaDeDepositoIvapLey28211"
+        },
+        {
+          "codigo": "50",
+          "nombre": "DeclaracionAduaneraDeMercancias"
+        },
+        {
+          "codigo": "52",
+          "nombre": "DeclaracionSimplificadaDs"
+        },
+        {
+          "codigo": "65",
+          "nombre": "AutorizacionDeCirculacionParaTransportarMatpel"
+        },
+        {
+          "codigo": "66",
+          "nombre": "AutorizacionDeCirculacionParaTransporteDe"
+        },
+        {
+          "codigo": "67",
+          "nombre": "PermisoDeOperacionEspecialParaEl"
+        },
+        {
+          "codigo": "68",
+          "nombre": "HabilitacionSanitariaDeTransporteTerrestreDe"
+        },
+        {
+          "codigo": "69",
+          "nombre": "PermisoAutorizacionDeOperacionDeTransporte"
+        },
+        {
+          "codigo": "71",
+          "nombre": "ResolucionDeAdjudicacionDeBienesSunat"
+        },
+        {
+          "codigo": "72",
+          "nombre": "ResolucionDeComisoDeBienesSunat"
+        },
+        {
+          "codigo": "73",
+          "nombre": "GuiaDeTransporteForestalODe"
+        },
+        {
+          "codigo": "74",
+          "nombre": "GuiaDeTransitoSucamec"
+        },
+        {
+          "codigo": "75",
+          "nombre": "AutorizacionParaOperarComoEmpresaDe"
+        },
+        {
+          "codigo": "76",
+          "nombre": "AutorizacionParaManejoYRecojoDe"
+        },
+        {
+          "codigo": "77",
+          "nombre": "CertificadoFitosanitarioLaMovilizacionDePlantas"
+        },
+        {
+          "codigo": "78",
+          "nombre": "RegistroUnicoDeUsuariosYTransportistas"
+        },
+        {
+          "codigo": "80",
+          "nombre": "ConstanciaDeDepositoDetraccion"
+        },
+        {
+          "codigo": "81",
+          "nombre": "CodigoDeAutorizacionEmitidaPorEl"
+        },
+        {
+          "codigo": "82",
+          "nombre": "DeclaracionJuradaDeMudanza"
+        },
+        {
+          "codigo": "91",
+          "nombre": "ManifiestoDeCargaMc"
+        },
+        {
+          "codigo": "92",
+          "nombre": "CitaOrdenEntregaMercanciasDelTerminal"
+        },
+        {
+          "codigo": "93",
+          "nombre": "DocumentoZofratacna"
+        },
+        {
+          "codigo": "94",
+          "nombre": "SolicitudTrasladoZed"
+        },
+        {
+          "codigo": "95",
+          "nombre": "SolicitudDeTrasladoZofratacna"
+        }
+      ]
+    },
+    {
+      "catalogo": "D37",
+      "clase": "EntidadAutorizacionEspecial",
+      "constantes": [
+        {
+          "codigo": "01",
+          "nombre": "SuperintendenciaNacionalDeControlDeServicios"
+        },
+        {
+          "codigo": "02",
+          "nombre": "DireccionGeneralDeMedicamentosInsumosY"
+        },
+        {
+          "codigo": "03",
+          "nombre": "DireccionGeneralDeSaludAmbiental"
+        },
+        {
+          "codigo": "04",
+          "nombre": "ServicioNacionalDeSanidadAgraria"
+        },
+        {
+          "codigo": "05",
+          "nombre": "ServicioNacionalForestalYDeFauna"
+        },
+        {
+          "codigo": "06",
+          "nombre": "MinisterioDeTransportesYComunicaciones"
+        },
+        {
+          "codigo": "07",
+          "nombre": "MinisterioDeLaProduccion"
+        },
+        {
+          "codigo": "08",
+          "nombre": "MinisterioDelAmbiente"
+        },
+        {
+          "codigo": "09",
+          "nombre": "OrganismoNacionalDeSanidadPesquera"
+        },
+        {
+          "codigo": "10",
+          "nombre": "MunicipalidadMetropolitanaDeLima"
+        },
+        {
+          "codigo": "11",
+          "nombre": "MinisterioDeSalud"
+        },
+        {
+          "codigo": "12",
+          "nombre": "GobiernoRegional"
+        },
+        {
+          "codigo": "13",
+          "nombre": "OrganismoSupervisorDeLaInversionEn"
+        }
+      ]
     }
   ]
 }

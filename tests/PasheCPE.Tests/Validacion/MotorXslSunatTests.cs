@@ -35,6 +35,7 @@ public sealed class MotorXslSunatTests : IDisposable
             "ValidaExprRegBoleta-2.0.1.xsl" => (2, ["totalDescuentosGlobales"], ["nroLinea"]),
             "ValidaExprRegNC-2.0.1.xsl" => (0, [], ["MontoDescuentoAfectoBI"]),
             "ValidaExprRegND-2.0.1.xsl" => (0, ["totalImpuestos", "SumatoriaImpuestos", "valorVentaLinea"], ["nroLinea", "MontoDescuentoAfectoBI"]),
+            MotorXslSunat.XslGreRemitente => (0, ["motivoTraslado"], []),
             _ => (0, [], []),
         };
         Assert.Equal(esperadas.Item1, correcciones.ConcatUnArgumento);
@@ -53,5 +54,23 @@ public sealed class MotorXslSunatTests : IDisposable
         Assert.True(
             resultado.Hallazgos.Count == 0,
             string.Join(Environment.NewLine, resultado.Hallazgos.Select(h => $"{h.Codigo} {(h.EsError ? "ERR" : "OBS")} {h.Ruta}: {h.Detalle}")));
+    }
+
+    /// <summary>
+    /// GRE remitente aceptadas por SUNAT (22/10/2026) con la XSL GRE 2.0: sin errores y con la misma observación 4391 que
+    /// trae su CDR (registro MTC del transportista vacío), con el mismo detalle. La 4382 del CDR (el documento relacionado
+    /// no existe) la verifica SUNAT contra su registro de comprobantes: no se emula.
+    /// </summary>
+    [Theory]
+    [InlineData("20611619767-09-T001-31093.xml")]
+    [InlineData("20611619767-09-T001-31094.xml")]
+    public void Validar_GreDoradaAceptadaPorSunat_SinErroresYConLaObservacionDeSuCdr(string archivo)
+    {
+        var ruta = Path.Combine(LectorDorado.Carpeta("09-GRE"), archivo);
+        var resultado = _servicios.Obtener<MotorXslSunat>().Validar(File.ReadAllBytes(ruta), LectorDorado.Referencia(ruta));
+
+        Assert.Null(resultado.Falla);
+        var hallazgo = Assert.Single(resultado.Hallazgos);
+        Assert.Equal(("4391", false), (hallazgo.Codigo, hallazgo.EsError));
     }
 }

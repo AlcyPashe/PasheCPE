@@ -24,6 +24,18 @@
       "catalogo": "25",
       "formato": "^\\d{8}$",
       "fuente": "UNSPSC de 8 dígitos (el Excel solo publica el enlace; lista completa opcional en recursos/CATALOGOS)"
+    },
+    {
+      "catalogo": "65A",
+      "formato": "^[A-Z0-9]{1,3}$",
+      "fuente": "La XSL GRE remitente (01/10/2026) valida contra él la unidad de los bienes del motivo 13 que no son DAM ni DS; ningún Excel lo publica: se valida con el formato del N.° 03 (UN/ECE Rec. 20).",
+      "nombre": "Unidades de medida de la GRE fuera de DAM o DS (formato UN/ECE Rec. 20)"
+    },
+    {
+      "catalogo": "66",
+      "formato": "^[A-Z0-9]{1,10}$",
+      "fuente": "La XSL GRE remitente (01/10/2026) valida contra él el código del centro de atención en frontera (motivo 19); ningún Excel publica la lista: se valida solo el formato.",
+      "nombre": "Centros de Atención en Frontera (sin lista oficial publicada)"
     }
   ]
 }

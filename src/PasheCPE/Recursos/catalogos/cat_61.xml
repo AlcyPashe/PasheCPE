@@ -26,4 +26,9 @@
   <c id="80" gre-aplicable="remitente, transportista">Constancia de Depósito – Detracción</c>
   <c id="81" gre-aplicable="solo remitente">Código de autorización emitida por el SCOP</c>
   <c id="82" gre-aplicable="solo transportista">Declaración jurada de mudanza</c>
+  <c id="91" gre-aplicable="solo remitente">Manifiesto de carga (MC)</c>
+  <c id="92" gre-aplicable="solo remitente">Cita/Orden Entrega Mercancías del Terminal Portuario</c>
+  <c id="93" gre-aplicable="solo transportista">Documento ZOFRATACNA</c>
+  <c id="94" gre-aplicable="solo transportista">Solicitud traslado - ZED</c>
+  <c id="95" gre-aplicable="solo transportista">Solicitud de traslado - ZOFRATACNA</c>
 </l>

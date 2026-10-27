@@ -16,6 +16,7 @@ internal sealed class Precalentador(ValidadorEsquema esquema) : IPrecalentador
             SerializadorUbl.Precalentar<DebitNote>,
             SerializadorUbl.Precalentar<SummaryDocuments>,
             SerializadorUbl.Precalentar<VoidedDocuments>,
+            SerializadorUbl.Precalentar<DespatchAdvice>,
             .. MotorXslSunat.XslEmbebidas.Select(archivo => (Action)(() => MotorXslSunat.Compilar(archivo))),
         ];
         return Parallel.ForEachAsync(tareas, ct, (tarea, _) =>

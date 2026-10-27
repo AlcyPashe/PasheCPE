@@ -18,6 +18,7 @@ internal static class EspaciosUbl
     public const string Sac = "urn:sunat:names:specification:ubl:peru:schema:xsd:SunatAggregateComponents-1";
     public const string SummaryDocuments = "urn:sunat:names:specification:ubl:peru:schema:xsd:SummaryDocuments-1";
     public const string VoidedDocuments = "urn:sunat:names:specification:ubl:peru:schema:xsd:VoidedDocuments-1";
+    public const string DespatchAdvice = "urn:oasis:names:specification:ubl:schema:xsd:DespatchAdvice-2";
     public const string Ds = "http://www.w3.org/2000/09/xmldsig#";
 }
 

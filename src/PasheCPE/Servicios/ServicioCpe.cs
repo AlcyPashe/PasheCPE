@@ -150,10 +150,13 @@ internal sealed class ServicioCpe(
     }
 
     /// <summary>El mensaje al cajero nombra a quien recibe el comprobante: SUNAT o el OSE del emisor.</summary>
-    private static async Task<ResultadoEnvio> ConReceptorAsync(EmisorCpe emisor, Task<ResultadoEnvio> tarea)
+    internal static Task<ResultadoEnvio> ConReceptorAsync(EmisorCpe emisor, Task<ResultadoEnvio> tarea) => ConReceptorAsync(emisor.Canal, tarea);
+
+    /// <summary>Igual, con el canal indicado (la GRE siempre va a SUNAT).</summary>
+    internal static async Task<ResultadoEnvio> ConReceptorAsync(CanalEnvio canal, Task<ResultadoEnvio> tarea)
     {
         var resultado = await tarea.ConfigureAwait(false);
-        return resultado with { MensajeUsuario = CatalogoRespuestas.ConReceptor(resultado.MensajeUsuario, emisor.Canal) };
+        return resultado with { MensajeUsuario = CatalogoRespuestas.ConReceptor(resultado.MensajeUsuario, canal) };
     }
 
     public async Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, ComprobanteCpe cpe, CancellationToken ct = default) =>
