@@ -38,6 +38,18 @@ public sealed class FormatoImpresionTests
         Assert.Equal(esperado, FormatoImpresion.DocumentoIdentidad(tipo));
 
     [Fact]
+    public void Leyenda_AmazoniaSinMayusculasYLasDemasComoEnElXml()
+    {
+        Assert.Equal("Bienes transferidos en la Amazonía Región Selva para ser consumidos en la misma", FormatoImpresion.Leyenda("2001", "BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN SELVA PARA SER CONSUMIDOS EN LA MISMA"));
+        Assert.Equal("Servicios prestados en la Amazonía Región Selva para ser consumidos en la misma", FormatoImpresion.Leyenda("2002", "SERVICIOS PRESTADOS EN LA AMAZONÍA REGIÓN SELVA PARA SER CONSUMIDOS EN LA MISMA"));
+        Assert.Equal("TRANSFERENCIA GRATUITA", FormatoImpresion.Leyenda("1002", "TRANSFERENCIA GRATUITA"));
+    }
+
+    [Fact]
+    public void Pie_CreditoDePasheSoluciones() =>
+        Assert.Equal("Diseñado por Pashe Soluciones. www.pashesoluciones.net.pe", FormatoImpresion.Pie);
+
+    [Fact]
     public void Titulos_SoloDocumentosConDiseno()
     {
         Assert.Equal("NOTA DE DÉBITO ELECTRÓNICA", FormatoImpresion.Titulo("08"));

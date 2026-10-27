@@ -26,9 +26,9 @@ internal sealed partial class GeneradorPdf(
     IOptions<OpcionesPasheCpePdf> opcionesPdf,
     ILogger<GeneradorPdf> registro) : IGeneradorPdf, IGeneracionPdfAutomatica
 {
-    private const string _colorPorDefecto = "#1F3A5F";
+    private const string _colorPorDefecto = "#065986";
 
-    public async Task<ResultadoPdf> GenerarAsync(ReferenciaCpe referencia, MarcaEmisor marca, DatosAdicionalesPdf? extra = null, CancellationToken ct = default)
+    public async Task<ResultadoPdf> GenerarAsync(ReferenciaCpe referencia, MarcaEmisor marca, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(referencia);
         ArgumentNullException.ThrowIfNull(marca);
@@ -40,7 +40,7 @@ internal sealed partial class GeneradorPdf(
         }
 
         var advertencias = new List<ObservacionCpe>();
-        var estilo = new EstiloPdf(marca, await LogoAsync(marca, advertencias, ct).ConfigureAwait(false), Color(marca.ColorPrincipal), extra);
+        var estilo = new EstiloPdf(marca, await LogoAsync(marca, advertencias, ct).ConfigureAwait(false), Color(marca.ColorPrincipal));
         IDocument documento = lectura.Comprobante is { } comprobante
             ? new DisenoComprobante(comprobante, estilo)
             : new DisenoGuia(lectura.Guia!, estilo);
@@ -66,7 +66,7 @@ internal sealed partial class GeneradorPdf(
 
     async Task<(string? Ruta, string? Error)> IGeneracionPdfAutomatica.GenerarAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct)
     {
-        var resultado = await GenerarAsync(referencia, opcionesPdf.Value.MarcaDe(emisor.Ruc), null, ct).ConfigureAwait(false);
+        var resultado = await GenerarAsync(referencia, opcionesPdf.Value.MarcaDe(emisor.Ruc), ct).ConfigureAwait(false);
         return resultado.Exito ? (resultado.Ruta, null) : (null, resultado.Errores[0].Descripcion);
     }
 

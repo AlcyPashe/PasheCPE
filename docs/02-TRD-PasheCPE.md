@@ -91,7 +91,7 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 │   └── PasheCPE.Pdf\
 │       ├── Disenos\          ComponentesComunes, DisenoComprobante, DisenoGuia
 │       ├── Representacion\   LectorRepresentacion (XML firmado + CDR → modelo de impresión), FormatoImpresion
-│       ├── Recursos\         textos-impresion.json (títulos y abreviaturas de documentos de identidad)
+│       ├── Recursos\         textos-impresion.json (títulos, documentos de identidad, pie y leyendas)
 │       ├── IGeneradorPdf.cs  GeneradorPdf.cs  MarcaEmisor.cs  OpcionesPasheCpePdf.cs  PasheCpePdf.cs
 │       └── ServiceCollectionExtensions.cs
 ├── tests\
@@ -351,7 +351,7 @@ public interface IHistorialCpe
 }
 public interface IGeneradorPdf  // PasheCPE.Pdf: 01, 03, 07, 08 y 09 (la 31 en la Fase 10b)
 {
-    Task<ResultadoPdf> GenerarAsync(ReferenciaCpe referencia, MarcaEmisor marca, DatosAdicionalesPdf? extra = null, CancellationToken ct = default);
+    Task<ResultadoPdf> GenerarAsync(ReferenciaCpe referencia, MarcaEmisor marca, CancellationToken ct = default);
 }
 // Sin DI: PasheCpePdf.Crear(opciones, opcionesPdf) devuelve un PasheCpe con PDF; pashe.Pdf() es su IGeneradorPdf.
 public interface IPrecalentador { Task PrecalentarAsync(CancellationToken ct = default); } // compila XSL, carga esquemas y serializadores
@@ -658,9 +658,11 @@ Fuente: manual «Servicios web – Plataforma nueva GRE» (`recursos\GRE\Manual_
   - sin CDR, el estado aceptado del historial (boletas del resumen diario).
 - `MarcaEmisor`:
   - logo en bytes o ruta (PNG o JPEG). Si el logo no se puede usar, el PDF sale sin logo y con la advertencia `PCPE-5007`; una ruta vacía significa sin logo;
-  - color principal (#RRGGBB; uno no válido usa el color por defecto);
-  - teléfonos, correo, web y texto de pie.
-- `DatosAdicionalesPdf`: pares etiqueta/valor y observaciones, en el bloque «Información adicional».
+  - color principal (#RRGGBB; por defecto y si no es válido, #065986);
+  - teléfonos, correo y web.
+- Pie de cada página: «Diseñado por Pashe Soluciones. www.pashesoluciones.net.pe» y la paginación.
+- Leyendas distintas de la 1000: en letra más pequeña y gris. Las de la Amazonía (2001–2003) se imprimen sin mayúsculas sostenidas («Bienes transferidos en la Amazonía Región Selva…»); el XML firmado no cambia.
+- Sin bloque de información adicional (vendedor, caja…): decidido el 27/10/2026 para no ocupar espacio en los clientes pequeños; se evaluará con un cliente grande.
 - `ResultadoPdf`: `Exito`, `Ruta`, `Errores` y `Advertencias`. Nunca lanza por errores del documento. Errores:
   - `PCPE-5002`: falta el XML firmado;
   - `PCPE-5003`: el XML no se puede leer;
@@ -670,7 +672,7 @@ Fuente: manual «Servicios web – Plataforma nueva GRE» (`recursos\GRE\Manual_
 - **DisenoComprobante** (01, 03, 07, 08): cabecera (logo, emisor, recuadro RUC/tipo/serie-número), cliente, fechas, moneda, forma de pago y cuotas, documento modificado y motivo (notas), detalle de líneas, totales por afectación, ICBPER, detracción, leyendas, monto en letras, QR 3.5 × 3.5 cm, valor resumen, "Representación impresa de la …", estado SUNAT si hay CDR.
 - **DisenoGuia** (09, 31): cabecera, remitente/destinatario, motivo y fecha de traslado, modalidad, partida/llegada, vehículos, conductores, transportista, bienes, peso y bultos, documentos relacionados, QR de SUNAT.
 - Formato: `S/ 0,000.00` (o símbolo de la moneda), fechas `DD/MM/AAAA`, A4 vertical, fuentes embebidas.
-- Salida en `REPO\yyyy\MM\{nombre}.pdf` (escritura atómica; regenerar reemplaza el archivo). Títulos y abreviaturas de documentos de identidad en `textos-impresion.json`; símbolos de moneda en `monedas.json`.
+- Salida en `REPO\yyyy\MM\{nombre}.pdf` (escritura atómica; regenerar reemplaza el archivo). Títulos, abreviaturas de documentos de identidad, pie y texto impreso de las leyendas de la Amazonía en `textos-impresion.json`; símbolos de moneda en `monedas.json`.
 - Generación automática dentro de `EmitirAsync` (comprobantes y guías), si `AddPasheCpePdf` está registrado y `GenerarPdfAutomaticamente = true`:
   - el núcleo llama al gancho interno `IGeneracionPdfAutomatica`, así no conoce QuestPDF;
   - usa la marca registrada para el RUC (`OpcionesPasheCpePdf.Marcas`), si no `MarcaPorDefecto`, y si no, sin marca;
@@ -700,8 +702,8 @@ Fuente: manual «Servicios web – Plataforma nueva GRE» (`recursos\GRE\Manual_
   "PrecalentarAlIniciar": true,
   "GenerarPdfAutomaticamente": false,
   "Pdf": {                                  // AddPasheCpePdf(configuration.GetSection("PasheCPE:Pdf"))
-    "MarcaPorDefecto": { "RutaLogo": "D:\\CPE\\logo.png", "ColorPrincipal": "#1F3A5F" },
-    "Marcas": { "20493400364": { "Telefonos": [ "(065) 123456" ], "Correo": "ventas@jully.pe", "Web": "www.jully.pe", "TextoPie": "…" } }
+    "MarcaPorDefecto": { "RutaLogo": "D:\\CPE\\logo.png", "ColorPrincipal": "#065986" },
+    "Marcas": { "20493400364": { "Telefonos": [ "(065) 123456" ], "Correo": "ventas@jully.pe", "Web": "www.jully.pe" } }
   },
   "Endpoints": [                            // opcional: SUNAT y eFact vienen en endpoints.json; otro OSE se declara aquí
     { "Canal": "OSE:otro", "Ambiente": "Produccion", "Servicio": "Comprobantes", "Url": "https://…/billService", "SoapAction": "urn:{operacion}" }

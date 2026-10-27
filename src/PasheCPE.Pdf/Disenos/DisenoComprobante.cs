@@ -9,7 +9,7 @@ namespace PasheCPE.Pdf.Disenos;
 /// <summary>
 /// Diseño de factura, boleta, nota de crédito y nota de débito (TRD §22): cabecera, cliente y datos del comprobante,
 /// documento modificado y motivo (notas), detalle (el encabezado se repite en cada página), cuotas, detracción,
-/// leyendas y monto en letras, totales por afectación, información adicional y bloque del QR.
+/// leyendas y monto en letras, totales por afectación y bloque del QR.
 /// </summary>
 internal sealed class DisenoComprobante(ComprobanteImpreso cpe, EstiloPdf estilo) : IDocument
 {
@@ -53,9 +53,8 @@ internal sealed class DisenoComprobante(ComprobanteImpreso cpe, EstiloPdf estilo
         {
             fila.RelativeItem().Column(Izquierda);
             fila.ConstantItem(5, Unit.Millimetre);
-            fila.ConstantItem(72, Unit.Millimetre).Element(Totales);
+            fila.ConstantItem(72, Unit.Millimetre).AlignTop().Element(Totales);
         });
-        InformacionAdicional(columna, estilo);
         columna.Item().Element(c => BloqueQr(c, cpe.ContenidoQr, cpe.ValorResumen, FormatoImpresion.RepresentacionImpresa(cpe.TipoDocumento), cpe.Estado));
     });
 
@@ -144,7 +143,7 @@ internal sealed class DisenoComprobante(ComprobanteImpreso cpe, EstiloPdf estilo
 
         foreach (var leyenda in cpe.Leyendas.Where(l => l.Codigo != CodigoLeyenda.MontoEnLetras))
         {
-            columna.Item().Text(leyenda.Texto).Bold();
+            columna.Item().Text(FormatoImpresion.Leyenda(leyenda.Codigo, leyenda.Texto)).FontSize(7.5f).FontColor(Tenue);
         }
 
         if (cpe.Cuotas.Count > 0)

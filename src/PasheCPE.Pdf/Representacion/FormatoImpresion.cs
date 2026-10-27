@@ -9,7 +9,8 @@ namespace PasheCPE.Pdf.Representacion;
 /// <summary>
 /// Formatos de la representación impresa (PRD RF-12, TRD §22): montos <c>S/ 0,000.00</c> con el símbolo de
 /// <c>monedas.json</c> (sin símbolo, el código ISO), fechas <c>DD/MM/AAAA</c> y cantidades sin ceros sobrantes. Los
-/// títulos y las abreviaturas de documentos de identidad son datos de <c>textos-impresion.json</c>.
+/// títulos, las abreviaturas de documentos de identidad, el pie y el texto impreso de algunas leyendas son datos de
+/// <c>textos-impresion.json</c>.
 /// </summary>
 internal static class FormatoImpresion
 {
@@ -56,6 +57,15 @@ internal static class FormatoImpresion
     /// <summary>Abreviatura del documento de identidad (RUC, DNI, C.E.…); un código desconocido se muestra tal cual.</summary>
     public static string DocumentoIdentidad(string tipo) => _textos.Value.DocumentosIdentidad.GetValueOrDefault(tipo) ?? tipo;
 
+    /// <summary>Crédito al pie de cada página.</summary>
+    public static string Pie => _textos.Value.Pie;
+
+    /// <summary>
+    /// Texto impreso de una leyenda: el de <c>textos-impresion.json</c> si lo tiene (las de la Amazonía, sin
+    /// mayúsculas sostenidas); si no, el del XML. El XML firmado no cambia.
+    /// </summary>
+    public static string Leyenda(string codigo, string textoXml) => _textos.Value.Leyendas?.GetValueOrDefault(codigo) ?? textoXml;
+
     /// <summary>«Representación impresa de la FACTURA ELECTRÓNICA…».</summary>
     public static string RepresentacionImpresa(string tipoDocumento) =>
         string.Format(_cultura, _textos.Value.RepresentacionImpresa, Titulo(tipoDocumento));
@@ -64,7 +74,9 @@ internal static class FormatoImpresion
 internal sealed record ArchivoTextosImpresion(
     IReadOnlyDictionary<string, string> Titulos,
     IReadOnlyDictionary<string, string> DocumentosIdentidad,
-    string RepresentacionImpresa);
+    string RepresentacionImpresa,
+    string Pie,
+    IReadOnlyDictionary<string, string>? Leyendas);
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 [JsonSerializable(typeof(ArchivoTextosImpresion))]

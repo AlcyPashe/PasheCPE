@@ -102,7 +102,6 @@ internal sealed class DisenoGuia(GuiaImpresa guia, EstiloPdf estilo) : IDocument
             columna.Item().Element(c => Bloque(c, estilo, "OBSERVACIONES", cuerpo => cuerpo.Text(guia.Observaciones)));
         }
 
-        InformacionAdicional(columna, estilo);
         columna.Item().Element(c => BloqueQr(c, guia.EnlaceQr, guia.ValorResumen, FormatoImpresion.RepresentacionImpresa(TipoDocumentoSunat.GuiaDeRemisionRemitente), guia.Estado));
     });
 

@@ -8,5 +8,5 @@ namespace PasheCPE.Pdf;
 public interface IGeneradorPdf
 {
     /// <summary>Genera (o vuelve a generar) el PDF del documento. Nunca lanza por errores del documento.</summary>
-    Task<ResultadoPdf> GenerarAsync(ReferenciaCpe referencia, MarcaEmisor marca, DatosAdicionalesPdf? extra = null, CancellationToken ct = default);
+    Task<ResultadoPdf> GenerarAsync(ReferenciaCpe referencia, MarcaEmisor marca, CancellationToken ct = default);
 }

@@ -283,7 +283,7 @@ Otros resultados:
 
 **Aceptación:** PDF de factura exonerada, boleta, NC, ND y GRE 09 generados desde XML dorados (la 31 pasa a la Fase 10b); montos `S/ 0,000.00`, fechas `DD/MM/AAAA`, QR 3.5 × 3.5 cm; revisión visual del desarrollador.
 
-**Estado:** implementada el 27/10/2026 (969 pruebas en verde: 880 + 58 + 31); falta la revisión visual del desarrollador.
+**Estado:** implementada el 27/10/2026 (971 pruebas en verde: 880 + 60 + 31); falta la revisión visual del desarrollador.
 - Decisiones con el desarrollador:
   - `InternalsVisibleTo` a `PasheCPE.Pdf`, como excepción al TRD §2. El paquete depende de la versión exacta de PasheCPE (`[0.1.0]`, comprobado con `dotnet pack`);
   - la marca para la generación automática se registra por RUC (`OpcionesPasheCpePdf.Marcas`) o por defecto;

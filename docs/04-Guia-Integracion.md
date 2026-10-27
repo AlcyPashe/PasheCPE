@@ -305,15 +305,13 @@ Representación impresa A4 de facturas, boletas, notas de crédito y débito y g
 var marca = new MarcaEmisor
 {
     RutaLogo = @"D:\CPE\logo.png",            // o Logo = bytes (PNG o JPEG)
-    ColorPrincipal = "#1F3A5F",
+    ColorPrincipal = "#065986",
     Telefonos = ["(065) 123456"],
     Correo = "ventas@empresa.pe",
     Web = "www.empresa.pe",
-    TextoPie = "Cuentas: BCP 123-4567890-0-12",
 };
-var extra = new DatosAdicionalesPdf { Campos = [new("Vendedor", "JUAN PÉREZ"), new("Caja", "02")], Observaciones = "Entrega a domicilio." };
 
-var pdf = await generadorPdf.GenerarAsync(r.Generacion.Referencia, marca, extra, ct);   // IGeneradorPdf
+var pdf = await generadorPdf.GenerarAsync(r.Generacion.Referencia, marca, ct);   // IGeneradorPdf
 if (!pdf.Exito)
 {
     // pdf.Errores[0].Codigo: PCPE-5002 (no se generó el XML), 5005 (guía aún no aceptada)…
@@ -326,7 +324,7 @@ if (!pdf.Exito)
 "PasheCPE": {
   "GenerarPdfAutomaticamente": true,
   "Pdf": {
-    "MarcaPorDefecto": { "RutaLogo": "D:\\CPE\\logo.png", "ColorPrincipal": "#1F3A5F" },
+    "MarcaPorDefecto": { "RutaLogo": "D:\\CPE\\logo.png", "ColorPrincipal": "#065986" },
     "Marcas": { "20493400364": { "Web": "www.jully.pe", "Telefonos": [ "(065) 123456" ] } }
   }
 }

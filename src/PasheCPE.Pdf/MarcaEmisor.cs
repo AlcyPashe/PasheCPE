@@ -16,7 +16,7 @@ public sealed record MarcaEmisor
     public string? RutaLogo { get; init; }
 
     /// <summary>Color principal en hexadecimal (#RRGGBB): recuadro del número, títulos y encabezados de tabla.</summary>
-    public string ColorPrincipal { get; init; } = "#1F3A5F";
+    public string ColorPrincipal { get; init; } = "#065986";
 
     /// <summary>Teléfonos.</summary>
     public IReadOnlyList<string> Telefonos { get; init; } = [];
@@ -26,7 +26,4 @@ public sealed record MarcaEmisor
 
     /// <summary>Sitio web.</summary>
     public string? Web { get; init; }
-
-    /// <summary>Texto libre al pie (condiciones, cuentas bancarias…).</summary>
-    public string? TextoPie { get; init; }
 }

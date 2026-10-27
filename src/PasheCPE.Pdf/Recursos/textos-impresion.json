@@ -21,5 +21,11 @@
     "G": "SALVOCONDUCTO",
     "H": "CPP"
   },
-  "representacionImpresa": "Representación impresa de la {0}. Consulte su validez en www.sunat.gob.pe."
+  "representacionImpresa": "Representación impresa de la {0}. Consulte su validez en www.sunat.gob.pe.",
+  "pie": "Diseñado por Pashe Soluciones. www.pashesoluciones.net.pe",
+  "leyendas": {
+    "2001": "Bienes transferidos en la Amazonía Región Selva para ser consumidos en la misma",
+    "2002": "Servicios prestados en la Amazonía Región Selva para ser consumidos en la misma",
+    "2003": "Contratos de construcción ejecutados en la Amazonía Región Selva"
+  }
 }

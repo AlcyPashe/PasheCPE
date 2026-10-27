@@ -7,8 +7,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ### Agregado
 - 27/10/2026 — Fase 11 (PDF A4, paquete `PasheCPE.Pdf`):
   - API pública:
-    - `IGeneradorPdf.GenerarAsync(ReferenciaCpe, MarcaEmisor, DatosAdicionalesPdf?)` → `ResultadoPdf` (`Exito`, `Ruta`, `Errores`, `Advertencias`; nunca lanza por errores del documento);
-    - `MarcaEmisor` (logo en bytes o ruta, color, teléfonos, correo, web, texto de pie) y `DatosAdicionalesPdf` (pares etiqueta/valor y observaciones);
+    - `IGeneradorPdf.GenerarAsync(ReferenciaCpe, MarcaEmisor)` → `ResultadoPdf` (`Exito`, `Ruta`, `Errores`, `Advertencias`; nunca lanza por errores del documento);
+    - `MarcaEmisor` (logo en bytes o ruta, color —por defecto #065986—, teléfonos, correo y web);
     - `OpcionesPasheCpePdf` (marcas por RUC y marca por defecto), `AddPasheCpePdf(Action<…>)` y `AddPasheCpePdf(IConfiguration)`;
     - `PasheCpePdf.Crear` y `pashe.Pdf()` para el uso sin DI;
     - `OrigenError.Pdf`.
@@ -22,7 +22,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
     - `DisenoComprobante` (01, 03, 07, 08) y `DisenoGuia` (09);
     - cabecera con logo y recuadro del RUC, y tabla del detalle con su encabezado en cada página;
     - QR de 3.5 × 3.5 cm con el valor resumen, el estado del CDR y el texto de representación impresa;
-    - paginación;
+    - pie «Diseñado por Pashe Soluciones. www.pashesoluciones.net.pe» y paginación;
+    - leyendas distintas de la 1000 en letra pequeña y gris; las de la Amazonía, sin mayúsculas sostenidas;
+    - sin bloque de información adicional (se evaluará con un cliente grande);
     - montos `S/ 0,000.00` (símbolos en `monedas.json`), fechas `DD/MM/AAAA`. Títulos y abreviaturas en `textos-impresion.json`.
   - Generación automática dentro de `EmitirAsync` (comprobantes y guías) con `GenerarPdfAutomaticamente`:
     - gancho interno `IGeneracionPdfAutomatica`, con la marca del RUC;
@@ -33,7 +35,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
   - `InternalsVisibleTo` a `PasheCPE.Pdf` (excepción al TRD §2). El paquete depende de la versión exacta de `PasheCPE`.
   - Dorados nuevos de beta: F001-2, B001-3 y FD01-23 (`tests/Datos/Dorados/Beta-20493400364`).
   - Demo: PDF automático, marca en `PasheCPE:Pdf` y caso 21 (generar o regenerar el PDF).
-  - Pruebas (58 en `PasheCPE.Pdf.Tests`, 6 en `PasheCPE.Tests`):
+  - Pruebas (60 en `PasheCPE.Pdf.Tests`, 6 en `PasheCPE.Tests`):
     - lectura de los 6 dorados y formatos;
     - QR igual al de la generación y de 35 mm medido sobre la página rasterizada;
     - varias páginas, logo no válido y errores `PCPE-50xx`;

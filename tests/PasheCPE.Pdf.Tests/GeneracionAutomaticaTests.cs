@@ -80,7 +80,7 @@ public sealed class GeneracionAutomaticaTests
         servicios.Sunat.Responder(SendBill, ConCdr(Cdr("F001-123", "0", "La Factura numero F001-123, ha sido aceptada")));
 
         var envio = await cpe.EnviarAsync(emisor, generacion.Referencia, Ct);
-        var pdf = await servicios.Obtener<IGeneradorPdf>().GenerarAsync(generacion.Referencia, MarcaEmisor.SinMarca, ct: Ct);
+        var pdf = await servicios.Obtener<IGeneradorPdf>().GenerarAsync(generacion.Referencia, MarcaEmisor.SinMarca, Ct);
 
         Assert.Equal(EstadoCpe.Aceptado, envio.Estado);
         Assert.Null(envio.Rutas.Pdf);

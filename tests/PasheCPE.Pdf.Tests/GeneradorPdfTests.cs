@@ -13,11 +13,10 @@ public sealed class GeneradorPdfTests : IDisposable
     private static readonly MarcaEmisor _marca = new()
     {
         Logo = Placeholders.Image(400, 200),
-        ColorPrincipal = "#7A1F2B",
+        ColorPrincipal = "#065986",
         Telefonos = ["(065) 123456", "987 654 321"],
         Correo = "ventas@ejemplo.pe",
         Web = "www.ejemplo.pe",
-        TextoPie = "Cuentas: BCP 123-4567890-0-12 · Gracias por su compra.",
     };
 
     private readonly ServiciosPrueba _servicios = new(registrar: s => s.AddPasheCpePdf());
@@ -40,13 +39,7 @@ public sealed class GeneradorPdfTests : IDisposable
     {
         var dorado = DoradosPdf.Todos[documento];
         var referencia = DoradosPdf.Colocar(_servicios.Almacen, dorado);
-        var extra = new DatosAdicionalesPdf
-        {
-            Campos = [new CampoAdicionalPdf("Vendedor", "JUAN PÉREZ"), new CampoAdicionalPdf("Caja", "02")],
-            Observaciones = "Entregar en horario de oficina.",
-        };
-
-        var resultado = await Generador.GenerarAsync(referencia, _marca, extra, Ct);
+        var resultado = await Generador.GenerarAsync(referencia, _marca, Ct);
 
         Assert.True(resultado.Exito, string.Join("; ", resultado.Errores.Select(e => $"{e.Codigo} {e.Descripcion}")));
         Assert.Empty(resultado.Advertencias);
@@ -64,7 +57,7 @@ public sealed class GeneradorPdfTests : IDisposable
     {
         var referencia = DoradosPdf.Colocar(_servicios.Almacen, DoradosPdf.Boleta);
 
-        var resultado = await Generador.GenerarAsync(referencia, MarcaEmisor.SinMarca, ct: Ct);
+        var resultado = await Generador.GenerarAsync(referencia, MarcaEmisor.SinMarca, Ct);
 
         Assert.True(resultado.Exito);
     }
@@ -74,8 +67,8 @@ public sealed class GeneradorPdfTests : IDisposable
     {
         var referencia = DoradosPdf.Colocar(_servicios.Almacen, DoradosPdf.NotaCredito);
 
-        var primero = await Generador.GenerarAsync(referencia, _marca, ct: Ct);
-        var segundo = await Generador.GenerarAsync(referencia, MarcaEmisor.SinMarca, ct: Ct);
+        var primero = await Generador.GenerarAsync(referencia, _marca, Ct);
+        var segundo = await Generador.GenerarAsync(referencia, MarcaEmisor.SinMarca, Ct);
 
         Assert.Equal(primero.Ruta, segundo.Ruta);
         Assert.Single(Directory.GetFiles(Path.GetDirectoryName(segundo.Ruta!)!));
@@ -86,7 +79,7 @@ public sealed class GeneradorPdfTests : IDisposable
     {
         var referencia = DoradosPdf.Colocar(_servicios.Almacen, DoradosPdf.FacturaExonerada);
 
-        var resultado = await Generador.GenerarAsync(referencia, _marca with { Logo = "no es una imagen"u8.ToArray() }, ct: Ct);
+        var resultado = await Generador.GenerarAsync(referencia, _marca with { Logo = "no es una imagen"u8.ToArray() }, Ct);
 
         Assert.True(resultado.Exito);
         Assert.Equal("PCPE-5007", Assert.Single(resultado.Advertencias).Codigo);
@@ -97,7 +90,7 @@ public sealed class GeneradorPdfTests : IDisposable
     {
         var referencia = DoradosPdf.Colocar(_servicios.Almacen, DoradosPdf.FacturaExonerada);
 
-        var resultado = await Generador.GenerarAsync(referencia, new MarcaEmisor { RutaLogo = Path.Combine(_servicios.Almacen.Ruta, "no-existe.png") }, ct: Ct);
+        var resultado = await Generador.GenerarAsync(referencia, new MarcaEmisor { RutaLogo = Path.Combine(_servicios.Almacen.Ruta, "no-existe.png") }, Ct);
 
         Assert.True(resultado.Exito);
         Assert.Equal("PCPE-5007", Assert.Single(resultado.Advertencias).Codigo);
@@ -108,7 +101,7 @@ public sealed class GeneradorPdfTests : IDisposable
     {
         var referencia = DoradosPdf.Colocar(_servicios.Almacen, DoradosPdf.FacturaExonerada);
 
-        var resultado = await Generador.GenerarAsync(referencia, new MarcaEmisor { ColorPrincipal = "rojo" }, ct: Ct);
+        var resultado = await Generador.GenerarAsync(referencia, new MarcaEmisor { ColorPrincipal = "rojo" }, Ct);
 
         Assert.True(resultado.Exito);
     }
@@ -116,7 +109,7 @@ public sealed class GeneradorPdfTests : IDisposable
     [Fact]
     public async Task GenerarAsync_SinXmlFirmado_Pcpe5002()
     {
-        var resultado = await Generador.GenerarAsync(Ejemplos.Referencia(), _marca, ct: Ct);
+        var resultado = await Generador.GenerarAsync(Ejemplos.Referencia(), _marca, Ct);
 
         Assert.False(resultado.Exito);
         Assert.Equal("PCPE-5002", Assert.Single(resultado.Errores).Codigo);
@@ -128,7 +121,7 @@ public sealed class GeneradorPdfTests : IDisposable
     {
         var referencia = DoradosPdf.Colocar(_servicios.Almacen, DoradosPdf.Guia, conCdr: false);
 
-        var resultado = await Generador.GenerarAsync(referencia, _marca, ct: Ct);
+        var resultado = await Generador.GenerarAsync(referencia, _marca, Ct);
 
         Assert.Equal("PCPE-5005", Assert.Single(resultado.Errores).Codigo);
     }
@@ -146,7 +139,7 @@ public sealed class GeneradorPdfTests : IDisposable
             _ => ReferenciaCpe.Guia(Ejemplos.Ruc, tipo, "V001", 1, new DateOnly(2026, 10, 22)),
         };
 
-        var resultado = await Generador.GenerarAsync(referencia, _marca, ct: Ct);
+        var resultado = await Generador.GenerarAsync(referencia, _marca, Ct);
 
         Assert.Equal("PCPE-5004", Assert.Single(resultado.Errores).Codigo);
     }
@@ -158,7 +151,7 @@ public sealed class GeneradorPdfTests : IDisposable
         var referencia = DoradosPdf.Colocar(almacen, DoradosPdf.NotaDebito);
         using var pashe = PasheCpePdf.Crear(almacen.Opciones(o => o.PrecalentarAlIniciar = false));
 
-        var resultado = await pashe.Pdf().GenerarAsync(referencia, _marca, ct: Ct);
+        var resultado = await pashe.Pdf().GenerarAsync(referencia, _marca, Ct);
 
         Assert.True(resultado.Exito);
     }
@@ -188,13 +181,13 @@ public sealed class GeneradorPdfTests : IDisposable
         var opciones = servicios.Obtener<Microsoft.Extensions.Options.IOptions<OpcionesPasheCpePdf>>().Value;
         var referencia = DoradosPdf.Colocar(servicios.Almacen, DoradosPdf.NotaDebito);
 
-        var resultado = await servicios.Obtener<IGeneradorPdf>().GenerarAsync(referencia, opciones.MarcaDe("20493400364"), ct: Ct);
+        var resultado = await servicios.Obtener<IGeneradorPdf>().GenerarAsync(referencia, opciones.MarcaDe("20493400364"), Ct);
 
         Assert.Equal(("www.jully.pe", "065-111111"), (opciones.MarcaDe("20493400364").Web, opciones.MarcaDe("20493400364").Telefonos.Single()));
         Assert.Equal("#336699", opciones.MarcaDe(Ejemplos.Ruc).ColorPrincipal);
         Assert.True(resultado.Exito);
         Assert.Empty(resultado.Advertencias);
-        Assert.Empty((await servicios.Obtener<IGeneradorPdf>().GenerarAsync(referencia, opciones.MarcaDe(Ejemplos.Ruc), ct: Ct)).Advertencias);
+        Assert.Empty((await servicios.Obtener<IGeneradorPdf>().GenerarAsync(referencia, opciones.MarcaDe(Ejemplos.Ruc), Ct)).Advertencias);
     }
 
     [Fact]

@@ -75,7 +75,7 @@ public sealed class QrPdfTests : IDisposable
         var cpe = (await _servicios.Obtener<LectorRepresentacion>().LeerAsync(referencia, Ct)).Comprobante!;
         var linea = cpe.Lineas[0];
         var largo = cpe with { Lineas = [.. Enumerable.Range(1, 300).Select(i => linea with { Numero = i })] };
-        var estilo = new EstiloPdf(MarcaEmisor.SinMarca, null, QuestPDF.Helpers.Colors.Blue.Darken3, null);
+        var estilo = new EstiloPdf(MarcaEmisor.SinMarca, null, QuestPDF.Helpers.Colors.Blue.Darken3);
 
         var paginas = new DisenoComprobante(largo, estilo).GenerateImages(new ImageGenerationSettings { RasterDpi = 20 }).Count();
 

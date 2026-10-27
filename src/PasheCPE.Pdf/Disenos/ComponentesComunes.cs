@@ -7,12 +7,12 @@ using QuestPDF.Infrastructure;
 namespace PasheCPE.Pdf.Disenos;
 
 /// <summary>Marca ya resuelta para dibujar: logo validado y color principal.</summary>
-internal sealed record EstiloPdf(MarcaEmisor Marca, byte[]? Logo, Color ColorPrincipal, DatosAdicionalesPdf? Extra);
+internal sealed record EstiloPdf(MarcaEmisor Marca, byte[]? Logo, Color ColorPrincipal);
 
 /// <summary>
 /// Piezas comunes de los dos diseños (TRD §22): página A4 vertical, cabecera con logo, emisor y recuadro del RUC,
 /// tipo y serie-número; bloques con título; QR de 3.5 × 3.5 cm con el valor resumen y el texto de representación
-/// impresa; pie con el texto de la marca y la paginación. Fuente Lato, embebida por QuestPDF.
+/// impresa; pie con el crédito de Pashe Soluciones y la paginación. Fuente Lato, embebida por QuestPDF.
 /// </summary>
 internal static class ComponentesComunes
 {
@@ -30,7 +30,7 @@ internal static class ComponentesComunes
         pagina.DefaultTextStyle(t => t.FontSize(8.5f).FontColor(Colors.Black));
         pagina.Header().Element(cabecera);
         pagina.Content().PaddingTop(4, Unit.Millimetre).Element(contenido);
-        pagina.Footer().Element(c => Pie(c, estilo));
+        pagina.Footer().Element(Pie);
     }
 
     /// <summary>Logo y datos del emisor a la izquierda; recuadro del RUC, título y serie-número a la derecha.</summary>
@@ -114,24 +114,6 @@ internal static class ComponentesComunes
         });
     }
 
-    /// <summary>Datos adicionales del sistema de ventas (vendedor, pedido…) y observaciones.</summary>
-    public static void InformacionAdicional(ColumnDescriptor columna, EstiloPdf estilo)
-    {
-        if (estilo.Extra is not { } extra || (extra.Campos.Count == 0 && string.IsNullOrWhiteSpace(extra.Observaciones)))
-        {
-            return;
-        }
-
-        columna.Item().Element(c => Bloque(c, estilo, "INFORMACIÓN ADICIONAL", cuerpo => cuerpo.Column(datos =>
-        {
-            datos.Item().Element(d => Datos(d, extra.Campos.Select(campo => (campo.Etiqueta, (string?)campo.Valor))));
-            if (!string.IsNullOrWhiteSpace(extra.Observaciones))
-            {
-                datos.Item().PaddingTop(2).Text(extra.Observaciones);
-            }
-        })));
-    }
-
     /// <summary>QR de 3.5 × 3.5 cm (con su zona de silencio) y, a su lado, valor resumen, estado y representación impresa.</summary>
     public static void BloqueQr(IContainer contenedor, string contenidoQr, string? valorResumen, string representacion, EstadoSunatImpreso? estado)
     {
@@ -165,11 +147,11 @@ internal static class ComponentesComunes
         });
     }
 
-    private static void Pie(IContainer contenedor, EstiloPdf estilo)
+    private static void Pie(IContainer contenedor)
     {
         contenedor.PaddingTop(3).BorderTop(0.6f).BorderColor(Borde).PaddingTop(2).Row(fila =>
         {
-            fila.RelativeItem().Text(estilo.Marca.TextoPie ?? string.Empty).FontSize(7).FontColor(Tenue);
+            fila.RelativeItem().Text(FormatoImpresion.Pie).FontSize(7).FontColor(Tenue);
             fila.ConstantItem(30, Unit.Millimetre).AlignRight().Text(t =>
             {
                 t.DefaultTextStyle(s => s.FontSize(7).FontColor(Tenue));
