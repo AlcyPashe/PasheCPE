@@ -82,7 +82,7 @@ public enum ContarPlazoDesde
     /// <summary>Fecha de emisión del documento.</summary>
     Emision,
 
-    /// <summary>Fecha de recepción del CDR del documento (comunicación de baja).</summary>
+    /// <summary>Fecha de recepción del CDR del documento. Ningún plazo vigente la usa: la baja se cuenta desde la emisión (2957).</summary>
     RecepcionCdr,
 }
 

@@ -8,7 +8,7 @@ using PasheCPE.Validacion.Reglas;
 namespace PasheCPE.Tests.Validacion;
 
 /// <summary>
-/// Cobertura de <c>ajustes-xsl.json</c>: toda fila de 01/03/07/08/RC del Excel posterior a las XSL (06/09/2022) está clasificada,
+/// Cobertura de <c>ajustes-xsl.json</c>: toda fila de 01/03/07/08/RC/RA del Excel posterior a las XSL (06/09/2022) está clasificada,
 /// cada código suprimido tiene su regla C# de reemplazo y cada regla C# respalda sus filas.
 /// </summary>
 public sealed class AjustesXslTests : IDisposable
@@ -27,7 +27,7 @@ public sealed class AjustesXslTests : IDisposable
     public void Clasificacion_CubreCadaFilaPosteriorALaXsl_UnaSolaVez()
     {
         var posteriores = _servicios.Obtener<ReglasExcelSunat>().Todas
-            .Where(r => r.Documento is "01" or "03" or "07" or "08" or ReferenciaCpe.TipoResumenDiario && r.Vigencia > _fechaXsl)
+            .Where(r => r.Documento is "01" or "03" or "07" or "08" or ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja && r.Vigencia > _fechaXsl)
             .Select(r => (r.Documento, r.Fila, r.Codigo))
             .Order()
             .ToList();

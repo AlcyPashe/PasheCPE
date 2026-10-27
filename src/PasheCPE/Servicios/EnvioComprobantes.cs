@@ -70,7 +70,7 @@ internal sealed class EnvioComprobantes(
 
         using var bloqueo = await bloqueos.AdquirirAsync(referencia.NombreArchivo, ct).ConfigureAwait(false);
         var previo = await historial.ObtenerAsync(referencia, ct).ConfigureAwait(false);
-        if (previo?.EstadoActual is EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.Rechazado)
+        if (previo?.EstadoActual is EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.Rechazado or EstadoCpe.DeBaja)
         {
             return soporte.Completar(clasificador.DesdeHistorial(contexto, previo), referencia);
         }

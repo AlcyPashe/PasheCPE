@@ -34,12 +34,13 @@ public sealed class TablaPlazosTests : IDisposable
     }
 
     [Fact]
-    public void FechaLimite_Baja_SeCuentaDesdeElCdr()
+    public void FechaLimite_Baja_SeCuentaDesdeLaEmisionDelDocumento()
     {
         var plazos = new TablaPlazos(_almacen.OpcionesDi());
 
-        Assert.Equal(ContarPlazoDesde.RecepcionCdr, plazos.Obtener(ReferenciaCpe.TipoComunicacionBaja)?.ContarDesde);
-        Assert.Equal(new DateOnly(2026, 11, 1), plazos.FechaLimite(ReferenciaCpe.TipoComunicacionBaja, null, new DateOnly(2026, 10, 25)));
+        // Regla 2957 del Excel de SUNAT (decisión del 27/10/2026): 7 días desde la emisión, no desde el CDR.
+        Assert.Equal(ContarPlazoDesde.Emision, plazos.Obtener(ReferenciaCpe.TipoComunicacionBaja)?.ContarDesde);
+        Assert.Equal(new DateOnly(2026, 10, 29), plazos.FechaLimite(ReferenciaCpe.TipoComunicacionBaja, null, _emision));
     }
 
     [Fact]

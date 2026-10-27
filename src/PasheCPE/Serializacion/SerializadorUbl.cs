@@ -69,7 +69,7 @@ internal static class SerializadorUbl
             espacios.Add("cac", EspaciosUbl.Cac);
             espacios.Add("cbc", EspaciosUbl.Cbc);
             espacios.Add("ext", EspaciosUbl.Ext);
-            if (raiz.Namespace == EspaciosUbl.SummaryDocuments)
+            if (raiz.Namespace is EspaciosUbl.SummaryDocuments or EspaciosUbl.VoidedDocuments)
             {
                 espacios.Add("sac", EspaciosUbl.Sac);
             }

@@ -80,10 +80,24 @@
     { "codigo": "PCPE-1413", "descripcion": "Las penalidades (nota de débito motivo 13) son inafectas del IGV (3507): la línea {0} tiene la afectación {1}." },
     { "codigo": "PCPE-1414", "descripcion": "Las notas de crédito y débito no admiten descuentos ni cargos globales." },
     { "codigo": "PCPE-1415", "descripcion": "Las notas de crédito y débito no admiten descuentos de línea (línea {0})." },
-    { "codigo": "PCPE-1430", "descripcion": "El documento que modifica la nota ({0}) está en estado {1} en el historial: una nota no puede modificar un documento rechazado o que no pasó la validación (2119, 2121, 2209, 2208)." },
+    { "codigo": "PCPE-1430", "descripcion": "El documento que modifica la nota ({0}) está en estado {1} en el historial: una nota no puede modificar un documento rechazado, dado de baja o que no pasó la validación (2119, 2121, 2209, 2208)." },
     { "codigo": "PCPE-1431", "descripcion": "La factura que modifica la nota ({0}) aún no tiene el CDR de aceptación (estado {1} en el historial): envíela antes de emitir la nota (2119, 2209)." },
     { "codigo": "PCPE-1432", "descripcion": "La moneda de la nota ({0}) es distinta de la del documento que modifica ({1}) (3209)." },
     { "codigo": "PCPE-1433", "descripcion": "El importe total de la nota de crédito ({0}) supera el del documento que modifica ({1}) (3286)." },
+    { "codigo": "PCPE-1501", "descripcion": "La comunicación de baja no tiene documentos." },
+    { "codigo": "PCPE-1502", "descripcion": "La fecha de emisión de los documentos ({0}) es posterior a la fecha de generación de la comunicación de baja ({1}) (2671)." },
+    { "codigo": "PCPE-1503", "descripcion": "La fecha de generación de la comunicación de baja {0} es posterior a la fecha actual de Lima ({1}) (2301)." },
+    { "codigo": "PCPE-1504", "descripcion": "El tipo de documento {0} del documento {1} no se da de baja: la comunicación de baja admite facturas (01) y sus notas de crédito (07) y débito (08) (2308)." },
+    { "codigo": "PCPE-1505", "descripcion": "{0} es una boleta o una nota de boleta: se anula en el resumen diario con el estado 3 (anulado), no en la comunicación de baja." },
+    { "codigo": "PCPE-1506", "descripcion": "La serie '{0}' del documento {1} no es válida para la baja: debe empezar con 'F' seguida de 3 letras o dígitos, o tener de 1 a 4 dígitos (2310)." },
+    { "codigo": "PCPE-1507", "descripcion": "Falta el motivo de la baja de {0} (2315)." },
+    { "codigo": "PCPE-1508", "descripcion": "El motivo de la baja de {0} tiene menos de 3 caracteres: SUNAT acepta la comunicación con la observación 4203." },
+    { "codigo": "PCPE-1509", "descripcion": "El documento {0} se repite en la misma comunicación de baja (2348)." },
+    { "codigo": "PCPE-1510", "descripcion": "El plazo para dar de baja {0} venció el {1}: SUNAT admite la baja hasta 7 días después de la emisión (2957). Emita una nota de crédito." },
+    { "codigo": "PCPE-1511", "descripcion": "El documento {0} tiene el estado {1} en su historial: solo se da de baja un documento aceptado por SUNAT (2105, 2398)." },
+    { "codigo": "PCPE-1512", "descripcion": "El documento {0} ya fue dado de baja en SUNAT (2323)." },
+    { "codigo": "PCPE-1513", "descripcion": "El documento {0} ya está en la comunicación de baja {1}, que aún no concluye: envíe o consulte esa comunicación en lugar de generar otra (2323)." },
+    { "codigo": "PCPE-1514", "descripcion": "La fecha de emisión de {0} en su historial ({1}) no es la fecha de los documentos de la comunicación de baja ({2}) (2375)." },
     { "codigo": "PCPE-2001", "descripcion": "El XML no cumple el esquema UBL de SUNAT: {0}" },
     { "codigo": "PCPE-2101", "descripcion": "La XSL {0} pidió la variable de DataPower '{1}', que PasheCPE no emula. Revise la emulación (TRD §9.3)." },
     { "codigo": "PCPE-2102", "descripcion": "No se pudo ejecutar la XSL de SUNAT {0}: {1}" },
@@ -108,6 +122,6 @@
     { "codigo": "PCPE-4011", "descripcion": "El documento {0} no tiene ticket en su historial: envíelo antes de consultar el ticket." },
     { "codigo": "PCPE-4012", "descripcion": "El estado del ticket {0} no está en estados-ticket.json: {1}" },
     { "codigo": "PCPE-4013", "descripcion": "El ticket {0} terminó con el estado {1} y SUNAT no devolvió el CDR." },
-    { "codigo": "PCPE-4015", "descripcion": "El ticket se consulta con la referencia del resumen diario (RC), no con {0}: sus documentos se actualizan al consultar el resumen que los informa." }
+    { "codigo": "PCPE-4015", "descripcion": "El ticket se consulta con la referencia del resumen diario (RC) o de la comunicación de baja (RA), no con {0}: sus documentos se actualizan al consultar el resumen o la baja que los informa." }
   ]
 }

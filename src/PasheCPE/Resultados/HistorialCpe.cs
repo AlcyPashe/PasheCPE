@@ -15,17 +15,27 @@ public sealed record HistorialCpe
     /// <summary>Intentos en orden cronológico.</summary>
     public IReadOnlyList<IntentoEnvio> Intentos { get; init; } = [];
 
-    /// <summary>Documentos informados (solo en el resumen diario): su resultado se registra también en sus historiales.</summary>
+    /// <summary>
+    /// Documentos informados (resumen diario y comunicación de baja): su resultado se registra también en sus
+    /// historiales.
+    /// </summary>
     public IReadOnlyList<DocumentoInformadoCpe>? Documentos { get; init; }
+
+    /// <summary>
+    /// Comunicación de baja (RA) que informa este documento, desde que se genera hasta que concluye; si la RA se
+    /// rechaza vuelve a null y el documento se puede informar en otra. Con la RA aceptada el estado es
+    /// <see cref="EstadoCpe.DeBaja"/>.
+    /// </summary>
+    public ReferenciaCpe? Baja { get; init; }
 }
 
-/// <summary>Documento informado en un resumen diario, con el estado del ítem (catálogo N.° 19).</summary>
+/// <summary>Documento informado en un resumen diario o en una comunicación de baja.</summary>
 public sealed record DocumentoInformadoCpe
 {
-    /// <summary>Boleta o nota informada (su fecha es la de emisión).</summary>
+    /// <summary>Documento informado (su fecha es la de emisión).</summary>
     public required ReferenciaCpe Referencia { get; init; }
 
-    /// <summary>Estado del ítem: 1 adicionar, 2 modificar, 3 anulado.</summary>
+    /// <summary>Estado del ítem (catálogo N.° 19): 1 adicionar, 2 modificar, 3 anulado; en la baja siempre 3.</summary>
     public required string Estado { get; init; }
 }
 

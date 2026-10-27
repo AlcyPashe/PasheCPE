@@ -34,7 +34,7 @@ internal sealed class MapeadorSummary(CatalogosSunat catalogos, IOptions<Opcione
             ID = new IdentifierType { Value = Identificador(lote.Referencia) },
             ReferenceDate = Fecha(lote.FechaReferencia),
             IssueDate = Fecha(lote.Referencia.Fecha),
-            AccountingSupplierParty = Cuenta(TipoDocumentoIdentidad.Ruc, emisor.Ruc, emisor.RazonSocial),
+            AccountingSupplierParty = MapeadorComun.Cuenta(TipoDocumentoIdentidad.Ruc, emisor.Ruc, emisor.RazonSocial),
         };
         resumen.Signature.Add(MapeadorComun.Firma(emisor, opciones.Value.IdFirma));
 
@@ -66,7 +66,7 @@ internal sealed class MapeadorSummary(CatalogosSunat catalogos, IOptions<Opcione
             LineID = numero.ToString(CultureInfo.InvariantCulture),
             DocumentTypeCode = new CodeType { Value = linea.TipoDocumento },
             ID = new IdentifierType { Value = SerieNumero(linea.Serie, linea.Numero) },
-            AccountingCustomerParty = Cuenta(linea.Cliente.TipoDocumento, linea.Cliente.NumeroDocumento, linea.Cliente.RazonSocial),
+            AccountingCustomerParty = MapeadorComun.Cuenta(linea.Cliente.TipoDocumento, linea.Cliente.NumeroDocumento, linea.Cliente.RazonSocial),
             BillingReference = linea.DocumentoModificado is { } modificado
                 ? new BillingReference
                 {
@@ -149,17 +149,6 @@ internal sealed class MapeadorSummary(CatalogosSunat catalogos, IOptions<Opcione
             },
         });
         return total;
-    }
-
-    private static AccountParty Cuenta(string tipoDocumento, string numeroDocumento, string? razonSocial)
-    {
-        var cuenta = new AccountParty { CustomerAssignedAccountID = numeroDocumento, AdditionalAccountID = tipoDocumento };
-        if (!string.IsNullOrWhiteSpace(razonSocial))
-        {
-            cuenta.Party = new Party { PartyLegalEntity = { new PartyLegalEntity { RegistrationName = razonSocial } } };
-        }
-
-        return cuenta;
     }
 
     private static string SerieNumero(string serie, long numero) => string.Create(CultureInfo.InvariantCulture, $"{serie}-{numero}");

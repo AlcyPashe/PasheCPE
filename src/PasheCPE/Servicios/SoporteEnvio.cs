@@ -76,7 +76,7 @@ internal sealed class SoporteEnvio(
         var intento = Intento(emisor, resultado);
         var registrado = await historial.RegistrarAsync(referencia, estadoActual, intento, CancellationToken.None).ConfigureAwait(false);
         Telemetria.RegistrarEnvio(intento.Operacion, resultado.Estado, intento.DuracionMs);
-        if (resultado.Estado is EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.EnProceso or EstadoCpe.Generado)
+        if (resultado.Estado is EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.EnProceso or EstadoCpe.Generado or EstadoCpe.DeBaja)
         {
             RegistroEventos.EnvioResultado(registro, intento.Operacion, referencia.NombreArchivo, resultado.Estado, resultado.Codigo ?? string.Empty, resultado.Descripcion);
         }

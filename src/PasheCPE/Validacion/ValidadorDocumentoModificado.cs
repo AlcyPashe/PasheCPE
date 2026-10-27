@@ -41,7 +41,7 @@ internal sealed class ValidadorDocumentoModificado(RegistroHistorial historial, 
         var lista = new List<ErrorCpe>();
         ErrorCpe Local(string codigo, string ruta, params object?[] argumentos) => errores.Local(codigo, OrigenError.Modelo, ruta, null, argumentos);
 
-        if (previo.EstadoActual is EstadoCpe.Rechazado or EstadoCpe.ErrorValidacionLocal)
+        if (previo.EstadoActual is EstadoCpe.Rechazado or EstadoCpe.ErrorValidacionLocal or EstadoCpe.DeBaja)
         {
             lista.Add(Local("PCPE-1430", "DocumentoModificado", referencia.NombreArchivo, previo.EstadoActual));
             return lista;

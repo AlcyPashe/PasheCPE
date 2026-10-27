@@ -190,7 +190,7 @@ Valores iniciales de `plazos.json` (días calendario contados desde el día sigu
 |---|---|
 | Factura y notas vinculadas | 3 desde la emisión |
 | Boletas y notas vinculadas (resumen diario) | 7 desde la emisión |
-| Comunicación de baja | 7 desde la recepción del CDR del documento |
+| Comunicación de baja | 7 desde la emisión del documento dado de baja (regla 2957 del Excel; las series numéricas no tienen plazo). Decidido con el desarrollador el 27/10/2026: antes decía «desde la recepción del CDR» |
 
 ## 4. Modelo público de entrada
 
@@ -217,7 +217,7 @@ public sealed record EmisorCpe
 - `NotaCpe`: datos comunes de `DocumentoVentaCpe` (sin anticipos ni detracción) + tipo (07/08), motivo (Cat.09/10), sustento, **un** documento modificado (`DocumentoModificadoCpe`: tipo 01 o 03, serie, número y, opcional, `FechaEmision`). El documento modificado es obligatorio salvo en la ND por penalidades (motivo 13, 2524). Con `FechaEmision` se valida que la nota no sea anterior al original (2885) y, si el original lo generó PasheCPE, su estado, moneda e importe total en el historial (§9.4). Las notas no llevan descuentos ni cargos (PCPE-1414/1415); la forma de pago solo va en la NC por ajuste de cuotas (motivo 13), donde el monto neto pendiente es la suma de las cuotas (3319).
 - `ResumenDiarioCpe`: fecha de referencia + líneas (boleta/nota, estado 1 adicionar / 2 modificar / 3 anular, cliente con razón social, totales por afectación con gratuitas desagregadas en gravadas/exoneradas/inafectas/exportación, IGV de gratuitas y tasa del IGV — campos 2027; sin tasa, la librería usa la vigente a la fecha de emisión, o la MYPE si el emisor la aplica). La librería asigna correlativos y divide en lotes de 500.
 - `DocumentoResumenCpe` (Fase 6, decidido con el desarrollador el 23/10/2026): tipo, serie, número y estado de una boleta o nota **ya generada por PasheCPE**; con esta vía la librería arma la línea leyendo su XML firmado de `FIRMA` (lo informado coincide con lo firmado).
-- `ComunicacionBajaCpe`: fecha de referencia + documentos (tipo, serie, número, motivo).
+- `ComunicacionBajaCpe`: fecha de referencia (emisión de los documentos) + fecha de generación opcional + documentos (`DocumentoBajaCpe`: tipo 01, 07 u 08 de serie F o numérica, serie, número, motivo). Las boletas y sus notas se anulan en el resumen diario con el estado 3 (Fase 8).
 - `GuiaRemisionCpe` (09/31) — **se define en la Fase 10** a partir del Excel GRE; campos previstos: remitente/transportista, destinatario, motivo (Cat.20) y descripción, modalidad (Cat.18: 01 público / 02 privado), fecha de inicio de traslado, peso bruto y unidad, bultos, partida y llegada (ubigeo, dirección, código de establecimiento), vehículos (placa, autorización), conductores (documento, nombres, licencia), transportista (RUC, razón social, MTC), indicador M1/L, documentos relacionados (Cat.61), bienes (código, descripción, unidad, cantidad, bien normalizado Cat.62).
 - `ReferenciaCpe`: `(Ruc, TipoDocumento, Serie, Numero, Fecha)` o `(Ruc, Tipo RC/RA, Fecha, Correlativo)`; resuelve nombre de archivo y periodo.
 
@@ -239,7 +239,8 @@ public enum EstadoCpe
     EnProceso,                  // ticket recibido / 98
     Aceptado,                   // nivel 3
     AceptadoConObservaciones,   // nivel 3
-    Rechazado                   // nivel 3
+    Rechazado,                  // nivel 3
+    DeBaja                      // nivel 3: SUNAT aceptó la comunicación de baja que lo informa (Fase 8)
 }
 
 public sealed record ResultadoEnvio
@@ -293,6 +294,7 @@ public sealed record ResultadoEnvio
 | Ticket 0 sin CDR o estado desconocido (`estados-ticket.json`) | `ErrorServicio` (`PCPE-4013`/`PCPE-4012`); el estado del resumen no cambia | no | sí |
 | Fault 0127 (el ticket no existe) | `ErrorServicio`; el siguiente `EnviarAsync` reenvía el mismo ZIP | no | no |
 | Ticket 99 sin CDR (GRE `error.numError/desError`) | `Rechazado` o `ErrorServicio` según código | no | no |
+| `getStatusCdr` 0003 («está de baja») | `DeBaja` **[verificar]** en producción | no | no |
 
 Regla dura: **ningún** `sendBill` se reenvía automáticamente; `RespuestaIncierta` y 1033 siempre pasan por reconciliación.
 
@@ -387,10 +389,10 @@ Pipeline de `EmitirAsync`: **validar modelo → calcular → mapear UBL → seri
 ## 9. Validación local (nivel 1)
 
 ### 9.1 Modelo (C#)
-Obligatorios, serie vs tipo (F/B/T/V…), tipo de documento del cliente (factura → 6; boleta > S/ 700 → identificación), fechas, plazos (`FechaLimiteEnvio` vencida → error), NRUS, longitud de campos, código de producto 8 dígitos (00000000 y 99999999 se aceptan, como excepción del Excel, 3496), una sola referencia en notas. Notas (`PCPE-1401`–`1415`): motivo vigente (Cat.09/10), sustento de 1 a 500 caracteres, documento modificado 01 o 03 con su serie, serie de la nota coherente (F → 01, B → 03), plazo según el documento modificado (3 o 7 días; en el envío se deduce de la serie), NC 13 solo sobre factura, al crédito con cuotas y con importe cero, ND 13 sin IGV. Ante diferencias con el Excel de validación, prevalece el Excel (§9.4).
+Obligatorios, serie vs tipo (F/B/T/V…), tipo de documento del cliente (factura → 6; boleta > S/ 700 → identificación), fechas, plazos (`FechaLimiteEnvio` vencida → error), NRUS, longitud de campos, código de producto 8 dígitos (00000000 y 99999999 se aceptan, como excepción del Excel, 3496), una sola referencia en notas. Notas (`PCPE-1401`–`1415`): motivo vigente (Cat.09/10), sustento de 1 a 500 caracteres, documento modificado 01 o 03 con su serie, serie de la nota coherente (F → 01, B → 03), plazo según el documento modificado (3 o 7 días; en el envío se deduce de la serie), NC 13 solo sobre factura, al crédito con cuotas y con importe cero, ND 13 sin IGV. Comunicación de baja (`ValidadorBaja`, `PCPE-1501`–`1514`, §16). Ante diferencias con el Excel de validación, prevalece el Excel (§9.4).
 
 ### 9.2 Esquema
-`XmlSchemaSet` compilado una vez desde `recursos\XSD` (embebidos, enlazados sin copiar), con resolutor local para los `import` (ninguna URI externa se resuelve). El resumen diario (UBL 2.0) usa un **segundo conjunto** con `UBLPE-SummaryDocuments-1.0.xsd` y sus `import` de `recursos\XSD\2.0\common` (Fase 6): UBL 2.0 y 2.1 comparten los namespaces `cac`/`cbc` y no pueden compilarse juntos, así que se elige por el elemento raíz. Solo se carga el documento principal porque `UBLPE-SunatAggregateComponents` 1.0 y 1.1 comparten el namespace (el XSD de SUNAT importa el 1.0, que ya trae cliente, referencia y estado en las líneas). Los 2 RC dorados lo pasan. El xmldsig de UBL trae un DOCTYPE con entidades internas: se lee con `DtdProcessing.Parse` y se carga primero. Se valida el XML **sin firmar** (la firma no altera la estructura validada); como `ext:ExtensionContent` exige un elemento, el `ext:UBLExtensions` vacío preparado para la firma se excluye de la validación (única exclusión). Los errores se devuelven como `PCPE-2001` con la ruta del elemento.
+`XmlSchemaSet` compilado una vez desde `recursos\XSD` (embebidos, enlazados sin copiar), con resolutor local para los `import` (ninguna URI externa se resuelve). El resumen diario y la baja (UBL 2.0) usan un **segundo conjunto** con `UBLPE-SummaryDocuments-1.0.xsd`, `UBLPE-VoidedDocuments-1.0.xsd` (Fase 8) y sus `import` de `recursos\XSD\2.0\common` (Fase 6): UBL 2.0 y 2.1 comparten los namespaces `cac`/`cbc` y no pueden compilarse juntos, así que se elige por el elemento raíz. Solo se carga el documento principal porque `UBLPE-SunatAggregateComponents` 1.0 y 1.1 comparten el namespace (el XSD de SUNAT importa el 1.0, que ya trae cliente, referencia y estado en las líneas). Los 2 RC dorados lo pasan. El xmldsig de UBL trae un DOCTYPE con entidades internas: se lee con `DtdProcessing.Parse` y se carga primero. Se valida el XML **sin firmar** (la firma no altera la estructura validada); como `ext:ExtensionContent` exige un elemento, el `ext:UBLExtensions` vacío preparado para la firma se excluye de la validación (única exclusión). Los errores se devuelven como `PCPE-2001` con la ruta del elemento.
 
 ### 9.3 Reglas SUNAT — XSL con emulación DataPower
 
@@ -582,6 +584,14 @@ Espera progresiva configurable (por defecto 2, 4, 8, 15, 30 s; máximo 5 consult
 - Mapeo: un `BillingPayment` por tipo de valor de venta (Cat. 11) distinto de cero; gratuitas en 05 o desagregadas en 06–09 según la vigencia del Cat. 11 a la fecha de generación (= recepción); IGV 1000 siempre con su tasa; ISC, ICBPER y otros cargos solo si son mayores que cero; 9996 con el IGV de gratuitas cuando rigen las gratuitas desagregadas.
 - El resultado del resumen se registra también en el historial de cada documento informado: `EnProceso` al recibir el ticket, `Aceptado`/`AceptadoConObservaciones` con el CDR y, si el resumen se rechaza, las boletas adicionadas vuelven a `Generado` (se pueden informar en otro RC); las modificadas o anuladas conservan su estado y suman el intento.
 
+**Comunicación de baja (Fase 8, decidido con el desarrollador el 27/10/2026)**:
+- Alcance: facturas (01) y sus notas (07, 08) de serie F o numérica. Las boletas y las notas B se anulan con el estado 3 del resumen diario (`PCPE-1505`).
+- Generación (`GenerarBajaAsync`): una RA por llamada, sin lotes, bajo el bloqueo `RUC-RA-yyyyMMdd`, con correlativo propio (independiente del RC). La RA queda anotada en el historial de cada documento (`HistorialCpe.Baja`), así no se informa en otra RA mientras no concluya.
+- Validación del modelo (`ValidadorBaja`, `PCPE-15xx`): tipo (2308), serie (2310), número, motivo (2315; menos de 3 caracteres → advertencia, SUNAT observa 4203), repetidos (2348; la XSL de 2022 no lo detecta), fechas (2671, 2301) y plazo de 7 días desde la emisión (`PCPE-1510`, 2957), que se vuelve a revisar antes de cada envío. Contra el historial de cada documento generado por PasheCPE: aceptado por SUNAT (`PCPE-1511`, 2105/2398), no dado de baja (`PCPE-1512`) ni en otra RA (`PCPE-1513`, 2323) y emitido en la fecha de la RA (`PCPE-1514`, 2375).
+- Mapeo: `VoidedDocuments` UBL 2.0 / 1.0; línea con tipo, `sac:DocumentSerialID`, `sac:DocumentNumberID` sin ceros y `sac:VoidReasonDescription`. XSL `ValidaExprRegSummaryVoided-1.0.1.xsl`.
+- Envío y ticket como el RC (`EnvioResumenes`). Al concluir: aceptada → los documentos pasan a `DeBaja`; rechazada → conservan su estado y se quita `Baja` (se pueden informar en otra RA). Un documento `DeBaja` no se reenvía, no se regenera (`PCPE-3101`) y no admite notas (`PCPE-1430`) ni otra baja.
+- **[verificar]** con el primer caso real: el código de SUNAT al reenviar una RA ya presentada (2324).
+
 ## 17. GRE — API REST con OAuth2
 
 1. **Token** (`ProveedorTokenGre`): `POST` form `grant_type=password`, `scope=https://api-cpe.sunat.gob.pe`, `client_id`, `client_secret`, `username={RUC}{UsuarioSOL}`, `password={ClaveSOL}`. Caché por `(client_id, username)` hasta `expires_in − 60 s`; renovación con bloqueo para evitar solicitudes simultáneas.
@@ -594,7 +604,7 @@ Espera progresiva configurable (por defecto 2, 4, 8, 15, 30 s; máximo 5 consult
 
 - `AlmacenCpe` es el único componente que compone rutas (`Path.Combine`): `{RutaBase}\{CARPETA}\{yyyy}\{MM}\{archivo}`; `CERT\{archivo.pfx}` sin periodo. Crea carpetas bajo demanda. **Sin subcarpetas por día.**
 - Escrituras atómicas (temporal en la misma carpeta + `File.Move`).
-- `RegistroHistorial`: `LOG\yyyy\MM\{nombre}.json` con `{ referencia, estadoActual, ticket, intentos: [ { fecha, operacion, canal, endpoint, duracionMs, estado, codigo, descripcion, http, ticket } ], documentos }`; `documentos` (solo en el RC) lista las boletas y notas informadas con su estado del ítem, para registrar el resultado del resumen en el historial de cada una (§16). Serialización con `JsonSerializerContext` generado. Nunca contiene credenciales. Acceso serializado por documento.
+- `RegistroHistorial`: `LOG\yyyy\MM\{nombre}.json` con `{ referencia, estadoActual, ticket, intentos: [ { fecha, operacion, canal, endpoint, duracionMs, estado, codigo, descripcion, http, ticket } ], documentos }`; `documentos` (RC y RA) lista los documentos informados con su estado del ítem, para registrar el resultado en el historial de cada uno (§16); `baja` (en el documento dado de baja) es la RA que lo informa. Serialización con `JsonSerializerContext` generado. Nunca contiene credenciales. Acceso serializado por documento.
 
 ## 19. Fecha y hora
 

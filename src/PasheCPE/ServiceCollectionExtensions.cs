@@ -70,6 +70,9 @@ public static class PasheCpeServiceCollectionExtensions
         services.TryAddSingleton<MapeadorSummary>();
         services.TryAddSingleton<ValidadorResumen>();
         services.TryAddSingleton<GeneradorSummary>();
+        services.TryAddSingleton<MapeadorVoided>();
+        services.TryAddSingleton<ValidadorBaja>();
+        services.TryAddSingleton<GeneradorVoided>();
         services.TryAddSingleton<LectorBoletaFirmada>();
         services.TryAddSingleton<AsignadorCorrelativos>();
         services.TryAddSingleton<ValidadorEsquema>();

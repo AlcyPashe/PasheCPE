@@ -133,13 +133,15 @@ while (true)
     Console.WriteLine("7. Consultar el CDR (getStatusCdr, solo producción)");
     Console.WriteLine("8. Ver el historial de un documento");
     Console.WriteLine("9. Resumen diario: 2 boletas (gravada y exonerada), RC desde FIRMA, envío y espera del ticket");
-    Console.WriteLine("10. Consultar el ticket de un resumen ya enviado (también desde otra ejecución)");
+    Console.WriteLine("10. Consultar el ticket de un resumen o una baja ya enviados (también desde otra ejecución)");
     Console.WriteLine("11. Factura gravada al crédito en 2 cuotas (base del caso 16)");
     Console.WriteLine("12. Nota de crédito por devolución total (06) de una factura gravada aceptada");
     Console.WriteLine("13. Nota de débito por intereses por mora (01) de una factura gravada aceptada");
     Console.WriteLine("14. Nota de crédito por corrección de la descripción (03) con importes en cero");
     Console.WriteLine("15. Nota de crédito por corrección de la descripción (03) con los importes de la línea corregida");
     Console.WriteLine("16. Nota de crédito por ajuste de cuotas (13) de una factura al crédito aceptada (caso 11)");
+    Console.WriteLine("17. Comunicación de baja de una factura aceptada: RA, envío y espera del ticket");
+    Console.WriteLine("18. Comunicación de baja fuera de plazo (emitida hace 8 días): error local, no se envía");
     Console.WriteLine("0. Salir");
     var opcion = Consola.Preguntar("Opción");
     try
@@ -174,7 +176,7 @@ while (true)
                 await ResumenDiario(pasheResumen, Emisor(amazonia: false, claveSol), Consola.Numero());
                 break;
             case "10":
-                var resumen = Consola.ReferenciaResumen(datos.Emisor.Ruc);
+                var resumen = Consola.ReferenciaResumen(datos.Emisor.Ruc, Consola.Preguntar("Tipo (RC resumen diario, RA comunicación de baja)", ReferenciaCpe.TipoResumenDiario));
                 Consola.Imprimir(await pasheResumen.Cpe.ConsultarTicketAsync(Emisor(amazonia: false, claveSol), resumen));
                 await ImprimirDocumentos(pasheResumen, resumen);
                 break;
@@ -198,6 +200,13 @@ while (true)
                 {
                     FormaPago = Cuotas(decimal.Parse(Consola.Preguntar("Monto neto pendiente", "129.80"), CultureInfo.InvariantCulture)),
                 });
+                break;
+            case "17":
+                await ComunicacionBaja(pashe, Emisor(amazonia: false, claveSol), Consola.Factura(datos.SerieFactura, "Factura que se da de baja:"));
+                break;
+            case "18":
+                var vencida = DateOnly.FromDateTime(DateTime.Now).AddDays(-8);
+                Consola.Imprimir(await pashe.Cpe.GenerarBajaAsync(Emisor(amazonia: false, claveSol), Baja(datos.SerieFactura, Consola.Numero(), vencida)));
                 break;
             case "0":
                 return;
@@ -245,7 +254,43 @@ async Task ResumenDiario(PasheCpe instancia, EmisorCpe emisor, long numero)
     }
 }
 
-// Estado de cada documento informado en el resumen, según su propio historial.
+// Da de baja una factura ya aceptada (casos 1 u 11): genera la RA, la envía y espera el ticket.
+async Task ComunicacionBaja(PasheCpe instancia, EmisorCpe emisor, DocumentoModificadoCpe factura)
+{
+    var baja = await instancia.Cpe.GenerarBajaAsync(emisor, Baja(factura.Serie, factura.Numero, factura.FechaEmision!.Value));
+    Consola.Imprimir(baja);
+    if (!baja.Exito)
+    {
+        return;
+    }
+
+    var envio = await instancia.Cpe.EnviarAsync(emisor, baja.Referencia);
+    Consola.Imprimir(envio);
+    if (envio.Estado == EstadoCpe.EnProceso)
+    {
+        Console.WriteLine("  Esperando el ticket (2, 4, 8, 15 y 30 s)…");
+        Consola.Imprimir(await instancia.Cpe.EsperarTicketAsync(emisor, baja.Referencia));
+    }
+
+    await ImprimirDocumentos(instancia, baja.Referencia);
+}
+
+ComunicacionBajaCpe Baja(string serie, long numero, DateOnly fechaEmision) => new()
+{
+    FechaReferencia = fechaEmision,
+    Documentos =
+    [
+        new DocumentoBajaCpe
+        {
+            TipoDocumento = TipoDocumentoSunat.Factura,
+            Serie = serie,
+            Numero = numero,
+            Motivo = Consola.Preguntar("Motivo de la baja", "ERROR EN LOS DATOS DEL CLIENTE"),
+        },
+    ],
+};
+
+// Estado de cada documento informado en el resumen o la baja, según su propio historial.
 static async Task ImprimirDocumentos(PasheCpe instancia, ReferenciaCpe resumen)
 {
     var historial = await instancia.Historial.ObtenerAsync(resumen);
@@ -323,10 +368,10 @@ internal static class Consola
 
     public static ReferenciaCpe Referencia(string ruc)
     {
-        var tipo = Preguntar("Tipo (01 factura, 03 boleta, 07 nota de crédito, 08 nota de débito, RC resumen diario)", "01");
-        if (tipo == ReferenciaCpe.TipoResumenDiario)
+        var tipo = Preguntar("Tipo (01 factura, 03 boleta, 07 nota de crédito, 08 nota de débito, RC resumen diario, RA comunicación de baja)", "01");
+        if (tipo is ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja)
         {
-            return ReferenciaResumen(ruc);
+            return ReferenciaResumen(ruc, tipo);
         }
 
         var serie = Preguntar("Serie", tipo switch { "03" => "B001", "07" => "FC01", "08" => "FD01", _ => "F001" });
@@ -335,10 +380,10 @@ internal static class Consola
         return ReferenciaCpe.Comprobante(ruc, tipo, serie, numero, fecha);
     }
 
-    /// <summary>Factura que modifica la nota, con su fecha de emisión para validarla contra el historial.</summary>
-    public static DocumentoModificadoCpe Factura(string seriePorDefecto)
+    /// <summary>Factura que modifica la nota o que se da de baja, con su fecha de emisión para validarla contra el historial.</summary>
+    public static DocumentoModificadoCpe Factura(string seriePorDefecto, string titulo = "Factura que modifica la nota:")
     {
-        Console.WriteLine("Factura que modifica la nota:");
+        Console.WriteLine(titulo);
         return new DocumentoModificadoCpe
         {
             TipoDocumento = TipoDocumentoSunat.Factura,
@@ -348,11 +393,12 @@ internal static class Consola
         };
     }
 
-    public static ReferenciaCpe ReferenciaResumen(string ruc)
+    /// <summary>Resumen diario (RC) o comunicación de baja (RA) por su fecha de generación y correlativo.</summary>
+    public static ReferenciaCpe ReferenciaResumen(string ruc, string tipo)
     {
-        var fecha = DateOnly.ParseExact(Preguntar("Fecha de generación del resumen (yyyy-MM-dd)", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        var fecha = DateOnly.ParseExact(Preguntar("Fecha de generación (yyyy-MM-dd)", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)), "yyyy-MM-dd", CultureInfo.InvariantCulture);
         var correlativo = int.Parse(Preguntar("Correlativo del día", "1"), CultureInfo.InvariantCulture);
-        return ReferenciaCpe.Resumen(ruc, fecha, correlativo);
+        return tipo == ReferenciaCpe.TipoComunicacionBaja ? ReferenciaCpe.Baja(ruc, fecha, correlativo) : ReferenciaCpe.Resumen(ruc, fecha, correlativo);
     }
 
     public static void Imprimir(ResultadoGeneracion generacion)
@@ -427,7 +473,7 @@ internal static class Consola
             return;
         }
 
-        Console.WriteLine($"  Estado actual: {historial.EstadoActual}{(historial.Ticket is null ? string.Empty : $" · ticket {historial.Ticket}")}");
+        Console.WriteLine($"  Estado actual: {historial.EstadoActual}{(historial.Ticket is null ? string.Empty : $" · ticket {historial.Ticket}")}{(historial.Baja is null ? string.Empty : $" · baja {historial.Baja.NombreArchivo}")}");
         Imprimir(historial.Intentos);
         foreach (var documento in historial.Documentos ?? [])
         {

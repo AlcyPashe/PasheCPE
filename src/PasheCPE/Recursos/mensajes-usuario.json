@@ -9,7 +9,8 @@
     "EnProceso": "SUNAT está procesando el comprobante. Consulte su estado en unos minutos.",
     "Aceptado": "Comprobante aceptado por SUNAT.",
     "AceptadoConObservaciones": "Comprobante aceptado por SUNAT con observaciones; revíselas para los siguientes comprobantes.",
-    "Rechazado": "SUNAT rechazó el comprobante. Emita uno nuevo con otro número y los datos corregidos."
+    "Rechazado": "SUNAT rechazó el comprobante. Emita uno nuevo con otro número y los datos corregidos.",
+    "DeBaja": "El comprobante fue dado de baja en SUNAT: ya no tiene validez."
   },
   "codigos": {
     "0102": "El usuario o la clave SOL son incorrectos. Avise al área de sistemas.",
@@ -20,12 +21,13 @@
     "0154": "El RUC del comprobante no corresponde al usuario SOL. Avise al área de sistemas.",
     "1032": "El comprobante ya figura en SUNAT como anulado o rechazado.",
     "1033": "SUNAT ya tiene registrado este comprobante. Verifique su estado en SUNAT Operaciones en Línea antes de emitir otro.",
-    "0127": "SUNAT no encuentra el ticket del resumen. Verifique el resumen en SUNAT Operaciones en Línea antes de enviarlo otra vez.",
-    "98": "SUNAT está procesando el resumen. Consulte el ticket en unos minutos.",
+    "0127": "SUNAT no encuentra el ticket del resumen o la baja. Verifíquelo en SUNAT Operaciones en Línea antes de enviarlo otra vez.",
+    "98": "SUNAT está procesando el resumen o la baja. Consulte el ticket en unos minutos.",
     "PCPE-4001": "El comprobante no está generado. Genérelo antes de enviarlo.",
     "PCPE-4002": "Las boletas se informan en el resumen diario; no se envían una por una.",
     "PCPE-4005": "SUNAT no permite consultar el estado de este comprobante por este medio. Verifíquelo en SUNAT Operaciones en Línea.",
     "PCPE-4006": "Venció el plazo para enviar el comprobante a SUNAT.",
-    "PCPE-4011": "El resumen aún no tiene ticket: envíelo antes de consultarlo."
+    "PCPE-4011": "El resumen aún no tiene ticket: envíelo antes de consultarlo.",
+    "PCPE-1510": "Venció el plazo para dar de baja el comprobante: emita una nota de crédito."
   }
 }

@@ -117,7 +117,8 @@ Una nota de serie B con `ModoEnvioBoletas = ResumenDiario` solo se genera y se i
 | `SinConexionInternet`, `ServicioNoDisponible` | Dejar pendiente; reintentar con `EnviarAsync` antes de `FechaLimiteEnvio` |
 | `RespuestaIncierta` | No reenviar; llamar a `ConsultarCdrAsync` |
 | `ErrorServicio` | Revisar credenciales, perfil SOL o configuración (alertar al administrador) |
-| `EnProceso` | Resumen diario: guardar el ticket y consultarlo con `ConsultarTicketAsync` (la referencia es la del RC). Boleta informada en un resumen: esperar al resultado de su RC |
+| `EnProceso` | Resumen diario o comunicación de baja: guardar el ticket y consultarlo con `ConsultarTicketAsync` (la referencia es la del RC o la RA). Boleta informada en un resumen: esperar al resultado de su RC |
+| `DeBaja` | Marcar anulado: SUNAT aceptó la comunicación de baja que lo informa (§7) |
 
 Tabla sugerida en SQL Server (la crea el sistema de ventas, no la librería):
 
@@ -162,7 +163,7 @@ public sealed class ReenvioCpe(IServicioCpe cpe, IHistorialCpe historial, IEmiso
             await foreach (var h in historial.ListarPendientesAsync(hoy.Year, hoy.Month, ct))
             {
                 var emisor = await emisores.ObtenerAsync(h.Referencia.Ruc, ct);
-                var esResumen = h.Referencia.TipoDocumento == ReferenciaCpe.TipoResumenDiario;
+                var esResumen = h.Referencia.TipoDocumento is ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja;
                 if (!esResumen && EsBoletaDelResumen(h.Referencia)) // del sistema de ventas: 03 o nota B con ModoEnvioBoletas = ResumenDiario
                 {
                     continue; // la informa el resumen diario y se actualiza al consultar su RC
@@ -172,7 +173,7 @@ public sealed class ReenvioCpe(IServicioCpe cpe, IHistorialCpe historial, IEmiso
                 {
                     EstadoCpe.EnProceso when esResumen => await cpe.ConsultarTicketAsync(emisor, h.Referencia, ct: ct),
                     EstadoCpe.RespuestaIncierta when !esResumen => await cpe.ConsultarCdrAsync(emisor, h.Referencia, ct),
-                    _ => await cpe.EnviarAsync(emisor, h.Referencia, ct) // el RC con ticket se consulta, no se reenvía
+                    _ => await cpe.EnviarAsync(emisor, h.Referencia, ct) // el RC o la RA con ticket se consulta, no se reenvía
                 };
                 // actualizar la BD con el resultado
             }
@@ -204,7 +205,31 @@ foreach (var rc in await cpe.GenerarResumenAsync(emisor, fecha, documentos, ct))
 - El ticket queda en el historial del RC: `ConsultarTicketAsync(emisor, referenciaRc)` sin ticket lo toma de ahí, desde otro proceso u otro día.
 - Un resumen fuera de plazo se envía con la advertencia `PCPE-1318` (SUNAT lo acepta con la observación 4443).
 
-## 7. Guías de remisión
+## 7. Comunicación de baja
+
+Para anular una factura o una nota de serie F **ya aceptada** por SUNAT, dentro de los 7 días siguientes a su emisión (después, se emite una nota de crédito):
+
+```csharp
+var baja = new ComunicacionBajaCpe
+{
+    FechaReferencia = factura.FechaEmision,             // todos los documentos de la RA son de esta fecha
+    Documentos = [new DocumentoBajaCpe { TipoDocumento = "01", Serie = "F001", Numero = 125, Motivo = "ERROR EN EL RUC DEL CLIENTE" }],
+};
+var ra = await cpe.GenerarBajaAsync(emisor, baja, ct);  // RUC-RA-yyyyMMdd-n: DATA, FIRMA, ENVIO y LOG
+if (ra.Exito)
+{
+    var envio = await cpe.EnviarAsync(emisor, ra.Referencia, ct);                  // sendSummary → EnProceso con ticket
+    var final = await cpe.EsperarTicketAsync(emisor, ra.Referencia, ct: ct);        // Aceptado → la factura queda DeBaja
+}
+```
+
+- Las boletas y sus notas no van en la comunicación de baja: se anulan con el estado 3 en el resumen diario (`PCPE-1505`).
+- Si PasheCPE generó el documento, la librería revisa su historial: debe estar aceptado (`PCPE-1511`), no dado de baja (`PCPE-1512`) ni en otra RA que aún no concluye (`PCPE-1513`), y su fecha de emisión debe ser la de la RA (`PCPE-1514`).
+- Fuera de plazo no se genera ni se envía (`PCPE-1510`); el plazo se vuelve a revisar al enviar.
+- Al generar la RA, el historial del documento la anota en `Baja`. Cuando SUNAT la acepta, el documento queda `DeBaja`: ya no se reenvía, no se regenera y no admite notas. Si la RA se rechaza, el documento sigue `Aceptado` y se puede informar en otra RA.
+- El ticket queda en el historial de la RA: `ConsultarTicketAsync(emisor, referenciaRa)` lo consulta desde otro proceso u otro día.
+
+## 8. Guías de remisión
 
 ```csharp
 var r = await gre.EmitirAsync(emisor, guia, ct);   // genera, obtiene token, envía, espera ticket y genera el QR de SUNAT
@@ -212,7 +237,7 @@ var r = await gre.EmitirAsync(emisor, guia, ct);   // genera, obtiene token, env
 
 Las GRE solo existen en producción. En un sistema configurado con `Ambiente = Beta`, la librería no las envía.
 
-## 8. PDF
+## 9. PDF
 
 ```csharp
 var pdf = await generadorPdf.GenerarAsync(r.Generacion.Referencia, marca, ct: ct); // REPO\yyyy\MM\{nombre}.pdf
@@ -220,7 +245,7 @@ var pdf = await generadorPdf.GenerarAsync(r.Generacion.Referencia, marca, ct: ct
 
 `MarcaEmisor` lleva logo, teléfonos, correo y web. El PDF se arma desde el XML firmado, así que puede regenerarse cuando se necesite.
 
-## 9. Diagnóstico
+## 10. Diagnóstico
 
 - Historial de cada documento: `D:\CPE\LOG\yyyy\MM\{nombre}.json` o `IHistorialCpe.ObtenerAsync`.
 - Logs: categoría `PasheCPE` en el proveedor que use el sistema (Serilog, archivo, consola).

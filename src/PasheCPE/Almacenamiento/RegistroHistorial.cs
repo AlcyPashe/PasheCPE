@@ -21,8 +21,34 @@ internal sealed class RegistroHistorial(AlmacenCpe almacen, ILogger<RegistroHist
     public Task<HistorialCpe> RegistrarAsync(ReferenciaCpe referencia, EstadoCpe estadoActual, IntentoEnvio? intento, CancellationToken ct) =>
         RegistrarAsync(referencia, estadoActual, intento, null, ct);
 
-    /// <summary>Igual, y guarda los documentos informados del resumen diario si se indican.</summary>
-    public async Task<HistorialCpe> RegistrarAsync(ReferenciaCpe referencia, EstadoCpe estadoActual, IntentoEnvio? intento, IReadOnlyList<DocumentoInformadoCpe>? documentos, CancellationToken ct)
+    /// <summary>Igual, y guarda los documentos informados del resumen diario o de la baja si se indican.</summary>
+    public Task<HistorialCpe> RegistrarAsync(ReferenciaCpe referencia, EstadoCpe estadoActual, IntentoEnvio? intento, IReadOnlyList<DocumentoInformadoCpe>? documentos, CancellationToken ct) =>
+        ActualizarAsync(referencia, actual => Registrar(actual, estadoActual, intento, documentos), ct);
+
+    /// <summary>
+    /// Registra el intento y el estado de un documento informado en una comunicación de baja, y la RA que lo informa
+    /// (<see cref="HistorialCpe.Baja"/>; null la quita). Un documento sin historial no lo generó PasheCPE: no se crea.
+    /// </summary>
+    public async Task<HistorialCpe?> RegistrarBajaAsync(ReferenciaCpe referencia, EstadoCpe? estadoActual, IntentoEnvio? intento, ReferenciaCpe? baja, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(referencia);
+        if (await ObtenerAsync(referencia, ct).ConfigureAwait(false) is null)
+        {
+            return null;
+        }
+
+        return await ActualizarAsync(referencia, actual => Registrar(actual, estadoActual ?? actual.EstadoActual, intento, null) with { Baja = baja }, ct).ConfigureAwait(false);
+    }
+
+    private static HistorialCpe Registrar(HistorialCpe actual, EstadoCpe estadoActual, IntentoEnvio? intento, IReadOnlyList<DocumentoInformadoCpe>? documentos) => actual with
+    {
+        EstadoActual = estadoActual,
+        Ticket = intento?.Ticket ?? actual.Ticket,
+        Intentos = intento is null ? actual.Intentos : [.. actual.Intentos, intento],
+        Documentos = documentos ?? actual.Documentos,
+    };
+
+    private async Task<HistorialCpe> ActualizarAsync(ReferenciaCpe referencia, Func<HistorialCpe, HistorialCpe> cambio, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(referencia);
         var ruta = Ruta(referencia);
@@ -31,14 +57,7 @@ internal sealed class RegistroHistorial(AlmacenCpe almacen, ILogger<RegistroHist
         try
         {
             var actual = await LeerAsync(ruta, ct).ConfigureAwait(false) ?? new HistorialCpe { Referencia = referencia };
-            var nuevo = actual with
-            {
-                Referencia = referencia,
-                EstadoActual = estadoActual,
-                Ticket = intento?.Ticket ?? actual.Ticket,
-                Intentos = intento is null ? actual.Intentos : [.. actual.Intentos, intento],
-                Documentos = documentos ?? actual.Documentos,
-            };
+            var nuevo = cambio(actual) with { Referencia = referencia };
             await AlmacenCpe.EscribirAsync(ruta, JsonSerializer.SerializeToUtf8Bytes(nuevo, HistorialJson.Default.HistorialCpe), ct).ConfigureAwait(false);
             return nuevo;
         }

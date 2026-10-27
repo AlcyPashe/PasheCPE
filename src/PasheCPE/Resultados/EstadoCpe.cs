@@ -32,6 +32,9 @@ public enum EstadoCpe
 
     /// <summary>Nivel 3: CDR con código 2000–3999 (se puede reemitir corregido).</summary>
     Rechazado,
+
+    /// <summary>Nivel 3: SUNAT aceptó la comunicación de baja (RA) que lo informa; ya no tiene efectos tributarios.</summary>
+    DeBaja,
 }
 
 /// <summary>Utilidades de <see cref="EstadoCpe"/>.</summary>
@@ -43,7 +46,7 @@ public static class EstadoCpeExtensiones
         EstadoCpe.SinConexionInternet or EstadoCpe.ServicioNoDisponible => 0,
         EstadoCpe.ErrorValidacionLocal => 1,
         EstadoCpe.ErrorServicio or EstadoCpe.RespuestaIncierta => 2,
-        EstadoCpe.EnProceso or EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.Rechazado => 3,
+        EstadoCpe.EnProceso or EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.Rechazado or EstadoCpe.DeBaja => 3,
         _ => null,
     };
 

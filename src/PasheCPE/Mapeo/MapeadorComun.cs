@@ -89,7 +89,22 @@ internal sealed class MapeadorComun(CatalogosSunat catalogos, IOptions<OpcionesP
 
     public Signature Firma(EmisorCpe emisor) => Firma(emisor, opciones.Value.IdFirma);
 
-    /// <summary>cac:Signature: identifica al firmante y apunta a la firma <c>#IdFirma</c> (también lo usa el resumen diario).</summary>
+    /// <summary>
+    /// Emisor o adquiriente en UBL 2.0 (resumen diario y baja): documento en <c>CustomerAssignedAccountID</c>, tipo en
+    /// <c>AdditionalAccountID</c> y, si la hay, la razón social.
+    /// </summary>
+    public static AccountParty Cuenta(string tipoDocumento, string numeroDocumento, string? razonSocial)
+    {
+        var cuenta = new AccountParty { CustomerAssignedAccountID = numeroDocumento, AdditionalAccountID = tipoDocumento };
+        if (!string.IsNullOrWhiteSpace(razonSocial))
+        {
+            cuenta.Party = new Party { PartyLegalEntity = { new PartyLegalEntity { RegistrationName = razonSocial } } };
+        }
+
+        return cuenta;
+    }
+
+    /// <summary>cac:Signature: identifica al firmante y apunta a la firma <c>#IdFirma</c> (también lo usan el resumen diario y la baja).</summary>
     public static Signature Firma(EmisorCpe emisor, string idFirma)
     {
         ArgumentNullException.ThrowIfNull(emisor);

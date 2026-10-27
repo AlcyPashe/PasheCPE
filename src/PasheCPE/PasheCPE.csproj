@@ -41,11 +41,11 @@
     <EmbeddedResource Include="..\..\recursos\XSD\2.1\maindoc\UBL-Invoice-2.1.xsd;..\..\recursos\XSD\2.1\maindoc\UBL-CreditNote-2.1.xsd;..\..\recursos\XSD\2.1\maindoc\UBL-DebitNote-2.1.xsd;..\..\recursos\XSD\2.1\maindoc\UBL-DespatchAdvice-2.1.xsd;..\..\recursos\XSD\2.1\maindoc\UBL-ApplicationResponse-2.1.xsd"
                       LogicalName="PasheCPE.Recursos.xsd.2.1.maindoc.%(Filename)%(Extension)"
                       Link="Recursos\xsd\2.1\maindoc\%(Filename)%(Extension)" />
-    <!-- UBL 2.0 (resumen diario): conjunto aparte, porque comparte los namespaces de UBL 2.1 -->
+    <!-- UBL 2.0 (resumen diario y baja): conjunto aparte, porque comparte los namespaces de UBL 2.1 -->
     <EmbeddedResource Include="..\..\recursos\XSD\2.0\common\*.xsd"
                       LogicalName="PasheCPE.Recursos.xsd.2.0.common.%(Filename)%(Extension)"
                       Link="Recursos\xsd\2.0\common\%(Filename)%(Extension)" />
-    <EmbeddedResource Include="..\..\recursos\XSD\2.0\maindoc\UBLPE-SummaryDocuments-1.0.xsd"
+    <EmbeddedResource Include="..\..\recursos\XSD\2.0\maindoc\UBLPE-SummaryDocuments-1.0.xsd;..\..\recursos\XSD\2.0\maindoc\UBLPE-VoidedDocuments-1.0.xsd"
                       LogicalName="PasheCPE.Recursos.xsd.2.0.maindoc.%(Filename)%(Extension)"
                       Link="Recursos\xsd\2.0\maindoc\%(Filename)%(Extension)" />
   </ItemGroup>

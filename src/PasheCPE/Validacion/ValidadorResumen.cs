@@ -178,7 +178,7 @@ internal sealed partial class ValidadorResumen(
             }
 
             var ruta = string.Create(CultureInfo.InvariantCulture, $"Lineas[{i}]");
-            var informado = previo.EstadoActual is EstadoCpe.EnProceso or EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.Rechazado or EstadoCpe.RespuestaIncierta;
+            var informado = previo.EstadoActual is EstadoCpe.EnProceso or EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.Rechazado or EstadoCpe.RespuestaIncierta or EstadoCpe.DeBaja;
             if (linea.Estado == EstadoItemResumen.Adicionar && informado)
             {
                 lista.Add(errores.Local("PCPE-1314", OrigenError.Modelo, ruta, null, referencia.NombreArchivo, previo.EstadoActual));

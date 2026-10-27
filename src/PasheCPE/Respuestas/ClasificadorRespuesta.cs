@@ -117,6 +117,7 @@ internal sealed class ClasificadorRespuesta(CatalogoErrores errores, CatalogoRes
         {
             ResultadoConsultaCdr.Aceptado => EstadoCpe.Aceptado,
             ResultadoConsultaCdr.Rechazado => EstadoCpe.Rechazado,
+            ResultadoConsultaCdr.Baja => EstadoCpe.DeBaja,
             ResultadoConsultaCdr.NoExiste => estadoSiNoExiste,
             _ => EstadoCpe.ErrorServicio,
         };

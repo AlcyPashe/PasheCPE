@@ -5,6 +5,27 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 27/10/2026 — Fase 8 (comunicación de baja):
+  - `IServicioCpe.GenerarBajaAsync(EmisorCpe, ComunicacionBajaCpe)`: una RA por llamada (`RUC-RA-yyyyMMdd-n`, correlativo propio del día), en DATA, FIRMA, ENVIO y LOG. `EnviarAsync`, `ConsultarTicketAsync` y `EsperarTicketAsync` admiten la RA (sendSummary y getStatus, como el RC).
+  - UBL: `VoidedDocuments` / `VoidedDocumentsLine` (UBL 2.0, perfil 1.0, prefijo `sac`) y `MapeadorVoided`; el XSD `UBLPE-VoidedDocuments-1.0.xsd` va en el conjunto UBL 2.0; serializador precalentado. `MapeadorComun.Cuenta` se comparte con el RC.
+  - `ValidadorBaja` (`PCPE-1501`–`1514`):
+    - modelo: tipo 01/07/08 (2308); boletas y notas B → resumen diario con estado 3 (`PCPE-1505`); serie F o numérica (2310); motivo (2315; con menos de 3 caracteres, advertencia por la 4203); repetidos (2348, que la XSL no detecta); fechas (2671, 2301);
+    - plazo de 7 días desde la emisión (`PCPE-1510`, 2957), salvo series numéricas; se vuelve a revisar antes de cada envío;
+    - historial de los documentos generados por PasheCPE: aceptado (2105/2398), no dado de baja ni en otra RA (2323), misma fecha de emisión (2375).
+  - Estado nuevo `EstadoCpe.DeBaja` (nivel 3, no pendiente) y `HistorialCpe.Baja` (la RA que informa el documento):
+    - al aceptarse la RA, sus documentos pasan a `DeBaja`; si se rechaza, conservan su estado y se pueden informar en otra RA;
+    - un documento `DeBaja` no se reenvía, no se regenera ni admite notas (`PCPE-1430`);
+    - `getStatusCdr` 0003 → `DeBaja`.
+  - `ajustes-xsl.json`: 20 filas RA clasificadas.
+  - Demo:
+    - caso 17: baja de una factura aceptada, con envío y espera del ticket;
+    - caso 18: baja fuera de plazo;
+    - el caso 10 y la referencia del caso 6 admiten RA.
+  - Pruebas sin red:
+    - generación y correlativos (también simultáneos y junto al RC);
+    - cada error del modelo y del historial, y el plazo en el límite;
+    - XSD y XSL sin hallazgos, ida y vuelta, y 13 alteraciones con el código de SUNAT;
+    - envío, ticket 98→0 y 99, consulta desde otro proceso, plazo vencido al enviar, efectos de `DeBaja` y 0003 de `getStatusCdr`.
 - 23/10/2026 — Fase 7 (notas de crédito y débito, reglas 2027):
   - `IServicioCpe.GenerarAsync`, `EmitirAsync` y `ValidarAsync` de `NotaCpe`. Las notas F van por `sendBill`; las B siguen `ModoEnvioBoletas` (con `ResumenDiario` se informan en el RC desde FIRMA). El plazo depende del documento modificado (3 o 7 días; en el envío se deduce de la serie).
   - Modelo: `NotaCpe.DocumentoModificado` es opcional solo en la ND por penalidades (motivo 13). `DocumentoModificadoCpe.FechaEmision` (opcional) para validar la fecha y ubicar el original en el historial.
@@ -121,6 +142,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 - 23/10/2026 — `Validacion.Modelo` y `Validacion.Esquema` no tenían efecto: `GeneradorInvoice` siempre validaba el modelo y el XSD (lo encontró la prueba manual en beta, caso de rechazo forzado). Los errores del cálculo y de los totales siguen bloqueando siempre.
 
 ### Cambiado
+- 27/10/2026 — Plazo de la comunicación de baja: 7 días desde la **emisión** del documento (regla 2957 del Excel, que prevalece), no desde la recepción del CDR. `plazos.json` (RA `contarDesde: "Emision"`), TRD §3.3 y plan de la Fase 8 actualizados; `ContarPlazoDesde.RecepcionCdr` se conserva, pero ningún plazo la usa. Los mensajes del ticket (98, 0127) y `PCPE-4015` mencionan también la baja. TRD §4, §5, §5.1, §9.1, §9.2, §16 y §18; guía de integración §4, §5 y §7 (nueva).
 - 23/10/2026 — Fase 6, tras la prueba en beta (resumen `RC-20261023-1` aceptado con su ticket; `SOAPAction` de `sendSummary` y `getStatus` confirmados): al recibir el ticket el mensaje al cajero es el del resumen; los envíos se registran con la categoría `SoporteEnvio`, y sin «(null)» cuando la respuesta no trae código.
 - 23/10/2026 — Fase 6: `PCPE-2001` dice «esquema UBL de SUNAT» (2.1 o 2.0); `PCPE-4007` admite el RC; `RegistroHistorial` guarda los documentos informados del RC; los pasos comunes del envío pasan de `EnvioComprobantes` a `SoporteEnvio`. TRD §3.3, §4, §5.1, §6, §9.2, §9.4, §14, §16 y §18, y guía de integración §4–§6 (resumen diario y servicio de reenvío).
 - 23/10/2026 — `SOAPAction: "urn:{operacion}"` confirmado en beta. La demo prueba las credenciales erróneas con usuario y clave inexistentes; beta no valida credenciales, así que ese caso se verifica en producción. Beta devuelve los rechazos como fault con HTTP 200 (prueba agregada con la respuesta real de F001-11).

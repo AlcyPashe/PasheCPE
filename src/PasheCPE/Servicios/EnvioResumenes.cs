@@ -8,11 +8,13 @@ using PasheCPE.Respuestas;
 using PasheCPE.Tiempo;
 using PasheCPE.Transporte;
 using PasheCPE.Transporte.Soap;
+using PasheCPE.Validacion;
 
 namespace PasheCPE.Servicios;
 
 /// <summary>
-/// Envío del resumen diario por <c>sendSummary</c> y consulta de su ticket por <c>getStatus</c> (TRD §14 y §16).
+/// Envío del resumen diario (RC) y de la comunicación de baja (RA) por <c>sendSummary</c> y consulta de su ticket por
+/// <c>getStatus</c> (TRD §14 y §16).
 /// <c>EnviarAsync</c> parte del ZIP de ENVIO y nunca regenera; antes de enviar lee el historial:
 /// <list type="bullet">
 /// <item>resultado definitivo (aceptado, observado, rechazado) → se devuelve sin llamar a SUNAT;</item>
@@ -20,8 +22,9 @@ namespace PasheCPE.Servicios;
 /// <item>sin ticket (respuesta incierta, servicio no disponible) → se reenvía el mismo ZIP.</item>
 /// </list>
 /// <c>sendSummary</c> solo se reintenta ante faults de disponibilidad; <c>getStatus</c>, hasta 3 veces. El resultado del
-/// ticket se registra también en el historial de cada documento informado: en proceso al recibir el ticket, aceptado al
-/// recibir el CDR y, si el resumen se rechaza, las boletas adicionadas vuelven a <c>Generado</c> para otro resumen.
+/// ticket se registra también en el historial de cada documento informado: en el RC, en proceso al recibir el ticket,
+/// aceptado al recibir el CDR y, si el resumen se rechaza, las boletas adicionadas vuelven a <c>Generado</c> para otro
+/// resumen; en la RA, los documentos pasan a <see cref="EstadoCpe.DeBaja"/> cuando SUNAT la acepta.
 /// </summary>
 internal sealed class EnvioResumenes(
     ClienteSoap cliente,
@@ -82,7 +85,7 @@ internal sealed class EnvioResumenes(
             }
         }
 
-        if (AnulacionFueraDePlazo(previo) is { } vencida)
+        if (AnulacionFueraDePlazo(referencia, previo) is { } vencida)
         {
             return vencida with { Rutas = contexto.Rutas };
         }
@@ -96,7 +99,7 @@ internal sealed class EnvioResumenes(
         ArgumentNullException.ThrowIfNull(emisor);
         ArgumentNullException.ThrowIfNull(referencia);
         var contexto = new ContextoEnvio(referencia, OperacionSoap.GetStatus, soporte.Rutas(referencia));
-        if (referencia.TipoDocumento != ReferenciaCpe.TipoResumenDiario)
+        if (!EsResumenOBaja(referencia))
         {
             return soporte.Local(contexto, "PCPE-4015", referencia.NombreArchivo);
         }
@@ -272,6 +275,12 @@ internal sealed class EnvioResumenes(
         }
 
         var intento = SoporteEnvio.Intento(emisor, resultado) with { Descripcion = $"{resumen.NombreArchivo}: {resultado.Descripcion}" };
+        if (resumen.TipoDocumento == ReferenciaCpe.TipoComunicacionBaja)
+        {
+            await PropagarBajaAsync(resumen, documentos, resultado, intento).ConfigureAwait(false);
+            return;
+        }
+
         foreach (var documento in documentos)
         {
             EstadoCpe estado;
@@ -292,21 +301,46 @@ internal sealed class EnvioResumenes(
         }
     }
 
-    /// <summary>Una anulación (estado 3) fuera de plazo la rechaza SUNAT (2957): no se envía.</summary>
-    private ResultadoEnvio? AnulacionFueraDePlazo(HistorialCpe? previo)
+    /// <summary>
+    /// Baja (decisión del 27/10/2026): con la RA aceptada u observada los documentos pasan a <see cref="EstadoCpe.DeBaja"/>;
+    /// rechazada, conservan su estado y dejan de estar en la RA (se pueden informar en otra); en proceso o con otro
+    /// resultado, conservan su estado y suman el intento.
+    /// </summary>
+    private async Task PropagarBajaAsync(ReferenciaCpe baja, IReadOnlyList<DocumentoInformadoCpe> documentos, ResultadoEnvio resultado, IntentoEnvio intento)
+    {
+        var aceptada = resultado.Estado is EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones;
+        EstadoCpe? estado = aceptada ? EstadoCpe.DeBaja : null;
+        var vigente = resultado.Estado == EstadoCpe.Rechazado ? null : baja;
+        foreach (var documento in documentos)
+        {
+            await historial.RegistrarBajaAsync(documento.Referencia, estado, aceptada ? intento with { Estado = EstadoCpe.DeBaja } : intento, vigente, CancellationToken.None).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>
+    /// Una anulación fuera de plazo la rechaza SUNAT (2957): no se envía. En el RC son los documentos con estado 3; en la
+    /// RA, todos, salvo las series numéricas, que la regla 2957 no alcanza. El plazo se vuelve a revisar al enviar porque
+    /// puede vencer después de generar.
+    /// </summary>
+    private ResultadoEnvio? AnulacionFueraDePlazo(ReferenciaCpe referencia, HistorialCpe? previo)
     {
         var hoy = reloj.HoyLima();
+        var esBaja = referencia.TipoDocumento == ReferenciaCpe.TipoComunicacionBaja;
         var vencida = previo?.Documentos?.FirstOrDefault(d => d.Estado == EstadoItemResumen.Anulado
-            && plazos.FechaLimite(ReferenciaCpe.TipoResumenDiario, null, d.Referencia.Fecha) is { } limite && limite < hoy);
+            && !(esBaja && ValidadorBaja.EsSerieNumerica(d.Referencia.Serie))
+            && plazos.FechaLimite(referencia.TipoDocumento, null, d.Referencia.Fecha) is { } limite && limite < hoy);
         if (vencida is null)
         {
             return null;
         }
 
-        var limite = plazos.FechaLimite(ReferenciaCpe.TipoResumenDiario, null, vencida.Referencia.Fecha)!.Value;
+        var limite = plazos.FechaLimite(referencia.TipoDocumento, null, vencida.Referencia.Fecha)!.Value;
         var contexto = new ContextoEnvio(previo!.Referencia, OperacionSoap.SendSummary, RutasCpe.Vacio);
-        return soporte.Local(contexto, "PCPE-1313", vencida.Referencia.NombreArchivo, limite.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture));
+        return soporte.Local(contexto, esBaja ? "PCPE-1510" : "PCPE-1313", vencida.Referencia.NombreArchivo, limite.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture));
     }
+
+    private static bool EsResumenOBaja(ReferenciaCpe referencia) =>
+        referencia.TipoDocumento is ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja;
 
     private static bool EsDefinitivo(EstadoCpe? estado) =>
         estado is EstadoCpe.Aceptado or EstadoCpe.AceptadoConObservaciones or EstadoCpe.Rechazado;

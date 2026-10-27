@@ -7,6 +7,6 @@
     { "documento": "07", "modifica": "03", "dias": 7, "contarDesde": "Emision" },
     { "documento": "08", "modifica": "03", "dias": 7, "contarDesde": "Emision" },
     { "documento": "RC", "dias": 7, "contarDesde": "Emision" },
-    { "documento": "RA", "dias": 7, "contarDesde": "RecepcionCdr" }
+    { "documento": "RA", "dias": 7, "contarDesde": "Emision" }
   ]
 }

@@ -200,10 +200,21 @@ Otros resultados:
 ## Fase 8 — Comunicación de baja
 
 1. Clases perfil `VoidedDocuments`, `MapeadorVoided`, XSL `ValidaExprRegSummaryVoided-1.0.1.xsl`.
-2. Validación del plazo (7 días desde el CDR) y de documentos aceptados.
+2. Validación del plazo (7 días desde la emisión, regla 2957) y de documentos aceptados.
 3. `GenerarBajaAsync` + envío por `sendSummary` + ticket.
 
 **Aceptación:** **(manual, beta)** baja de una factura aceptada concluye correctamente; plazo vencido produce error local.
+
+**Estado:** implementada el 27/10/2026 (828 pruebas en verde); pendiente la prueba manual en beta del desarrollador (casos 17 y 18 de la demo). Decisiones con el desarrollador:
+- el plazo se cuenta desde la **emisión** del documento (regla 2957 del Excel, que prevalece); antes el TRD decía «desde la recepción del CDR». Las series numéricas no tienen plazo;
+- nuevo estado `EstadoCpe.DeBaja` para el documento cuya RA aceptó SUNAT;
+- solo facturas y notas de serie F o numérica; las boletas y notas B se anulan con el estado 3 del resumen diario.
+
+Otros resultados:
+- `HistorialCpe.Baja` anota la RA que informa el documento desde que se genera; si la RA se rechaza se quita.
+- La XSL de 2022 no detecta documentos repetidos en la RA (su clave incluye el `LineID`): lo controla el modelo (`PCPE-1509`, 2348).
+- 20 filas RA del Excel posteriores a la XSL clasificadas en `ajustes-xsl.json`.
+- **[verificar]** con el primer caso real: el código al reenviar una RA ya presentada (2324) y `getStatusCdr` 0003 → `DeBaja` (producción).
 
 ---
 

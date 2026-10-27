@@ -16,8 +16,8 @@ namespace PasheCPE.Servicios;
 /// DATA (<see cref="GeneradorInvoice"/> o <see cref="GeneradorNota"/>) → certificado → firma (FIRMA) → ZIP (ENVIO) → QR
 /// → historial (LOG). Cada
 /// etapa persiste su archivo y el resultado devuelve todas las rutas; con un error se detiene sin escribir las
-/// siguientes. El resumen diario lo genera <see cref="GeneracionResumenes"/>; el envío y la consulta los hacen
-/// <see cref="EnvioComprobantes"/> (sendBill, getStatusCdr) y <see cref="EnvioResumenes"/> (sendSummary, getStatus).
+/// siguientes. El resumen diario y la baja los genera <see cref="GeneracionResumenes"/>; el envío y la consulta los
+/// hacen <see cref="EnvioComprobantes"/> (sendBill, getStatusCdr) y <see cref="EnvioResumenes"/> (sendSummary, getStatus).
 /// </summary>
 internal sealed class ServicioCpe(
     GeneradorInvoice generador,
@@ -119,10 +119,13 @@ internal sealed class ServicioCpe(
     public Task<IReadOnlyList<ResultadoGeneracion>> GenerarResumenAsync(EmisorCpe emisor, DateOnly fechaReferencia, IReadOnlyList<DocumentoResumenCpe> documentos, CancellationToken ct = default) =>
         resumenes.GenerarAsync(emisor, fechaReferencia, documentos, ct);
 
+    public Task<ResultadoGeneracion> GenerarBajaAsync(EmisorCpe emisor, ComunicacionBajaCpe baja, CancellationToken ct = default) =>
+        resumenes.GenerarBajaAsync(emisor, baja, ct);
+
     public Task<ResultadoEnvio> EnviarAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(referencia);
-        return referencia.TipoDocumento == ReferenciaCpe.TipoResumenDiario
+        return referencia.TipoDocumento is ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja
             ? envioResumenes.EnviarAsync(emisor, referencia, ct)
             : envio.EnviarAsync(emisor, referencia, ct);
     }

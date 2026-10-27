@@ -1,5 +1,5 @@
 {
-  "descripcion": "Ajustes entre las XSL de SUNAT (06/09/2022) y el Excel de reglas vigente (26/08/2026), TRD §9.4. 'suprimidos': códigos que la XSL calcula distinto del Excel; se descartan de la XSL y los reemplaza la regla C# indicada (solo cuando las reglas complementarias están activas). 'clasificacion': cada fila de 01/03/07/08/RC con vigencia posterior al 06/09/2022 y cómo se cubre: reemplazada, nueva (regla C#), xsl (la XSL ya la cumple), modelo (ValidadorModelo) o noVerificable (requiere padrones o listados de SUNAT). Revisar completo con cada XSL nueva de SUNAT.",
+  "descripcion": "Ajustes entre las XSL de SUNAT (06/09/2022) y el Excel de reglas vigente (26/08/2026), TRD §9.4. 'suprimidos': códigos que la XSL calcula distinto del Excel; se descartan de la XSL y los reemplaza la regla C# indicada (solo cuando las reglas complementarias están activas). 'clasificacion': cada fila de 01/03/07/08/RC/RA con vigencia posterior al 06/09/2022 y cómo se cubre: reemplazada, nueva (regla C#), xsl (la XSL ya la cumple), modelo (ValidadorModelo) o noVerificable (requiere padrones o listados de SUNAT). Revisar completo con cada XSL nueva de SUNAT.",
   "suprimidos": [
     {
       "documento": "03",
@@ -244,6 +244,26 @@
     {"documento": "08", "fila": 467, "codigo": "3501", "tratamiento": "nueva", "regla": "ContratoColaboracion", "motivo": "Contrato de colaboración empresarial (adquirente) desde el 01/01/2027; la XSL no lo tiene."},
     {"documento": "08", "fila": 468, "codigo": "3499", "tratamiento": "nueva", "regla": "ContratoColaboracion", "motivo": "Contrato de colaboración empresarial (adquirente) desde el 01/01/2027; la XSL no lo tiene."},
     {"documento": "08", "fila": 469, "codigo": "3502", "tratamiento": "nueva", "regla": "ContratoColaboracion", "motivo": "Contrato de colaboración empresarial (adquirente) desde el 01/01/2027; la XSL no lo tiene."},
-    {"documento": "08", "fila": 470, "codigo": "3500", "tratamiento": "nueva", "regla": "ContratoColaboracion", "motivo": "Contrato de colaboración empresarial (adquirente) desde el 01/01/2027; la XSL no lo tiene."}
+    {"documento": "08", "fila": 470, "codigo": "3500", "tratamiento": "nueva", "regla": "ContratoColaboracion", "motivo": "Contrato de colaboración empresarial (adquirente) desde el 01/01/2027; la XSL no lo tiene."},
+    {"documento": "RA", "fila": 15, "codigo": "2011", "tratamiento": "noVerificable", "motivo": "Contribuyente no habido: requiere el padrón de SUNAT."},
+    {"documento": "RA", "fila": 19, "codigo": "2228", "tratamiento": "xsl", "motivo": "La XSL valida la razón social del emisor: de 3 a 100 caracteres, sin ser solo espacios."},
+    {"documento": "RA", "fila": 26, "codigo": "2308", "tratamiento": "modelo", "motivo": "ValidadorBaja solo admite facturas y sus notas (PCPE-1504); las boletas y notas B van al resumen diario con estado 3 (PCPE-1505). La XSL de 2022 aún acepta el 14."},
+    {"documento": "RA", "fila": 28, "codigo": "2581", "tratamiento": "modelo", "motivo": "Series S (recibos de servicios públicos): ValidadorBaja solo admite series F o numéricas (PCPE-1506)."},
+    {"documento": "RA", "fila": 29, "codigo": "2310", "tratamiento": "modelo", "motivo": "Serie de la factura: F + 3 caracteres o de 1 a 4 dígitos (PCPE-1506). La XSL de 2022 también acepta S."},
+    {"documento": "RA", "fila": 30, "codigo": "2310", "tratamiento": "modelo", "motivo": "Tipos 30, 34 y 42: ValidadorBaja no los admite (PCPE-1504)."},
+    {"documento": "RA", "fila": 31, "codigo": "2310", "tratamiento": "modelo", "motivo": "Serie de las notas: F + 3 caracteres o de 1 a 4 dígitos (PCPE-1506); las notas B van al resumen diario (PCPE-1505). La XSL de 2022 también acepta S."},
+    {"documento": "RA", "fila": 32, "codigo": "2310", "tratamiento": "modelo", "motivo": "Tipos 56 y 28: ValidadorBaja no los admite (PCPE-1504)."},
+    {"documento": "RA", "fila": 33, "codigo": "2310", "tratamiento": "modelo", "motivo": "Tipo 25: ValidadorBaja no lo admite (PCPE-1504)."},
+    {"documento": "RA", "fila": 37, "codigo": "2105", "tratamiento": "modelo", "motivo": "Comprobante no registrado en SUNAT: ValidadorBaja exige que el historial lo tenga aceptado (PCPE-1511); los documentos que PasheCPE no generó no se revisan."},
+    {"documento": "RA", "fila": 38, "codigo": "2105", "tratamiento": "modelo", "motivo": "Tipos 30, 34 y 42: ValidadorBaja no los admite (PCPE-1504)."},
+    {"documento": "RA", "fila": 39, "codigo": "2105", "tratamiento": "modelo", "motivo": "Tipo 25: ValidadorBaja no lo admite (PCPE-1504)."},
+    {"documento": "RA", "fila": 40, "codigo": "2105", "tratamiento": "modelo", "motivo": "Tipo 56: ValidadorBaja no lo admite (PCPE-1504)."},
+    {"documento": "RA", "fila": 41, "codigo": "2105", "tratamiento": "modelo", "motivo": "Tipo 28: ValidadorBaja no lo admite (PCPE-1504)."},
+    {"documento": "RA", "fila": 45, "codigo": "2375", "tratamiento": "modelo", "motivo": "La fecha de emisión del historial debe ser la ReferenceDate de la RA (PCPE-1514); los documentos que PasheCPE no generó no se revisan."},
+    {"documento": "RA", "fila": 46, "codigo": "2375", "tratamiento": "modelo", "motivo": "Tipos 30, 34 y 42: ValidadorBaja no los admite (PCPE-1504)."},
+    {"documento": "RA", "fila": 47, "codigo": "2375", "tratamiento": "modelo", "motivo": "Tipo 25: ValidadorBaja no lo admite (PCPE-1504)."},
+    {"documento": "RA", "fila": 48, "codigo": "2375", "tratamiento": "modelo", "motivo": "Tipo 56: ValidadorBaja no lo admite (PCPE-1504)."},
+    {"documento": "RA", "fila": 49, "codigo": "2375", "tratamiento": "modelo", "motivo": "Tipo 28: ValidadorBaja no lo admite (PCPE-1504)."},
+    {"documento": "RA", "fila": 50, "codigo": "2375", "tratamiento": "modelo", "motivo": "Tipo 14 y notas de serie S: ValidadorBaja no los admite (PCPE-1504, PCPE-1506)."}
   ]
 }
