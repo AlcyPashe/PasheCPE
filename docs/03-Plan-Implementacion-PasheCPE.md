@@ -298,7 +298,8 @@ Otros resultados:
   - pie «Diseñado por Pashe Soluciones. www.pashesoluciones.net.pe» en lugar del texto de la marca;
   - leyendas de la Amazonía sin mayúsculas sostenidas, en letra menor y gris;
   - sin bloque de información adicional (se evaluará con un cliente grande).
-- Pendiente para la próxima ejecución de la demo: una emisión en beta con el PDF automático.
+- Demo (27/10/2026): el caso 21 generó el PDF de F001-1 (aceptada en beta y dada de baja en la Fase 8) en `D:\CPE\REPO\2026\10`; el desarrollador revisó el diseño y lo aprobó.
+- Pendiente para la próxima ejecución de la demo: una emisión en beta (casos 1 a 3) con el PDF automático.
 
 ---
 

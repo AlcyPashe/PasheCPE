@@ -5,7 +5,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
-- 27/10/2026 — Cierre de la Fase 11: el desarrollador aprobó el diseño del PDF tras la revisión visual. La emisión en beta con el PDF automático queda para la próxima ejecución de la demo.
+- 27/10/2026 — Cierre de la Fase 11: el desarrollador aprobó el diseño del PDF tras la revisión visual. Desde la demo (caso 21) se generó el PDF de F001-1, aceptada en beta. La emisión en beta con el PDF automático queda para la próxima ejecución de la demo.
 - 27/10/2026 — Fase 11 (PDF A4, paquete `PasheCPE.Pdf`):
   - API pública:
     - `IGeneradorPdf.GenerarAsync(ReferenciaCpe, MarcaEmisor)` → `ResultadoPdf` (`Exito`, `Ruta`, `Errores`, `Advertencias`; nunca lanza por errores del documento);
