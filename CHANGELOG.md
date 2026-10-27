@@ -5,6 +5,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 27/10/2026 — Cierre de las Fases 9 (canal OSE) y 10a (guía remitente): implementadas y probadas sin red; la prueba real de cada una queda para el primer cliente con OSE y para el primer traslado real. La Fase 10b (guía transportista) se posterga hasta tener un cliente transportista.
 - 27/10/2026 — Fase 10a (guía de remisión remitente 09, API REST con OAuth2), solo con pruebas sin red: SUNAT no tiene ambiente de pruebas para guías y el primer envío real queda para el primer cliente.
   - Recursos: XSL GRE 2.0 de SUNAT (01/10/2026) en `recursos/GRE/XSL` y el manual de servicios web de la plataforma nueva GRE (token y errores).
   - Generador: lee también el Excel GRE → `reglas-gre.json` (09: 521 filas; 31: 269, con su capa XSL/REST), 59 códigos propios de la GRE en `errores-sunat.json`, catálogo D37 y los códigos que faltaban en los catálogos 20 (motivo 19), 55 (7024–7028), 61 (91–95) y 65; 62A derivado del 62; 65A y 66 solo formato; constantes `ModalidadTraslado`, `MotivoTraslado`, `DocumentoRelacionadoTraslado` y `EntidadAutorizacionEspecial`.

@@ -236,7 +236,7 @@ Otros resultados:
 
 **Aceptación:** pruebas con respuestas grabadas del OSE; **(manual, cuando exista el sistema de ventas con OSE)** una factura aceptada por el OSE en producción.
 
-**Estado:** implementada el 27/10/2026; la prueba real queda pendiente hasta que haya un cliente con OSE.
+**Estado:** cerrada el 27/10/2026 (implementada y probada sin red); la prueba real queda pendiente hasta que haya un cliente con OSE.
 - `endpoints.json`: `OSE:efact` en producción para `Comprobantes` y `ConsultaCdr`, ambos con el mismo `billService`, `SOAPAction` `urn:{operacion}` y no verificados.
 - **Diferencia con SUNAT** (vista en el WSDL público de eFact): `getStatusCdr` responde `<document>` con el ZIP del CDR, sin `statusCode`. `LectorRespuestaSoap` lo lee como el `content` de SUNAT. `getStatus` agrega `contentMessage`, que se ignora.
 - **Mensajes al cajero según el canal** (`{Receptor}` / `{receptor}` en `mensajes-usuario.json`): «SUNAT» o «el OSE».
@@ -263,7 +263,7 @@ Otros resultados:
 
 **Aceptación:** pruebas con respuestas grabadas (token, ticket 98→0, 99 con y sin CDR, 401, 422); token reutilizado entre envíos; **(manual, producción, cuando haya un cliente)** una GRE remitente aceptada con su QR generado.
 
-**Estado de la 10a (remitente 09):** implementada el 27/10/2026, solo con pruebas sin red (906 en verde). SUNAT no tiene ambiente de pruebas para guías y no se emiten guías oficiales sin un cliente real: el primer envío queda pendiente.
+**Estado de la 10a (remitente 09):** cerrada el 27/10/2026, implementada solo con pruebas sin red (906 en verde). SUNAT no tiene ambiente de pruebas para guías y no se emiten guías oficiales sin un cliente real: el primer envío queda pendiente.
 - Material nuevo del desarrollador: XSL GRE 2.0 remitente y transportista (01/10/2026) y el manual de servicios web de la plataforma nueva GRE (token y errores; no trae el JSON del envío ni de la consulta).
 - La XSL GRE 2.0 corre con la emulación DataPower (plantillas nuevas, `include` de la ruta del SFS, parámetro `nombreArchivoEnviado`) y con los dorados da solo la 4391 que también trae su CDR.
 - Generador: `reglas-gre.json` (09: 521 filas; 31: 269), 59 códigos propios de la GRE, catálogo D37, códigos que faltaban en los catálogos 20, 55, 61 y 65, 62A derivado y 65A/66 solo formato.
@@ -271,7 +271,7 @@ Otros resultados:
 - El XML generado con los datos de T001-31093 es igual al dorado; el digest de los CDR GRE no coincide porque SUNAT los vuelve a serializar tras firmarlos.
 - **[verificar]** con el primer envío real: JSON de envío y consulta, `hashZip`, respuesta a un reenvío.
 
-**10b (transportista 31):** pendiente; la XSL ya compila y el generador ya produce sus reglas.
+**10b (transportista 31):** postergada por decisión del desarrollador (27/10/2026) hasta tener un cliente transportista; la XSL ya compila y el generador ya produce sus reglas.
 
 ---
 
