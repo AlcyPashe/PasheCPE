@@ -45,6 +45,7 @@
       "ambiente": "Produccion",
       "servicio": "GreToken",
       "url": "https://api-seguridad.sunat.gob.pe/v1/clientessol/{client_id}/oauth2/token/",
+      "scope": "https://api-cpe.sunat.gob.pe",
       "verificado": true
     },
     {

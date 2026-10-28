@@ -36,6 +36,14 @@ public sealed class CatalogoEndpointsTests : IDisposable
     }
 
     [Fact]
+    public void Obtener_GreToken_TraeElScopeDeLosDatos()
+    {
+        var endpoint = Catalogo().Obtener(CanalEnvio.Sunat, Ambiente.Produccion, ServicioSunat.GreToken);
+
+        Assert.Equal("https://api-cpe.sunat.gob.pe", endpoint?.Scope);
+    }
+
+    [Fact]
     public void Obtener_GetStatusCdrEnBeta_NoExiste() =>
         Assert.Null(Catalogo().Obtener(CanalEnvio.Sunat, Ambiente.Beta, ServicioSunat.ConsultaCdr));
 

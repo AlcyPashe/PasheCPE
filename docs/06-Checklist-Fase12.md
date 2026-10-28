@@ -2,7 +2,7 @@
 
 Revisión del 27/10/2026 sobre `main` después de la Fase 11. Para cada punto se indica la evidencia: la prueba automática, la búsqueda o la medición que lo demuestra.
 
-- Pruebas: **983 en verde** (`PasheCPE.Tests` 890, `PasheCPE.Pdf.Tests` 62, `GeneradorRecursos.Tests` 31).
+- Pruebas: **985 en verde** (`PasheCPE.Tests` 892, `PasheCPE.Pdf.Tests` 62, `GeneradorRecursos.Tests` 31).
 - `dotnet build PasheCPE.slnx`: sin advertencias, con las advertencias tratadas como errores.
 
 Leyenda:
@@ -15,7 +15,7 @@ Leyenda:
 | # | Prohibición | Estado | Evidencia |
 |---|---|---|---|
 | 1 | Ninguna dependencia fuera del TRD §1 | ✅ | `dotnet list package`: PasheCPE usa solo paquetes Microsoft y `QRCoder`; PasheCPE.Pdf, solo `QuestPDF`. `BenchmarkDotNet` está solo en `benchmarks\` y no se distribuye (aprobado el 27/10/2026, agregado al TRD §1). |
-| 2 | Ninguna tasa, plazo, endpoint o código de error en el código | ✅ con dos observaciones | Las tasas, plazos, endpoints, catálogos y errores están en `Recursos\*.json`, y `TablaTasasTests` y `TablaPlazosTests` prueban que se sobrescriben por configuración. Observaciones: (a) `ReglasSummary2027` copia literalmente los valores que admiten las reglas RC 118-124 y 158-164 del Excel («10.5 y 18», «10, 10.5 y 18»); (b) el `scope` OAuth2 de la GRE (`https://api-cpe.sunat.gob.pe`) es una constante del protocolo, no un endpoint al que se llama. Ver la §4. |
+| 2 | Ninguna tasa, plazo, endpoint o código de error en el código | ✅ con una observación | Las tasas, plazos, endpoints, catálogos y errores están en `Recursos\*.json`, y `TablaTasasTests` y `TablaPlazosTests` prueban que se sobrescriben por configuración. El `scope` OAuth2 de la GRE pasó a `endpoints.json` (decisión del 27/10/2026; `CatalogoEndpointsTests.Obtener_GreToken_TraeElScopeDeLosDatos`). Observación: `ReglasSummary2027` copia literalmente los valores que admiten las reglas RC 118-124 y 158-164 del Excel («10.5 y 18», «10, 10.5 y 18»). Ver la §4. |
 | 3 | Ningún reenvío automático de `sendBill` | ✅ | `EnvioTests`: `EnviarAsync_TrasRespuestaInciertaEnProduccion_ConsultaYNoReenvia`, `…Fault1033EnProduccion_ConsultaElCdrYDevuelveElEstadoReal` y `…FaultDeDisponibilidad_ReintentableSinReintentoInterno…`. `ConcurrenciaTests.EnviarAsync_50VecesElMismoDocumento_UnSoloSendBill`. |
 | 4 | Ninguna excepción por respuesta de negocio o de red | ✅ | Los `throw` de `src` son solo de argumentos, de configuración o de recursos embebidos faltantes (errores de programación). Las fallas de red se prueban en `EnvioTests` (timeout, conexión cortada, HTTP 503), `EnvioGreTests` (401, 422, 5xx) y `VerificadorConectividadTests`. |
 | 5 | Ninguna credencial en logs, historial o repositorio; ningún `.pfx` versionado | ✅ | `AuditoriaCredencialesTests` (nueva): con todos los niveles de log, revisa SUNAT, OSE y GRE, con respuesta incierta, ticket y 401, en los logs y en cada archivo del almacén salvo `CERT`. `git ls-files '*.pfx' '*.p12' '*.pem' '*.key'` no devuelve nada, y el `.gitignore` los excluye. |
@@ -90,8 +90,8 @@ Los únicos campos mutables sin sincronizar pertenecen a objetos de una sola lla
 
 ## 4. Observaciones para el desarrollador
 
-1. **[verificar] Tasa MYPE de 2027 y la regla 3504 del resumen diario.** Desde el 01/01/2027, `tasas.json` aplica el 15 % a restaurantes y hoteles MYPE. En cambio, las filas RC 123-124 y 163-164 del Excel de SUNAT (26/08/2026, error 3504) solo admiten 10.5 y 18 en boletas, y 10, 10.5 y 18 en notas. Con ese Excel, una boleta MYPE con 15 % en un resumen de 2027 sería rechazada por la validación local y, si SUNAT aplica su regla, también en SUNAT. Lo mismo pasa con la observación 4019 (filas 118-119 y 158-159). Hay que revisarlo cuando SUNAT publique el próximo Excel. Si se confirma el 15 %, conviene mover los valores admitidos a un recurso de datos.
-2. El `scope` de la GRE quedó como constante en `ClienteGre`. Si se prefiere, puede pasar a `endpoints.json` junto a `GreToken`.
+1. **[verificar] Tasa MYPE de 2027 y la regla 3504 del resumen diario.** Desde el 01/01/2027, `tasas.json` aplica el 15 % a restaurantes y hoteles MYPE. En cambio, las filas RC 123-124 y 163-164 del Excel de SUNAT (26/08/2026, error 3504) solo admiten 10.5 y 18 en boletas, y 10, 10.5 y 18 en notas. Con ese Excel, una boleta MYPE con 15 % en un resumen de 2027 sería rechazada por la validación local y, si SUNAT aplica su regla, también en SUNAT. Lo mismo pasa con la observación 4019 (filas 118-119 y 158-159). Decisión del desarrollador (27/10/2026): queda anotado y se validará cuando haya un cliente MYPE de restaurantes u hoteles en 2027 (o cuando SUNAT publique el próximo Excel). Si se confirma el 15 %, los valores admitidos pasarán a un recurso de datos.
+2. Resuelto: el `scope` de la GRE se movió a `endpoints.json` (campo `scope` del endpoint `GreToken`), validado al iniciar si se sobrescribe por configuración.
 
 ## 5. Rendimiento (TRD §20)
 

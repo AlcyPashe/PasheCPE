@@ -39,17 +39,19 @@ internal sealed record ErrorApiGre(string? Cod, string? Msg, IReadOnlyList<(stri
 /// </summary>
 internal sealed class ClienteGre(IHttpClientFactory fabrica, IOptions<OpcionesPasheCpe> opciones, ILogger<ClienteGre> registro)
 {
-    private const string _scope = "https://api-cpe.sunat.gob.pe";
-
-    /// <summary>POST del token: grant_type=password, scope, client_id, client_secret, username = RUC + usuario SOL y password.</summary>
-    public Task<RespuestaSoap> TokenAsync(string urlPlantilla, string ruc, CredencialesGre credenciales, CancellationToken ct)
+    /// <summary>
+    /// POST del token: grant_type=password, scope (del endpoint <c>GreToken</c> de <c>endpoints.json</c>), client_id,
+    /// client_secret, username = RUC + usuario SOL y password.
+    /// </summary>
+    public Task<RespuestaSoap> TokenAsync(EndpointCpe endpoint, string ruc, CredencialesGre credenciales, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(endpoint);
         ArgumentNullException.ThrowIfNull(credenciales);
-        var url = urlPlantilla.Replace("{client_id}", Uri.EscapeDataString(credenciales.ClientId), StringComparison.Ordinal);
+        var url = endpoint.Url.Replace("{client_id}", Uri.EscapeDataString(credenciales.ClientId), StringComparison.Ordinal);
         var formulario = new FormUrlEncodedContent(new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["grant_type"] = "password",
-            ["scope"] = _scope,
+            ["scope"] = endpoint.Scope ?? string.Empty,
             ["client_id"] = credenciales.ClientId,
             ["client_secret"] = credenciales.ClientSecret,
             ["username"] = ruc + credenciales.UsuarioSol,

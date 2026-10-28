@@ -202,7 +202,7 @@ internal sealed class EnvioGre(
         string? rechazado = null;
         for (var intento = 0; ; intento++)
         {
-            var token = await tokens.ObtenerAsync(urlToken.Url, emisor.Ruc, emisor.CredencialesGre!, rechazado, ct).ConfigureAwait(false);
+            var token = await tokens.ObtenerAsync(urlToken, emisor.Ruc, emisor.CredencialesGre!, rechazado, ct).ConfigureAwait(false);
             if (token.Token is null)
             {
                 return (null, token.Falla);

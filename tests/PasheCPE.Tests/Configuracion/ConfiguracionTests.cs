@@ -25,6 +25,7 @@ public sealed class ConfiguracionTests : IDisposable
     [InlineData("IdFirma")]
     [InlineData("Timeout")]
     [InlineData("Endpoint")]
+    [InlineData("GreTokenSinScope")]
     [InlineData("TramoIgv")]
     [InlineData("Esperas")]
     public void Validar_OpcionInvalida_Falla(string caso)
@@ -37,6 +38,7 @@ public sealed class ConfiguracionTests : IDisposable
                 case "IdFirma": o.IdFirma = "1 firma"; break;
                 case "Timeout": o.TimeoutRespuestaSegundos = 0; break;
                 case "Endpoint": o.Endpoints.Add(new EndpointCpe { Canal = "OSE:efact", Url = "http://ose.ejemplo.pe" }); break;
+                case "GreTokenSinScope": o.Endpoints.Add(new EndpointCpe { Canal = "SUNAT", Ambiente = Ambiente.Produccion, Servicio = ServicioSunat.GreToken, Url = "https://api-seguridad.sunat.gob.pe/v1/clientessol/{client_id}/oauth2/token/" }); break;
                 case "TramoIgv": o.Tasas.Igv.Add(new TramoIgv { Desde = new DateOnly(2030, 1, 1), Tasa = 18m, Igv = 15m, Ipm = 2m }); break;
                 case "Esperas": o.Tickets.EsperasSegundos.Add(-1); break;
             }

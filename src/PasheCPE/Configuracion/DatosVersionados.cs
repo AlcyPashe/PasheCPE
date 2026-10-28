@@ -111,6 +111,9 @@ public sealed class EndpointCpe
     /// Vacía o null: <c>SOAPAction: ""</c>.
     /// </summary>
     public string? SoapAction { get; set; }
+
+    /// <summary>Alcance (<c>scope</c>) que se pide en el token OAuth2; obligatorio en el servicio <see cref="ServicioSunat.GreToken"/>.</summary>
+    public string? Scope { get; set; }
 }
 
 /// <summary>Servicio de SUNAT u OSE.</summary>

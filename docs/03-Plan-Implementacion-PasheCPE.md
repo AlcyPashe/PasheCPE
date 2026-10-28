@@ -314,7 +314,7 @@ Otros resultados:
 
 **Aceptación:** suite completa en verde; metas de rendimiento cumplidas o desviación documentada; checklist 100 %.
 
-**Estado:** implementada el 27/10/2026, a la espera de la revisión del desarrollador. 983 pruebas en verde (890 + 62 + 31). El detalle y las evidencias están en `docs/06-Checklist-Fase12.md`.
+**Estado:** completada y aprobada por el desarrollador el 27/10/2026. 985 pruebas en verde (892 + 62 + 31). El detalle y las evidencias están en `docs/06-Checklist-Fase12.md`.
 - Concurrencia (`ConcurrenciaTests`):
   - 50 facturas en paralelo, cada una con sus archivos e historial;
   - 50 envíos del mismo documento → un `sendBill`;
@@ -338,7 +338,8 @@ Otros resultados:
   - ida y vuelta de todos los modelos y resultados.
 - Guía §5: `BackgroundService` de reenvío completo. La tabla de estados se corrigió: tras `RespuestaIncierta` se reintenta con `EnviarAsync`, que consulta antes de reenviar. Guía §11: telemetría.
 - README: sin la 31, con `AddPasheCpePdf` desde la configuración, el PDF automático y los benchmarks.
-- **[verificar]** Tasa MYPE de 2027 (15 % en `tasas.json`) frente a la regla 3504 del resumen diario, que solo admite 10.5 y 18 en boletas (checklist §4).
+- `scope` OAuth2 de la GRE movido a `endpoints.json` (decisión del desarrollador).
+- **[verificar]** Tasa MYPE de 2027 (15 % en `tasas.json`) frente a la regla 3504 del resumen diario, que solo admite 10.5 y 18 en boletas (checklist §4). Anotado: se validará con el primer cliente en esas condiciones.
 
 ---
 

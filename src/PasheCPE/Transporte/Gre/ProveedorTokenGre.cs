@@ -26,7 +26,7 @@ internal sealed class ProveedorTokenGre(ClienteGre cliente, EsperasReintento esp
     /// Token vigente de la credencial; si no hay uno, o si <paramref name="descartar"/> es el que se tenía (lo rechazó la
     /// API con 401), pide otro.
     /// </summary>
-    public async Task<ResultadoTokenGre> ObtenerAsync(string urlToken, string ruc, CredencialesGre credenciales, string? descartar, CancellationToken ct)
+    public async Task<ResultadoTokenGre> ObtenerAsync(EndpointCpe endpointToken, string ruc, CredencialesGre credenciales, string? descartar, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(credenciales);
         var usuario = ruc + credenciales.UsuarioSol;
@@ -49,7 +49,7 @@ internal sealed class ProveedorTokenGre(ClienteGre cliente, EsperasReintento esp
             _tokens.TryRemove(clave, out _);
             for (var intento = 0; ; intento++)
             {
-                var respuesta = await cliente.TokenAsync(urlToken, ruc, credenciales, ct).ConfigureAwait(false);
+                var respuesta = await cliente.TokenAsync(endpointToken, ruc, credenciales, ct).ConfigureAwait(false);
                 if (respuesta.Http is >= 200 and < 300 && ClienteGre.LeerToken(respuesta.Cuerpo) is { } token)
                 {
                     var vence = tiempo.GetUtcNow().AddSeconds(token.ExpiraEnSegundos) - _margen;

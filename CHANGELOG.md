@@ -5,6 +5,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 27/10/2026 — Cierre de la Fase 12: aprobada por el desarrollador.
+  - El `scope` OAuth2 de la GRE pasa a `endpoints.json` (`EndpointCpe.Scope`, obligatorio en `GreToken` si se configura).
+  - La tasa MYPE de 2027 frente a la regla 3504 queda anotada para validarla con el primer cliente en esas condiciones.
 - 27/10/2026 — Fase 12 (endurecimiento). Checklist con evidencias en `docs/06-Checklist-Fase12.md`.
   - Telemetría (TRD §21):
     - actividades `generar` (comprobantes, guías, RC y RA), `validar` (XSL y reglas) y `firmar`, con el nombre del archivo y la cantidad de errores; quedan en estado de error si hubo errores;

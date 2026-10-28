@@ -62,6 +62,11 @@ internal sealed class ValidadorOpciones : IValidateOptions<OpcionesPasheCpe>
             {
                 errores.Add($"PasheCPE:Endpoints: la URL '{endpoint.Url}' debe ser absoluta y https.");
             }
+
+            if (endpoint.Servicio == ServicioSunat.GreToken && string.IsNullOrWhiteSpace(endpoint.Scope))
+            {
+                errores.Add("PasheCPE:Endpoints: el endpoint GreToken debe indicar el Scope del token.");
+            }
         }
 
         ValidarTramos(errores, "Tasas:Igv", options.Tasas.Igv);
