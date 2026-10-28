@@ -78,13 +78,14 @@ jobs:
           }
           Write-Host "Paquetes $version correctos"
 
+      # Un push por archivo: dotnet nuget push no expande "artifacts/*.nupkg" en Windows.
       - name: Publicar en GitHub Packages
-        shell: bash
-        run: >
-          dotnet nuget push "artifacts/*.nupkg"
-          --source "https://nuget.pkg.github.com/AlcyPashe/index.json"
-          --api-key "${{ secrets.GITHUB_TOKEN }}"
-          --skip-duplicate
+        shell: pwsh
+        run: |
+          foreach ($paquete in Get-ChildItem artifacts -Filter *.nupkg) {
+            dotnet nuget push $paquete.FullName --source "https://nuget.pkg.github.com/AlcyPashe/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          }
 
       - name: GitHub Release
         shell: bash
