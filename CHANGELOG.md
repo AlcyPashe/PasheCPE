@@ -23,6 +23,13 @@ Primera versión publicada en GitHub Packages (`PasheCPE`, `PasheCPE.Pdf`), prel
     - reenvío con reconciliación contra el historial;
     - resumen diario programado.
   - README: instalación con versión fija.
+  - Correcciones al publicar (el tag se movió dos veces; no llegó a publicarse nada antes de la versión final):
+    - las pruebas de versión de la Fase 0 tenían `0.1.0.0` fijo y fallaban con `-p:Version`: ahora comparan con la versión de su propio ensamblado de pruebas, y `VersionPrefix` pasa al `Directory.Build.props` raíz;
+    - `dotnet nuget push` no expandía `artifacts/*.nupkg` en Windows: se empuja cada paquete por su ruta.
+  - Publicada el 27/10/2026:
+    - `ci.yml` y `publicar.yml` en verde;
+    - GitHub Release preliminar con los dos `.nupkg`;
+    - `verificar-paquete.ps1 -Origen GitHub` correcto.
 - 27/10/2026 — Cierre de la Fase 12: aprobada por el desarrollador.
   - El `scope` OAuth2 de la GRE pasa a `endpoints.json` (`EndpointCpe.Scope`, obligatorio en `GreToken` si se configura).
   - La tasa MYPE de 2027 frente a la regla 3504 queda anotada para validarla con el primer cliente en esas condiciones.

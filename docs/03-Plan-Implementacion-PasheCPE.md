@@ -355,7 +355,7 @@ Otros resultados:
 2. `04-Guia-Integracion.md` como guía **genérica** para cualquier sistema consumidor: registro DI, `EmisorCpe` por llamada, esquema SQL Server de referencia para persistir `ResultadoEnvio` e intentos, `BackgroundService` de reenvío/reconciliación (`ListarPendientesAsync`, `RespuestaIncierta`, tickets `EnProceso`) y resumen diario programado. La librería sigue sin acceso a BD (TRD §27.7); el esquema es solo referencia.
 3. Ningún cambio de contrato público en esta fase; si el piloto lo exige, se discute antes.
 
-**Estado 13A (27/10/2026):** implementada, sin cambios en `src/`. Pendiente el tag `v1.0.0-rc.1`, que crea el desarrollador.
+**Estado 13A (27/10/2026):** completada, sin cambios en `src/`. `1.0.0-rc.1` está publicada en GitHub Packages (tag `v1.0.0-rc.1` sobre `c42d50d`).
 - `publicar.yml`:
   - valida el tag (`vX.Y.Z` o `vX.Y.Z-sufijo`) y exige que el commit esté en `main`;
   - compila con la versión del tag, prueba y empaqueta con `--no-build` (lo publicado es lo probado);
@@ -371,10 +371,13 @@ Otros resultados:
   - esquema SQL Server de referencia (`CpeDocumento` y `CpeIntento`);
   - reenvío con reconciliación contra el historial;
   - resumen diario programado.
-- Pendientes, cuando el desarrollador lo indique:
-  - push y tag `v1.0.0-rc.1`;
-  - revisar el workflow y la Release;
-  - `verificar-paquete.ps1 -Origen GitHub` con el PAT `read:packages`.
+- Publicación:
+  - `ci.yml` y `publicar.yml` en verde;
+  - GitHub Release preliminar con los dos `.nupkg`;
+  - `verificar-paquete.ps1 -Origen GitHub` correcto.
+- Correcciones antes de publicar. El tag se movió dos veces con la aprobación del desarrollador; no se había publicado nada:
+  - pruebas de versión de la Fase 0 independientes de `-p:Version`;
+  - push de cada `.nupkg` por su ruta.
 
 ### 13B — Piloto en Palestra v2 (en el repositorio de Palestra)
 
