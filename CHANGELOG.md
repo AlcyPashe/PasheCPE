@@ -4,6 +4,10 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 
 ## [Sin publicar]
 
+## [1.0.0-rc.1] — 27/10/2026
+
+Primera versión publicada en GitHub Packages (`PasheCPE`, `PasheCPE.Pdf`), preliminar para el piloto en Palestra v2. Incluye las fases 0 a 13A.
+
 ### Agregado
 - 27/10/2026 — Fase 13A (publicación, `1.0.0-rc.1`). El piloto pasa a Palestra v2; Bottega queda como segunda integración. Sin cambios en el contrato público.
   - `publicar.yml`:

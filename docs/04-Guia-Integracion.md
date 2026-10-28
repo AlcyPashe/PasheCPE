@@ -340,7 +340,7 @@ Notas:
 
 ## 6. Boletas y resumen diario programado
 
-Con `ModoEnvioBoletas = ResumenDiario`: emitir con `GenerarAsync` (se imprime con QR y valor resumen) y, al cierre del día (o al día siguiente, dentro de 7 días), informar las boletas en el resumen diario:
+Con `ModoEnvioBoletas = ResumenDiario`: emitir con `GenerarAsync` (se imprime con QR y valor resumen) y, al cierre del día (o después, antes de su `FechaLimiteEnvio`), informar las boletas en el resumen diario:
 
 ```csharp
 // Las líneas se arman con el XML firmado de cada boleta (FIRMA): lo informado coincide con lo firmado.
@@ -355,7 +355,8 @@ foreach (var rc in await cpe.GenerarResumenAsync(emisor, fecha, documentos, ct))
 ```
 
 - También se puede pasar un `ResumenDiarioCpe` con los totales de cada línea (boletas emitidas por otro sistema).
-- Estado del ítem: 1 adicionar, 2 modificar, 3 anular (la anulación de una boleta aceptada se hace con el resumen, dentro de los 7 días).
+- Estado del ítem: 1 adicionar, 2 modificar, 3 anular (la anulación de una boleta aceptada se hace con el resumen, dentro del plazo del resumen diario).
+- **Plazos:** la librería los toma de `plazos.json` y no se escriben en el sistema consumidor (TRD §27.2). Cada boleta trae su último día en `ResultadoGeneracion.FechaLimiteEnvio`, que §4 guarda en `CpeDocumento.FechaLimiteEnvio`.
 - La librería asigna los correlativos del día (`RUC-RC-yyyyMMdd-n`) y divide en lotes de 500 líneas.
 - El resultado del resumen queda también en el historial de cada boleta: `EnProceso`, luego `Aceptado`; si el resumen se rechaza, las boletas vuelven a `Generado` para incluirlas en otro resumen.
 - El ticket queda en el historial del RC: `ConsultarTicketAsync(emisor, referenciaRc)` sin ticket lo toma de ahí, desde otro proceso u otro día.
@@ -363,10 +364,10 @@ foreach (var rc in await cpe.GenerarResumenAsync(emisor, fecha, documentos, ct))
 
 ### Resumen programado
 
-Un `BackgroundService` que cada día, a una hora fija de Lima, informa las boletas y notas B de días anteriores que siguen sin resumen. Recupera los días atrasados (sistema apagado, sin Internet) mientras estén dentro del plazo de 7 días:
+Un `BackgroundService` que cada día, a una hora fija de Lima, informa las boletas y notas B de días anteriores que siguen sin resumen. Recupera los días atrasados (sistema apagado, sin Internet). El plazo no se escribe en el servicio: cada boleta lo trae en `FechaLimiteEnvio`, guardado al generarla (§4):
 
 ```csharp
-/// <summary>Cada día a las 02:00 de Lima envía el resumen diario de las boletas pendientes de los últimos 7 días.</summary>
+/// <summary>Cada día a las 02:00 de Lima envía el resumen diario de las boletas de días anteriores que siguen sin resumen.</summary>
 public sealed class ResumenDiarioProgramado(
     IServicioCpe cpe,
     IServiceScopeFactory scopes,
@@ -402,9 +403,16 @@ public sealed class ResumenDiarioProgramado(
         using var scope = scopes.CreateScope();
         var repo = scope.ServiceProvider.GetRequiredService<IRepositorioCpe>();
 
-        // Boletas y notas B en Generado, sin ReferenciaResumen, emitidas entre hoy-7 y ayer; agrupadas por RUC y fecha.
-        foreach (var grupo in await repo.ListarSinResumenAsync(desde: hoy.AddDays(-7), hasta: hoy.AddDays(-1), ct))
+        // Boletas y notas B en Generado, sin ReferenciaResumen, emitidas hasta ayer; agrupadas por RUC y fecha.
+        foreach (var grupo in await repo.ListarSinResumenAsync(hasta: hoy.AddDays(-1), ct))
         {
+            if (grupo.Documentos.Any(d => d.FechaLimiteEnvio < hoy))
+            {
+                // Plazo de plazos.json vencido: la librería lo envía igual con la advertencia PCPE-1318 (SUNAT lo acepta
+                // con la observación 4443). Avisar al administrador.
+                log.LogWarning("Resumen {Fecha} de {Ruc} fuera de plazo", grupo.Fecha, grupo.Ruc);
+            }
+
             var emisor = await repo.EmisorAsync(grupo.Ruc, ct);   // §3
             var documentos = grupo.Documentos.Select(d => new DocumentoResumenCpe { TipoDocumento = d.TipoDoc, Serie = d.Serie, Numero = d.Numero }).ToList();
 
