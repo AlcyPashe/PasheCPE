@@ -3,6 +3,8 @@ using System.Reflection;
 namespace PasheCPE.Pdf.Tests;
 
 // Prueba de humo de la Fase 0: el ensamblado del PDF se publica con su nombre y versión.
+// La versión viene del tag en publicar.yml (-p:Version, que se aplica a toda la solución): se compara con la de
+// este ensamblado de pruebas en lugar de fijar un número.
 public sealed class EnsambladoTests
 {
     [Fact]
@@ -11,6 +13,6 @@ public sealed class EnsambladoTests
         var ensamblado = Assembly.Load(new AssemblyName("PasheCPE.Pdf"));
 
         Assert.Equal("PasheCPE.Pdf", ensamblado.GetName().Name);
-        Assert.Equal(new Version(0, 1, 0, 0), ensamblado.GetName().Version);
+        Assert.Equal(typeof(EnsambladoTests).Assembly.GetName().Version, ensamblado.GetName().Version);
     }
 }

@@ -12,6 +12,8 @@
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     <NeutralLanguage>es-PE</NeutralLanguage>
     <IsPackable>false</IsPackable>
+    <!-- Versión local de toda la solución; en publicar.yml la reemplaza -p:Version con la del tag -->
+    <VersionPrefix>0.1.0</VersionPrefix>
 
     <!-- Metadatos -->
     <Company>Pashe Soluciones</Company>
