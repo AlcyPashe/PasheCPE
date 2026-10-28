@@ -1,10 +1,10 @@
-# Guía de integración — PasheCPE en un sistema de ventas
+# Guía de integración — PasheCPE en un sistema consumidor
 
-Para sistemas ASP.NET Core / Worker Service con SQL Server. La librería no toca la base de datos: el sistema de ventas guarda lo que la librería devuelve.
+Para cualquier sistema .NET 10 que emita comprobantes (ventas, membresías, servicios…), normalmente ASP.NET Core o Worker Service con SQL Server. **La librería no toca la base de datos**: recibe modelos y opciones y devuelve resultados. El sistema consumidor guarda lo que la librería devuelve. El esquema de §4 es solo una referencia.
 
 ## 1. Referenciar el paquete
 
-`nuget.config` del sistema de ventas:
+Los paquetes están en GitHub Packages. `nuget.config` del sistema consumidor:
 
 ```xml
 <configuration>
@@ -21,12 +21,16 @@ Para sistemas ASP.NET Core / Worker Service con SQL Server. La librería no toca
 </configuration>
 ```
 
-`PASHE_NUGET_PAT` es una variable de entorno con un token de GitHub de solo lectura (`read:packages`). Luego:
+`PASHE_NUGET_PAT` es una variable de entorno del equipo de desarrollo y del servidor de compilación, con un token de GitHub de solo lectura (`read:packages`). El token nunca va en el repositorio del sistema consumidor. Luego:
 
 ```powershell
-dotnet add package PasheCPE
-dotnet add package PasheCPE.Pdf   # opcional
+dotnet add package PasheCPE --version 1.0.0-rc.1
+dotnet add package PasheCPE.Pdf --version 1.0.0-rc.1   # opcional
 ```
+
+- **Versión fija.** Use siempre una versión exacta, nunca rangos flotantes (`1.0.*`). Las versiones `-rc.N` son preliminares: un sistema en producción pasa de una a otra a propósito, revisando el `CHANGELOG.md`.
+- **`PasheCPE.Pdf` y `PasheCPE` van con la misma versión.** `PasheCPE.Pdf` exige la versión exacta de `PasheCPE` con la que se publicó; si no coinciden, la restauración falla.
+- **Comprobar un paquete** antes de actualizar un sistema: `pwsh tools/verificar-paquete.ps1 -Version 1.0.0-rc.1 -Origen GitHub`, desde el repositorio de PasheCPE. Crea un proyecto de consola limpio, restaura los dos paquetes con el `nuget.config` de arriba y genera y firma una factura y su PDF sin llamar a SUNAT.
 
 ## 2. Configuración y registro
 
@@ -45,18 +49,22 @@ dotnet add package PasheCPE.Pdf   # opcional
 
 ```csharp
 builder.Services.AddPasheCpe(builder.Configuration.GetSection("PasheCPE"));
-builder.Services.AddPasheCpePdf(builder.Configuration.GetSection("PasheCPE:Pdf"));   // opcional (sección 10)
+builder.Services.AddPasheCpePdf(builder.Configuration.GetSection("PasheCPE:Pdf"));   // opcional (§10)
 
 var app = builder.Build();
 // Compila las XSL de SUNAT, los XSD y los serializadores en segundo plano: la primera emisión no espera ≈ 1 s.
 _ = app.Services.GetRequiredService<IPrecalentador>().PrecalentarAsync();
 ```
 
-Con `PasheCpe.Crear` (sin DI) el precalentamiento se lanza solo si `PrecalentarAlIniciar` es `true`.
+- Los servicios de la librería (`IServicioCpe`, `IServicioGre`, `IHistorialCpe`, `IGeneradorPdf`…) son **singleton** y seguros para usarse en paralelo. Se inyectan en controladores, servicios scoped o `BackgroundService`.
+- La BD del sistema consumidor suele ser **scoped** (por ejemplo, un `DbContext`). Un `BackgroundService` crea un scope por documento (§5).
+- Con `PasheCpe.Crear` (sin DI) el precalentamiento se lanza solo si `PrecalentarAlIniciar` es `true`.
 
-Copiar el `.pfx` del cliente a `D:\CPE\CERT\`.
+Copiar el `.pfx` de cada emisor a `D:\CPE\CERT\` (sin subcarpetas).
 
-## 3. Construir el emisor desde la BD
+## 3. El emisor se construye en cada llamada
+
+Cada operación recibe un `EmisorCpe`. **Se arma desde la BD en cada operación**, justo antes de llamar a la librería, y se descarta después:
 
 ```csharp
 EmisorCpe emisor = new()
@@ -66,29 +74,27 @@ EmisorCpe emisor = new()
     Domicilio = new DireccionCpe { Ubigeo = "160101", Direccion = empresa.Direccion, Distrito = "IQUITOS", Provincia = "MAYNAS", Departamento = "LORETO" },
     Regimen = RegimenTributario.RMT,
     ExoneradoAmazonia = null,                         // usa el valor por defecto (true)
-    Canal = CanalEnvio.Sunat,                         // o CanalEnvio.Ose("efact")
+    Canal = CanalEnvio.Sunat,                         // o CanalEnvio.Ose("efact") (§8)
     CredencialesSoap = new(empresa.UsuarioSol, Descifrar(empresa.ClaveSol)),
     CredencialesGre = new(empresa.GreClientId, Descifrar(empresa.GreClientSecret), empresa.UsuarioSol, Descifrar(empresa.ClaveSol)),
     Certificado = new("certificado-20601234567.pfx", Descifrar(empresa.ClaveCertificado))
 };
 ```
 
-Las claves se guardan cifradas en el sistema de ventas (por ejemplo, con ASP.NET Core Data Protection) y se descifran solo al construir el emisor.
+- **No se guarda en caché, en un singleton ni en una variable estática.** Así un cambio de clave SOL, de certificado o de canal rige desde la siguiente operación, y las claves descifradas no quedan en memoria más de lo necesario.
+- Las claves se guardan **cifradas** en el sistema consumidor (por ejemplo, con ASP.NET Core Data Protection) y se descifran solo aquí.
+- **Multiempresa:** un emisor por RUC. La librería solo guarda en caché el certificado cargado (por archivo; lo recarga si cambian el `.pfx` o la clave) y el token de la GRE mientras está vigente. Los archivos de todos los RUC conviven en el mismo almacén porque cada nombre empieza con el RUC.
+- En los ejemplos siguientes, `repo.EmisorAsync(ruc, ct)` representa este armado en el repositorio del sistema consumidor.
 
 ## 4. Emitir y guardar el resultado
 
 ```csharp
+var emisor = await repo.EmisorAsync(venta.Ruc, ct);
 ResultadoEmision r = await cpe.EmitirAsync(emisor, factura, ct);
-
-venta.EstadoCpe     = r.Envio.Estado.ToString();
-venta.CodigoSunat   = r.Envio.Codigo;
-venta.MensajeSunat  = r.Envio.Descripcion;
-venta.ValorResumen  = r.Generacion.ValorResumen;
-venta.Ticket        = r.Envio.Ticket;
-venta.ResultadoJson = JsonSerializer.Serialize(r.Envio, PasheCpeJson.Default.ResultadoEnvio);
+await repo.GuardarResultadoAsync(r.Generacion, r.Envio, r.Generacion.Referencia, ct);   // esquema y ejemplo más abajo
 ```
 
-Mostrar al cajero `r.Envio.MensajeUsuario`.
+Mostrar al usuario `r.Envio.MensajeUsuario`.
 
 Las notas de crédito y débito se emiten igual, con una `NotaCpe` que modifica **un solo** comprobante (R.S. 000048-2026). Conviene indicar la `FechaEmision` del documento modificado: con ella la librería valida que la nota no sea anterior y, si generó ese documento, revisa en su historial que esté aceptado, que la moneda coincida y que la NC no supere su importe total.
 
@@ -109,55 +115,125 @@ ResultadoEmision rn = await cpe.EmitirAsync(emisor, nota, ct);
 
 Una nota de serie B con `ModoEnvioBoletas = ResumenDiario` solo se genera y se informa después en el resumen diario, como la boleta. La nota de débito por penalidades (motivo 13, desde 2027) puede omitir `DocumentoModificado` y no lleva IGV. La nota de crédito por ajuste de cuotas (motivo 13) lleva importes en cero y la nueva `FormaPago` al crédito.
 
-| Estado | Qué hace el sistema de ventas |
+| Estado | Qué hace el sistema consumidor |
 |---|---|
+| `Generado` | Documento firmado sin enviar (sin Internet, o boleta que espera el resumen diario). Se imprime con QR y valor resumen; lo envía §5 o el resumen de §6 |
 | `Aceptado`, `AceptadoConObservaciones` | Marcar emitido; mostrar observaciones si hay |
-| `Rechazado` | Marcar rechazado; corregir y reemitir |
+| `Rechazado` | Marcar rechazado; corregir y reemitir con otro número |
 | `ErrorValidacionLocal` | Mostrar `Errores` y corregir antes de reintentar |
-| `SinConexionInternet`, `ServicioNoDisponible` | Dejar pendiente; reintentar con `EnviarAsync` antes de `FechaLimiteEnvio` |
-| `RespuestaIncierta` | No regenerar. Reintentar con `EnviarAsync`, que consulta primero el CDR (`getStatusCdr`) y solo reenvía el mismo ZIP si SUNAT no lo tiene. `ConsultarCdrAsync` solo consulta (en producción) |
-| `ErrorServicio` | Revisar credenciales, perfil SOL o configuración (alertar al administrador) |
-| `EnProceso` | Resumen diario o comunicación de baja: guardar el ticket y consultarlo con `ConsultarTicketAsync` (la referencia es la del RC o la RA). Boleta informada en un resumen: esperar al resultado de su RC |
+| `SinConexionInternet`, `ServicioNoDisponible` | Dejar pendiente; §5 reintenta con `EnviarAsync` antes de `FechaLimiteEnvio` |
+| `RespuestaIncierta` | No regenerar. §5 reintenta con `EnviarAsync`, que consulta primero el CDR (`getStatusCdr`) y solo reenvía el mismo ZIP si SUNAT no lo tiene. `ConsultarCdrAsync` solo consulta (en producción) |
+| `ErrorServicio` | Revisar credenciales, perfil SOL o configuración (alertar al administrador). No es pendiente |
+| `EnProceso` | Resumen diario, comunicación de baja o guía: guardar el ticket; §5 lo consulta con `ConsultarTicketAsync`. Boleta informada en un resumen: espera el resultado de su RC |
 | `DeBaja` | Marcar anulado: SUNAT aceptó la comunicación de baja que lo informa (§7) |
 
-Tabla sugerida en SQL Server (la crea el sistema de ventas, no la librería):
+### Esquema SQL Server de referencia
+
+Lo crea y mantiene el sistema consumidor; la librería nunca se conecta a una BD. `NombreArchivo` (`ReferenciaCpe.NombreArchivo`, por ejemplo `20601234567-01-F001-125` o `20601234567-RC-20261027-1`) identifica a cada documento en la BD, en el almacén y en el historial de la librería.
 
 ```sql
-CREATE TABLE CpeEnvio (
-  Id            BIGINT IDENTITY PRIMARY KEY,
-  Ruc           CHAR(11)      NOT NULL,
-  TipoDoc       VARCHAR(2)    NOT NULL,
-  Serie         VARCHAR(4)    NOT NULL,
-  Numero        INT           NOT NULL,
-  FechaEmision  DATE          NOT NULL,
-  Estado        VARCHAR(30)   NOT NULL,
-  Codigo        VARCHAR(10)   NULL,
-  Descripcion   NVARCHAR(500) NULL,
-  Ticket        VARCHAR(50)   NULL,
-  ValorResumen  VARCHAR(100)  NULL,
-  ResultadoJson NVARCHAR(MAX) NULL,
-  FechaProceso  DATETIMEOFFSET NOT NULL,
-  CONSTRAINT UQ_CpeEnvio UNIQUE (Ruc, TipoDoc, Serie, Numero)
+-- Un registro por documento: comprobantes, notas, guías, resúmenes (RC) y comunicaciones de baja (RA).
+CREATE TABLE CpeDocumento (
+  Id                     BIGINT IDENTITY PRIMARY KEY,
+  NombreArchivo          VARCHAR(60)    NOT NULL CONSTRAINT UQ_CpeDocumento UNIQUE,
+  Ruc                    CHAR(11)       NOT NULL,
+  TipoDoc                VARCHAR(2)     NOT NULL,   -- 01, 03, 07, 08, 09, RC, RA
+  Serie                  VARCHAR(4)     NULL,       -- null en RC y RA
+  Numero                 BIGINT         NULL,       -- null en RC y RA
+  Correlativo            INT            NULL,       -- solo RC y RA
+  Fecha                  DATE           NOT NULL,   -- emisión (o generación del RC y la RA)
+  Estado                 VARCHAR(30)    NOT NULL,   -- EstadoCpe
+  Codigo                 VARCHAR(10)    NULL,
+  Descripcion            NVARCHAR(500)  NULL,
+  Ticket                 VARCHAR(50)    NULL,
+  ValorResumen           VARCHAR(100)   NULL,
+  FechaLimiteEnvio       DATE           NULL,
+  EsReintentable         BIT            NOT NULL DEFAULT 0,
+  RequiereConsultaEstado BIT            NOT NULL DEFAULT 0,
+  ReferenciaResumen      VARCHAR(60)    NULL,       -- RC que informa la boleta, o RA que da de baja el documento
+  ResultadoJson          NVARCHAR(MAX)  NULL,       -- último ResultadoEnvio completo (PasheCpeJson)
+  FechaProceso           DATETIMEOFFSET NULL,       -- del último ResultadoEnvio
+  FechaActualizacion     DATETIMEOFFSET NOT NULL
+);
+
+-- Pendientes de §5 y boletas sin resumen de §6.
+CREATE INDEX IX_CpeDocumento_Pendientes ON CpeDocumento (Ruc, Fecha)
+  INCLUDE (TipoDoc, Serie, Numero, Estado, Ticket)
+  WHERE Estado IN ('Generado', 'SinConexionInternet', 'ServicioNoDisponible', 'RespuestaIncierta', 'EnProceso');
+
+-- Un registro por intento (ResultadoEnvio.Historial / HistorialCpe.Intentos): auditoría de rechazos y caídas.
+CREATE TABLE CpeIntento (
+  Id          BIGINT IDENTITY PRIMARY KEY,
+  DocumentoId BIGINT         NOT NULL REFERENCES CpeDocumento (Id),
+  Fecha       DATETIMEOFFSET NOT NULL,
+  Operacion   VARCHAR(30)    NOT NULL,   -- sendBill, getStatusCdr, sendSummary, getStatus, GRE…
+  Canal       VARCHAR(30)    NULL,
+  Endpoint    VARCHAR(300)   NULL,
+  Estado      VARCHAR(30)    NOT NULL,
+  Codigo      VARCHAR(10)    NULL,
+  Descripcion NVARCHAR(500)  NULL,
+  Http        INT            NULL,
+  Ticket      VARCHAR(50)    NULL,
+  DuracionMs  BIGINT         NOT NULL,
+  CONSTRAINT UQ_CpeIntento UNIQUE (DocumentoId, Fecha, Operacion)
 );
 ```
 
-## 5. Sin Internet: generar ahora, enviar después
+Guardar un resultado: actualizar o insertar el documento y agregar solo los intentos nuevos. `ResultadoEnvio.Historial` trae **todos** los intentos del documento, no solo los de esta llamada:
+
+```csharp
+public async Task GuardarResultadoAsync(ResultadoGeneracion? generacion, ResultadoEnvio envio, ReferenciaCpe referencia, CancellationToken ct)
+{
+    var doc = await db.CpeDocumento.SingleOrDefaultAsync(d => d.NombreArchivo == referencia.NombreArchivo, ct)
+              ?? db.CpeDocumento.Add(CpeDocumento.Desde(referencia)).Entity;   // Ruc, TipoDoc, Serie, Numero, Correlativo, Fecha
+
+    doc.Estado                 = envio.Estado.ToString();
+    doc.Codigo                 = envio.Codigo;
+    doc.Descripcion            = envio.Descripcion;
+    doc.Ticket                 = envio.Ticket ?? doc.Ticket;
+    doc.ValorResumen           = generacion?.ValorResumen ?? envio.ValorResumen ?? doc.ValorResumen;
+    doc.FechaLimiteEnvio       = envio.FechaLimiteEnvio ?? generacion?.FechaLimiteEnvio ?? doc.FechaLimiteEnvio;
+    doc.EsReintentable         = envio.EsReintentable;
+    doc.RequiereConsultaEstado = envio.RequiereConsultaEstado;
+    doc.ResultadoJson          = JsonSerializer.Serialize(envio, PasheCpeJson.Default.ResultadoEnvio);
+    doc.FechaProceso           = envio.FechaProceso;
+    doc.FechaActualizacion     = reloj.GetUtcNow();
+
+    var ultimo = doc.Intentos.Count == 0 ? DateTimeOffset.MinValue : doc.Intentos.Max(i => i.Fecha);
+    foreach (var i in envio.Historial.Where(i => i.Fecha > ultimo))
+    {
+        doc.Intentos.Add(new CpeIntento
+        {
+            Fecha = i.Fecha, Operacion = i.Operacion, Canal = i.Canal, Endpoint = i.Endpoint, Estado = i.Estado.ToString(),
+            Codigo = i.Codigo, Descripcion = i.Descripcion, Http = i.Http, Ticket = i.Ticket, DuracionMs = i.DuracionMs,
+        });
+    }
+
+    await db.SaveChangesAsync(ct);
+}
+```
+
+En la emisión, `referencia` es `r.Generacion.Referencia`. Si la generación falló (`ErrorValidacionLocal`), basta con mostrar los errores: no hay nada que enviar. El ejemplo usa EF Core, pero cualquier acceso a datos sirve.
+
+## 5. Sin Internet: reenvío y reconciliación
 
 ```csharp
 var gen = await cpe.GenerarAsync(emisor, factura, ct);  // funciona sin Internet: imprime con QR y valor resumen
-// …más tarde, desde un BackgroundService:
+// …más tarde, desde el BackgroundService de abajo:
 var envio = await cpe.EnviarAsync(emisor, gen.Referencia, ct);
 ```
 
-Servicio de reenvío sugerido. `ListarPendientesAsync` lee el historial de `LOG\yyyy\MM` y devuelve los documentos que aún requieren acción: `Generado` sin enviar, `SinConexionInternet`, `ServicioNoDisponible`, `RespuestaIncierta` y `EnProceso`. `ErrorServicio` no es pendiente, porque lo resuelve el administrador: credenciales, perfil SOL o configuración.
+`ListarPendientesAsync` lee el historial de la librería (`LOG\yyyy\MM`) y devuelve los documentos que aún requieren acción: `Generado` sin enviar, `SinConexionInternet`, `ServicioNoDisponible`, `RespuestaIncierta` y `EnProceso`. `ErrorServicio` no es pendiente, porque lo resuelve el administrador: credenciales, perfil SOL o configuración.
+
+El historial de la librería es la **fuente de verdad** del estado ante SUNAT: se escribe en el mismo momento del envío. La BD puede quedar atrás si el proceso se cae entre el envío y el guardado. Por eso el servicio primero **reconcilia**: si la BD difiere del historial, copia el historial a la BD sin llamar a SUNAT. Solo después decide si envía o consulta.
 
 ```csharp
-/// <summary>Cada 5 minutos envía o consulta lo pendiente del mes actual y del anterior.</summary>
+/// <summary>Cada 5 minutos reconcilia la BD con el historial y envía o consulta lo pendiente del mes actual y del anterior.</summary>
 public sealed class ReenvioCpe(
     IServicioCpe cpe,
     IServicioGre gre,
     IHistorialCpe historial,
-    IServiceScopeFactory scopes,          // la BD del sistema de ventas es scoped; el servicio, singleton
+    IServiceScopeFactory scopes,          // la BD del sistema consumidor es scoped; el servicio, singleton
     TimeProvider reloj,
     ILogger<ReenvioCpe> log) : BackgroundService
 {
@@ -192,23 +268,28 @@ public sealed class ReenvioCpe(
     private async Task ProcesarAsync(HistorialCpe h, CancellationToken ct)
     {
         using var scope = scopes.CreateScope();
-        var ventas = scope.ServiceProvider.GetRequiredService<VentasDbContext>();
-        var emisor = await ventas.EmisorAsync(h.Referencia.Ruc, ct);   // §3: credenciales descifradas solo aquí
-
+        var repo = scope.ServiceProvider.GetRequiredService<IRepositorioCpe>();
         var r = h.Referencia;
+
+        // 1. Reconciliar: el historial manda. Copia estado, ticket e intentos que la BD no tenga.
+        await repo.ReconciliarAsync(h, ct);
+
         var conTicket = r.TipoDocumento is ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja or TipoDocumentoSunat.GuiaDeRemisionRemitente;
-        if (!conTicket && h.EstadoActual is EstadoCpe.Generado or EstadoCpe.EnProceso && ventas.EsDelResumenDiario(r))
+        if (!conTicket && h.EstadoActual is EstadoCpe.Generado or EstadoCpe.EnProceso && await repo.EsDelResumenDiarioAsync(r, ct))
         {
-            return; // boleta o nota B (ModoEnvioBoletas = ResumenDiario): la informa su RC y se actualiza al consultarlo
+            return; // boleta o nota B (ModoEnvioBoletas = ResumenDiario): la informa su RC (§6) y se actualiza al consultarlo
         }
 
+        // 2. Enviar o consultar. El emisor se arma ahora (§3): credenciales descifradas solo aquí.
+        var emisor = await repo.EmisorAsync(r.Ruc, ct);
         ResultadoEnvio resultado = (r.TipoDocumento, h.EstadoActual) switch
         {
             (TipoDocumentoSunat.GuiaDeRemisionRemitente, EstadoCpe.EnProceso) => await gre.ConsultarTicketAsync(emisor, r, ct: ct),
             (TipoDocumentoSunat.GuiaDeRemisionRemitente, _) => await gre.EnviarAsync(emisor, r, ct),
-            (_, EstadoCpe.EnProceso) when conTicket => await cpe.ConsultarTicketAsync(emisor, r, ct: ct),   // RC o RA: nunca se reenvía
-            // Comprobantes: tras una respuesta incierta, EnviarAsync consulta primero el CDR (getStatusCdr) y solo
-            // reenvía si SUNAT no lo tiene; un documento ya aceptado o rechazado no vuelve a enviarse.
+            // RC o RA con ticket: nunca se reenvía; sin ticket la consulta lo toma del historial.
+            (_, EstadoCpe.EnProceso) when conTicket => await cpe.ConsultarTicketAsync(emisor, r, ct: ct),
+            // Comprobantes, y RC o RA aún sin enviar: tras una respuesta incierta, EnviarAsync consulta primero el CDR
+            // (getStatusCdr) y solo reenvía si SUNAT no lo tiene; un documento ya aceptado o rechazado no vuelve a enviarse.
             _ => await cpe.EnviarAsync(emisor, r, ct),
         };
 
@@ -217,20 +298,47 @@ public sealed class ReenvioCpe(
             // Plazo vencido: ya no se envía. Avisar al administrador (factura → nota o baja según el caso).
         }
 
-        await ventas.GuardarResultadoAsync(r, resultado, ct);   // Estado, Codigo, Descripcion, Ticket, ResultadoJson (§4)
+        await repo.GuardarResultadoAsync(null, resultado, r, ct);   // §4
+
+        // 3. RC o RA concluido: la librería ya actualizó el historial de cada documento informado; llevarlo a la BD.
+        if (conTicket && r.TipoDocumento != TipoDocumentoSunat.GuiaDeRemisionRemitente && resultado.Estado != EstadoCpe.EnProceso)
+        {
+            var informe = await historial.ObtenerAsync(r, ct);
+            foreach (var d in informe?.Documentos ?? [])
+            {
+                if (await historial.ObtenerAsync(d.Referencia, ct) is { } propio)
+                {
+                    await repo.ReconciliarAsync(propio, ct);   // boleta Aceptado, o Generado si el RC se rechazó; factura DeBaja
+                }
+            }
+        }
     }
 }
 ```
 
 ```csharp
+builder.Services.AddScoped<IRepositorioCpe, RepositorioCpe>();
 builder.Services.AddHostedService<ReenvioCpe>();
 ```
 
-- Varios procesos pueden reenviar a la vez sin duplicar un `sendBill`: la librería serializa los envíos del mismo documento.
-- Si el sistema ya guarda los pendientes en su BD, puede recorrer su tabla en lugar del historial. Las llamadas son las mismas.
-- `EnviarAsync` revisa el plazo antes de enviar y nunca reenvía a ciegas. Donde no se puede consultar el CDR (beta, boletas, series B, un OSE sin `ConsultaCdr`), reenvía **el mismo ZIP**.
+`IRepositorioCpe` es del sistema consumidor:
+- `EmisorAsync` arma el emisor (§3).
+- `GuardarResultadoAsync` es el de §4.
+- `EsDelResumenDiarioAsync` responde si la serie es B y el sistema trabaja con `ModoEnvioBoletas = ResumenDiario`.
+- `ReconciliarAsync(HistorialCpe)` hace lo mismo que `GuardarResultadoAsync`, con datos del historial:
+  - `Estado` = `EstadoActual`, más `Ticket`;
+  - `Codigo` y `Descripcion` del último intento;
+  - agrega a `CpeIntento` los `Intentos` que falten;
+  - si `EstadoActual` es `Generado` y antes era `EnProceso` por un RC, limpia `ReferenciaResumen`. Así la boleta vuelve a entrar en el resumen de §6.
 
-## 6. Boletas
+Notas:
+- **Tickets `EnProceso`.** RC, RA y GRE devuelven un ticket. Si `EsperarTicketAsync` no alcanzó el resultado, el servicio lo consulta en cada vuelta hasta que concluye. La consulta nunca reenvía.
+- **`RespuestaIncierta`.** No se regenera ni se cambia el número. `EnviarAsync` consulta primero el CDR. Donde no se puede consultar (beta, boletas, series B, un OSE sin `ConsultaCdr`), reenvía **el mismo ZIP**.
+- Varios procesos pueden reenviar a la vez sin duplicar un `sendBill`: la librería serializa los envíos del mismo documento.
+- Si el sistema ya guarda los pendientes en su BD, puede recorrer `CpeDocumento` con el índice de pendientes en lugar del historial. Las llamadas son las mismas, pero conviene reconciliar con `IHistorialCpe.ObtenerAsync` antes de cada envío.
+- `EnviarAsync` revisa el plazo antes de enviar y nunca reenvía a ciegas.
+
+## 6. Boletas y resumen diario programado
 
 Con `ModoEnvioBoletas = ResumenDiario`: emitir con `GenerarAsync` (se imprime con QR y valor resumen) y, al cierre del día (o al día siguiente, dentro de 7 días), informar las boletas en el resumen diario:
 
@@ -242,7 +350,7 @@ foreach (var rc in await cpe.GenerarResumenAsync(emisor, fecha, documentos, ct))
     if (!rc.Exito) { /* errores del modelo o de SUNAT (XSL): corregir y volver a generar */ continue; }
     var envio = await cpe.EnviarAsync(emisor, rc.Referencia, ct);                  // sendSummary → EnProceso con ticket
     var final = await cpe.EsperarTicketAsync(emisor, rc.Referencia, ct: ct);        // 2, 4, 8, 15, 30 s
-    // final.Estado: Aceptado / AceptadoConObservaciones / Rechazado, o EnProceso (consultar más tarde)
+    // final.Estado: Aceptado / AceptadoConObservaciones / Rechazado, o EnProceso (lo consulta §5)
 }
 ```
 
@@ -252,6 +360,76 @@ foreach (var rc in await cpe.GenerarResumenAsync(emisor, fecha, documentos, ct))
 - El resultado del resumen queda también en el historial de cada boleta: `EnProceso`, luego `Aceptado`; si el resumen se rechaza, las boletas vuelven a `Generado` para incluirlas en otro resumen.
 - El ticket queda en el historial del RC: `ConsultarTicketAsync(emisor, referenciaRc)` sin ticket lo toma de ahí, desde otro proceso u otro día.
 - Un resumen fuera de plazo se envía con la advertencia `PCPE-1318` (SUNAT lo acepta con la observación 4443).
+
+### Resumen programado
+
+Un `BackgroundService` que cada día, a una hora fija de Lima, informa las boletas y notas B de días anteriores que siguen sin resumen. Recupera los días atrasados (sistema apagado, sin Internet) mientras estén dentro del plazo de 7 días:
+
+```csharp
+/// <summary>Cada día a las 02:00 de Lima envía el resumen diario de las boletas pendientes de los últimos 7 días.</summary>
+public sealed class ResumenDiarioProgramado(
+    IServicioCpe cpe,
+    IServiceScopeFactory scopes,
+    TimeProvider reloj,
+    ILogger<ResumenDiarioProgramado> log) : BackgroundService
+{
+    private static readonly TimeZoneInfo _lima = TimeZoneInfo.FindSystemTimeZoneById("America/Lima");
+    private static readonly TimeSpan _hora = new(2, 0, 0);   // configurable
+
+    protected override async Task ExecuteAsync(CancellationToken ct)
+    {
+        while (!ct.IsCancellationRequested)
+        {
+            var ahora = TimeZoneInfo.ConvertTime(reloj.GetUtcNow(), _lima);
+            var siguiente = ahora.Date + _hora;
+            if (siguiente <= ahora) siguiente = siguiente.AddDays(1);
+            await Task.Delay(siguiente - ahora, reloj, ct);
+
+            var hoy = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(reloj.GetUtcNow(), _lima).DateTime);
+            try
+            {
+                await InformarAsync(hoy, ct);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                log.LogError(ex, "Resumen diario programado del {Fecha}", hoy);
+            }
+        }
+    }
+
+    private async Task InformarAsync(DateOnly hoy, CancellationToken ct)
+    {
+        using var scope = scopes.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IRepositorioCpe>();
+
+        // Boletas y notas B en Generado, sin ReferenciaResumen, emitidas entre hoy-7 y ayer; agrupadas por RUC y fecha.
+        foreach (var grupo in await repo.ListarSinResumenAsync(desde: hoy.AddDays(-7), hasta: hoy.AddDays(-1), ct))
+        {
+            var emisor = await repo.EmisorAsync(grupo.Ruc, ct);   // §3
+            var documentos = grupo.Documentos.Select(d => new DocumentoResumenCpe { TipoDocumento = d.TipoDoc, Serie = d.Serie, Numero = d.Numero }).ToList();
+
+            foreach (var rc in await cpe.GenerarResumenAsync(emisor, grupo.Fecha, documentos, ct))
+            {
+                if (!rc.Exito)
+                {
+                    log.LogWarning("Resumen {Fecha} de {Ruc}: {Errores}", grupo.Fecha, grupo.Ruc, string.Join("; ", rc.Errores.Select(e => $"{e.Codigo} {e.Descripcion}")));
+                    continue;
+                }
+
+                // Marca las boletas del lote con este RC antes de enviarlo: no se vuelven a informar en otra vuelta.
+                await repo.AsignarResumenAsync(rc.Referencia, ct);
+                var envio = await cpe.EnviarAsync(emisor, rc.Referencia, ct);   // EnProceso con ticket; §5 lo consulta
+                await repo.GuardarResultadoAsync(rc, envio, rc.Referencia, ct);
+            }
+        }
+    }
+}
+```
+
+- `AsignarResumenAsync` lee las boletas del lote en `IHistorialCpe.ObtenerAsync(rc.Referencia)` (`Documentos`) y les pone `ReferenciaResumen`.
+- Si el envío falla (sin Internet), el RC queda `Generado` en el historial y §5 lo envía. Nunca se genera otro RC para las mismas boletas mientras el primero no concluya.
+- El servicio no espera el ticket: §5 lo consulta y reconcilia las boletas.
+- La hora de envío es decisión de cada sistema: de madrugada no compite con las ventas.
 
 ## 7. Comunicación de baja
 
@@ -294,7 +472,7 @@ EmisorCpe emisor = new()
 - **eFact viene configurado** para producción (`https://ose.efact.pe/ol-ti-itcpe/billService`). En el mismo servicio están `sendBill`, `sendSummary`, `getStatus` y `getStatusCdr`. Hasta el primer envío real, el log advierte que el endpoint aún no está verificado.
 - **eFact no tiene ambiente de pruebas.** Con `Ambiente = Beta` y el canal OSE, el envío devuelve `PCPE-4004` sin llamar a nadie.
 - **El usuario se envía tal cual**, sin anteponer el RUC como se hace con SUNAT. En eFact es el RUC del emisor; la clave la asigna eFact.
-- **Los mensajes al cajero** dicen «el OSE» en lugar de «SUNAT» (por ejemplo, «Comprobante aceptado por el OSE.»).
+- **Los mensajes al usuario** dicen «el OSE» en lugar de «SUNAT» (por ejemplo, «Comprobante aceptado por el OSE.»).
 - **Otro OSE se agrega por configuración**, con la clave `OSE:{nombre}` y `CanalEnvio.Ose("{nombre}")`:
 
 ```json

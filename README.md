@@ -9,6 +9,15 @@ Librería .NET 10 de **Pashe Soluciones** para la emisión electrónica ante SUN
 
 **Documentos:** Factura (01), Boleta (03), Nota de crédito (07), Nota de débito (08), Resumen diario (RC), Comunicación de baja (RA) y Guía remitente (09). La guía transportista (31) está prevista para una versión posterior.
 
+## Instalación
+
+Desde GitHub Packages, con versión fija y el `nuget.config` de la [guía §1](docs/04-Guia-Integracion.md#1-referenciar-el-paquete):
+
+```powershell
+dotnet add package PasheCPE --version 1.0.0-rc.1
+dotnet add package PasheCPE.Pdf --version 1.0.0-rc.1   # opcional, misma versión que PasheCPE
+```
+
 ## Uso rápido
 
 ```csharp

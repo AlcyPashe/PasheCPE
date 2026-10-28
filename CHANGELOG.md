@@ -5,6 +5,20 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 27/10/2026 — Fase 13A (publicación, `1.0.0-rc.1`). El piloto pasa a Palestra v2; Bottega queda como segunda integración. Sin cambios en el contrato público.
+  - `publicar.yml`:
+    - valida el tag (`vX.Y.Z` o `vX.Y.Z-sufijo`) y que su commit esté en `main`;
+    - compila con la versión del tag, prueba y empaqueta los mismos binarios (`--no-build`);
+    - revisa los `.nupkg`: DLL, XML-docs, README, LICENSE y la dependencia exacta de `PasheCPE.Pdf`;
+    - publica en GitHub Packages y crea la GitHub Release, marcada como preliminar si la versión lleva sufijo.
+  - `tools/verificar-paquete.ps1` (`-Origen Local|GitHub`): restaura los paquetes en un proyecto de consola limpio, con caché aislada, y genera una factura firmada y su PDF sin llamar a SUNAT.
+  - `04-Guia-Integracion.md`, ahora genérica para cualquier sistema consumidor:
+    - versión fija y misma versión de los dos paquetes;
+    - `EmisorCpe` construido en cada llamada;
+    - esquema SQL Server de referencia (`CpeDocumento`, `CpeIntento`) y guardado del resultado con sus intentos;
+    - reenvío con reconciliación contra el historial;
+    - resumen diario programado.
+  - README: instalación con versión fija.
 - 27/10/2026 — Cierre de la Fase 12: aprobada por el desarrollador.
   - El `scope` OAuth2 de la GRE pasa a `endpoints.json` (`EndpointCpe.Scope`, obligatorio en `GreToken` si se configura).
   - La tasa MYPE de 2027 frente a la regla 3504 queda anotada para validarla con el primer cliente en esas condiciones.

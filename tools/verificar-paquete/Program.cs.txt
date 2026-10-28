@@ -1,0 +1,79 @@
+// Prueba de humo de tools/verificar-paquete.ps1: consume PasheCPE y PasheCPE.Pdf desde el paquete, sin llamar a SUNAT.
+// Genera (sin enviar) una factura firmada con un certificado autofirmado creado aquí, y su PDF. Confirma que los
+// recursos incrustados (XSD, XSL, JSON, catálogos, fuente del PDF) funcionan fuera del repositorio.
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using PasheCPE;
+using PasheCPE.Pdf;
+
+const string Ruc = "20123456786";
+var rutaBase = args.Length > 0 ? args[0] : Path.Combine(Path.GetTempPath(), "pashecpe-humo");
+
+// Certificado RSA 2048 autofirmado con una clave aleatoria que solo vive en memoria; nunca un .pfx real.
+var clave = Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
+using (var rsa = RSA.Create(2048))
+{
+    var solicitud = new CertificateRequest($"CN=PRUEBA PASHECPE {Ruc}, OU={Ruc}, C=PE", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+    using var certificado = solicitud.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(1));
+    Directory.CreateDirectory(Path.Combine(rutaBase, "CERT"));
+    File.WriteAllBytes(Path.Combine(rutaBase, "CERT", "certificado.pfx"), certificado.Export(X509ContentType.Pfx, clave));
+}
+
+using var pashe = PasheCpePdf.Crear(new OpcionesPasheCpe { RutaBase = rutaBase, Ambiente = Ambiente.Beta, PrecalentarAlIniciar = false });
+
+var emisor = new EmisorCpe
+{
+    Ruc = Ruc,
+    RazonSocial = "COMERCIAL DE PRUEBA S.A.C.",
+    Domicilio = new DireccionCpe { Direccion = "JR. PRÓSPERO 123", Ubigeo = "160101", Distrito = "IQUITOS", Provincia = "MAYNAS", Departamento = "LORETO" },
+    Canal = CanalEnvio.Sunat,
+    CredencialesSoap = new CredencialesSoap("MODDATOS", "sin-uso"),
+    Certificado = new CertificadoCpe("certificado.pfx", clave),
+};
+
+var factura = new ComprobanteCpe
+{
+    TipoDocumento = TipoDocumentoSunat.Factura,
+    Serie = "F001",
+    Numero = 1,
+    Cliente = new ClienteCpe { TipoDocumento = TipoDocumentoIdentidad.Ruc, NumeroDocumento = "20987654326", RazonSocial = "CLIENTE S.A." },
+    FormaPago = FormaPagoCpe.Contado,
+    Lineas =
+    [
+        new LineaCpe { Descripcion = "PRODUCTO DE PRUEBA", CodigoProductoSunat = "50221200", Cantidad = 2, ImporteUnitario = 59.00m, Afectacion = AfectacionIgv.GravadoOneroso },
+        new LineaCpe { Descripcion = "SERVICIO DE PRUEBA", TipoItem = TipoItem.Servicio, Cantidad = 1, ImporteUnitario = 11.80m, Afectacion = AfectacionIgv.GravadoOneroso },
+    ],
+};
+
+var fallos = new List<string>();
+var generacion = await pashe.Cpe.GenerarAsync(emisor, factura);
+foreach (var error in generacion.Errores)
+{
+    fallos.Add($"Generación {error.Codigo}: {error.Descripcion}");
+}
+
+if (generacion.Exito)
+{
+    if (string.IsNullOrEmpty(generacion.ValorResumen)) fallos.Add("Sin valor resumen");
+    foreach (var (nombre, ruta) in new[] { ("DATA", generacion.Rutas.Xml), ("FIRMA", generacion.Rutas.XmlFirmado), ("ENVIO", generacion.Rutas.Zip) })
+    {
+        if (ruta is null || !File.Exists(ruta)) fallos.Add($"Falta el archivo de {nombre}");
+    }
+
+    var pdf = await pashe.Pdf().GenerarAsync(generacion.Referencia, new MarcaEmisor());
+    foreach (var error in pdf.Errores)
+    {
+        fallos.Add($"PDF {error.Codigo}: {error.Descripcion}");
+    }
+
+    if (pdf.Exito && (pdf.Ruta is null || !File.Exists(pdf.Ruta))) fallos.Add("Falta el PDF");
+}
+
+if (fallos.Count > 0)
+{
+    fallos.ForEach(f => Console.Error.WriteLine($"FALLO: {f}"));
+    return 1;
+}
+
+Console.WriteLine($"OK: {generacion.NombreArchivo} generado y firmado (valor resumen {generacion.ValorResumen}) y su PDF.");
+return 0;

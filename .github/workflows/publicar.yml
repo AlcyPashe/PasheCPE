@@ -1,11 +1,13 @@
 name: Publicar NuGet
 
+# Tag vX.Y.Z o vX.Y.Z-rc.N sobre un commit de main → GitHub Packages (PasheCPE, PasheCPE.Pdf) y GitHub Release.
+# Las versiones con sufijo (-rc.N) se publican como preliminares.
 on:
   push:
     tags: [ 'v*' ]
 
 permissions:
-  contents: read
+  contents: write    # GitHub Release
   packages: write
 
 jobs:
@@ -13,20 +15,68 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
-      - name: Versión desde el tag
+      - name: Validar el tag
         shell: bash
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+        run: |
+          tag="$GITHUB_REF_NAME"
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::El tag '$tag' no es vX.Y.Z ni vX.Y.Z-sufijo"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::El commit del tag '$tag' no está en main"
+            exit 1
+          fi
+          version="${tag#v}"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          if [[ "$version" == *-* ]]; then echo "PRERELEASE=true" >> "$GITHUB_ENV"; else echo "PRERELEASE=false" >> "$GITHUB_ENV"; fi
+
+      - name: Restaurar
+        run: dotnet restore PasheCPE.slnx
+
+      - name: Compilar
+        run: dotnet build PasheCPE.slnx -c Release --no-restore -p:Version=${{ env.VERSION }}
 
       - name: Probar
-        run: dotnet test PasheCPE.slnx -c Release
+        run: dotnet test PasheCPE.slnx -c Release --no-build
 
+      # --no-build: se empaquetan los mismos binarios que se probaron
       - name: Empaquetar
-        run: dotnet pack PasheCPE.slnx -c Release -p:Version=${{ env.VERSION }} -o artifacts
+        run: dotnet pack PasheCPE.slnx -c Release --no-build -p:Version=${{ env.VERSION }} -o artifacts
+
+      - name: Revisar los paquetes
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $version = $env:VERSION
+          $esperados = @("PasheCPE.$version.nupkg", "PasheCPE.Pdf.$version.nupkg")
+          $presentes = @(Get-ChildItem artifacts -Filter *.nupkg | ForEach-Object Name | Sort-Object)
+          if (Compare-Object $esperados $presentes) { throw "Paquetes inesperados: $($presentes -join ', ')" }
+          foreach ($id in 'PasheCPE', 'PasheCPE.Pdf') {
+            $zip = [IO.Compression.ZipFile]::OpenRead((Resolve-Path "artifacts/$id.$version.nupkg"))
+            try {
+              $entradas = $zip.Entries.FullName
+              foreach ($requerido in "lib/net10.0/$id.dll", "lib/net10.0/$id.xml", 'README.md', 'LICENSE.txt') {
+                if ($entradas -notcontains $requerido) { throw "$id no contiene $requerido" }
+              }
+              if ($id -eq 'PasheCPE.Pdf') {
+                $lector = [IO.StreamReader]::new(($zip.Entries | Where-Object FullName -eq "$id.nuspec").Open())
+                [xml]$nuspec = $lector.ReadToEnd(); $lector.Dispose()
+                $dependencia = $nuspec.package.metadata.dependencies.group.dependency | Where-Object id -eq 'PasheCPE'
+                if ($dependencia.version -ne "[$version]") { throw "PasheCPE.Pdf depende de PasheCPE '$($dependencia.version)', se esperaba '[$version]'" }
+              }
+            }
+            finally { $zip.Dispose() }
+          }
+          Write-Host "Paquetes $version correctos"
 
       - name: Publicar en GitHub Packages
         shell: bash
@@ -35,3 +85,12 @@ jobs:
           --source "https://nuget.pkg.github.com/AlcyPashe/index.json"
           --api-key "${{ secrets.GITHUB_TOKEN }}"
           --skip-duplicate
+
+      - name: GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          preliminar=""
+          if [[ "$PRERELEASE" == "true" ]]; then preliminar="--prerelease"; fi
+          gh release create "$GITHUB_REF_NAME" artifacts/*.nupkg --title "PasheCPE $VERSION" --generate-notes $preliminar

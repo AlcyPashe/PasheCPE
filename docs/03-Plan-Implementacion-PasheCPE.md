@@ -343,13 +343,48 @@ Otros resultados:
 
 ---
 
-## Fase 13 — Publicación NuGet e integración piloto
+## Fase 13 — Publicación NuGet e integración piloto (Palestra v2)
 
-1. `publicar.yml` con tag `v1.0.0` → GitHub Packages (`PasheCPE`, `PasheCPE.Pdf`).
-2. **Piloto en Bottega**: actualizar su TRD a la tabla del TRD §26, consumir solo el paquete, guardar `ResultadoEnvio` en su SQL Server, reenvíos con `BackgroundService`.
-3. Correcciones del piloto como `1.0.x`.
+> **Cambio 27/10/2026:** el piloto pasa de Bottega a **Palestra v2** (Bottega aún no tiene certificado digital). Bottega queda como segunda integración; TRD §26 y `Contrato-Bottega.md` se aplican cuando se integre.
 
-**Aceptación:** Bottega emite factura, boleta por resumen, NC y GRE usando exclusivamente el paquete; integración ≤ 1 día; rechazos y caídas registrados con código y descripción.
+**Objetivo:** paquete publicado, independiente de cualquier cliente y validado en un sistema real con certificado real.
+
+### 13A — Publicación (en este repositorio)
+
+1. `publicar.yml` con tag `v1.0.0-rc.1` → GitHub Packages (`PasheCPE`, `PasheCPE.Pdf`). Verificar la restauración desde un proyecto de consola limpio con `nuget.config` + PAT `read:packages`.
+2. `04-Guia-Integracion.md` como guía **genérica** para cualquier sistema consumidor: registro DI, `EmisorCpe` por llamada, esquema SQL Server de referencia para persistir `ResultadoEnvio` e intentos, `BackgroundService` de reenvío/reconciliación (`ListarPendientesAsync`, `RespuestaIncierta`, tickets `EnProceso`) y resumen diario programado. La librería sigue sin acceso a BD (TRD §27.7); el esquema es solo referencia.
+3. Ningún cambio de contrato público en esta fase; si el piloto lo exige, se discute antes.
+
+**Estado 13A (27/10/2026):** implementada, sin cambios en `src/`. Pendiente el tag `v1.0.0-rc.1`, que crea el desarrollador.
+- `publicar.yml`:
+  - valida el tag (`vX.Y.Z` o `vX.Y.Z-sufijo`) y exige que el commit esté en `main`;
+  - compila con la versión del tag, prueba y empaqueta con `--no-build` (lo publicado es lo probado);
+  - revisa el contenido de los dos `.nupkg` (DLL, XML-docs, README, LICENSE y la dependencia exacta `[versión]`);
+  - publica en GitHub Packages y crea la GitHub Release; si la versión lleva sufijo, como preliminar.
+- `tools/verificar-paquete.ps1`:
+  - proyecto de consola limpio fuera del repo, con `nuget.config` y caché de paquetes propios;
+  - prueba de humo sin SUNAT: factura firmada con un certificado autofirmado y su PDF.
+  - Desde `artifacts` (`-Origen Local`) con `1.0.0-rc.1`: correcta.
+- `04-Guia-Integracion.md` genérica:
+  - versión fija;
+  - `EmisorCpe` por llamada;
+  - esquema SQL Server de referencia (`CpeDocumento` y `CpeIntento`);
+  - reenvío con reconciliación contra el historial;
+  - resumen diario programado.
+- Pendientes, cuando el desarrollador lo indique:
+  - push y tag `v1.0.0-rc.1`;
+  - revisar el workflow y la Release;
+  - `verificar-paquete.ps1 -Origen GitHub` con el PAT `read:packages`.
+
+### 13B — Piloto en Palestra v2 (en el repositorio de Palestra)
+
+1. Palestra consume solo el paquete (sin referencia de proyecto ni código copiado).
+2. **Beta** con el certificado del cliente: factura, boleta por resumen diario, NC sobre factura y sobre boleta, comunicación de baja.
+3. **[Desarrollador]** Primer envío controlado en **producción**: una factura y un resumen diario.
+4. `ResultadoEnvio` persistido en el SQL Server de Palestra; reenvíos y reconciliación con `BackgroundService`.
+5. Cada defecto se corrige en PasheCPE con prueba de regresión y se publica como `1.0.0-rc.N`. Al cerrar el piloto: tag `v1.0.0`; correcciones posteriores como `1.0.x`.
+
+**Aceptación:** Palestra emite factura, boleta por resumen, NC y baja usando exclusivamente el paquete; integración ≤ 1 día; rechazos y caídas registrados con código y descripción; `v1.0.0` publicada. GRE fuera del piloto (un gimnasio no traslada bienes): queda cubierta por la aceptación manual de la Fase 10 y se probará al integrar Bottega.
 
 ---
 
@@ -362,4 +397,4 @@ Otros resultados:
 | Fase 5 | RUC y usuario beta, certificado de prueba |
 | Fase 9 | ✅ OSE eFact: endpoint de producción y usuario = RUC. Pendiente: un cliente activo para la prueba real |
 | Fase 10 | ✅ Excel GRE en `recursos\VALIDACIONES`; ✅ XSL GRE 2.0 y manual de servicios en `recursos\GRE`. Pendientes: credenciales API SUNAT y un traslado real de un cliente |
-| Fase 13 | PAT de GitHub con `read:packages` en el servidor del cliente |
+| Fase 13 | Certificado digital y usuario SOL secundario del cliente de Palestra; PAT de GitHub con `read:packages` en el servidor del cliente |
