@@ -115,7 +115,7 @@ Una nota de serie B con `ModoEnvioBoletas = ResumenDiario` solo se genera y se i
 | `Rechazado` | Marcar rechazado; corregir y reemitir |
 | `ErrorValidacionLocal` | Mostrar `Errores` y corregir antes de reintentar |
 | `SinConexionInternet`, `ServicioNoDisponible` | Dejar pendiente; reintentar con `EnviarAsync` antes de `FechaLimiteEnvio` |
-| `RespuestaIncierta` | No reenviar; llamar a `ConsultarCdrAsync` |
+| `RespuestaIncierta` | No regenerar. Reintentar con `EnviarAsync`, que consulta primero el CDR (`getStatusCdr`) y solo reenvía el mismo ZIP si SUNAT no lo tiene. `ConsultarCdrAsync` solo consulta (en producción) |
 | `ErrorServicio` | Revisar credenciales, perfil SOL o configuración (alertar al administrador) |
 | `EnProceso` | Resumen diario o comunicación de baja: guardar el ticket y consultarlo con `ConsultarTicketAsync` (la referencia es la del RC o la RA). Boleta informada en un resumen: esperar al resultado de su RC |
 | `DeBaja` | Marcar anulado: SUNAT aceptó la comunicación de baja que lo informa (§7) |
@@ -149,38 +149,86 @@ var gen = await cpe.GenerarAsync(emisor, factura, ct);  // funciona sin Internet
 var envio = await cpe.EnviarAsync(emisor, gen.Referencia, ct);
 ```
 
-Servicio de reenvío sugerido:
+Servicio de reenvío sugerido. `ListarPendientesAsync` lee el historial de `LOG\yyyy\MM` y devuelve los documentos que aún requieren acción: `Generado` sin enviar, `SinConexionInternet`, `ServicioNoDisponible`, `RespuestaIncierta` y `EnProceso`. `ErrorServicio` no es pendiente, porque lo resuelve el administrador: credenciales, perfil SOL o configuración.
 
 ```csharp
-public sealed class ReenvioCpe(IServicioCpe cpe, IHistorialCpe historial, IEmisores emisores) : BackgroundService
+/// <summary>Cada 5 minutos envía o consulta lo pendiente del mes actual y del anterior.</summary>
+public sealed class ReenvioCpe(
+    IServicioCpe cpe,
+    IServicioGre gre,
+    IHistorialCpe historial,
+    IServiceScopeFactory scopes,          // la BD del sistema de ventas es scoped; el servicio, singleton
+    TimeProvider reloj,
+    ILogger<ReenvioCpe> log) : BackgroundService
 {
+    private static readonly TimeZoneInfo _lima = TimeZoneInfo.FindSystemTimeZoneById("America/Lima");
+
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
-        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(5));
-        while (await timer.WaitForNextTickAsync(ct))
+        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(5), reloj);
+        do
         {
-            var hoy = DateTime.Today;
-            await foreach (var h in historial.ListarPendientesAsync(hoy.Year, hoy.Month, ct))
+            var hoy = TimeZoneInfo.ConvertTime(reloj.GetUtcNow(), _lima);
+            // El mes anterior también: el día 1 aún hay pendientes del último día del mes (la carpeta es la de emisión).
+            foreach (var periodo in new[] { hoy.AddMonths(-1), hoy })
             {
-                var emisor = await emisores.ObtenerAsync(h.Referencia.Ruc, ct);
-                var esResumen = h.Referencia.TipoDocumento is ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja;
-                if (!esResumen && EsBoletaDelResumen(h.Referencia)) // del sistema de ventas: 03 o nota B con ModoEnvioBoletas = ResumenDiario
+                await foreach (var h in historial.ListarPendientesAsync(periodo.Year, periodo.Month, ct))
                 {
-                    continue; // la informa el resumen diario y se actualiza al consultar su RC
+                    try
+                    {
+                        await ProcesarAsync(h, ct);
+                    }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        // La librería no lanza por respuestas de negocio ni de red; esto es del sistema (BD, emisor no encontrado…).
+                        log.LogError(ex, "Reenvío de {Documento}", h.Referencia.NombreArchivo);
+                    }
                 }
-
-                _ = h.EstadoActual switch
-                {
-                    EstadoCpe.EnProceso when esResumen => await cpe.ConsultarTicketAsync(emisor, h.Referencia, ct: ct),
-                    EstadoCpe.RespuestaIncierta when !esResumen => await cpe.ConsultarCdrAsync(emisor, h.Referencia, ct),
-                    _ => await cpe.EnviarAsync(emisor, h.Referencia, ct) // el RC o la RA con ticket se consulta, no se reenvía
-                };
-                // actualizar la BD con el resultado
             }
         }
+        while (await timer.WaitForNextTickAsync(ct));
+    }
+
+    private async Task ProcesarAsync(HistorialCpe h, CancellationToken ct)
+    {
+        using var scope = scopes.CreateScope();
+        var ventas = scope.ServiceProvider.GetRequiredService<VentasDbContext>();
+        var emisor = await ventas.EmisorAsync(h.Referencia.Ruc, ct);   // §3: credenciales descifradas solo aquí
+
+        var r = h.Referencia;
+        var conTicket = r.TipoDocumento is ReferenciaCpe.TipoResumenDiario or ReferenciaCpe.TipoComunicacionBaja or TipoDocumentoSunat.GuiaDeRemisionRemitente;
+        if (!conTicket && h.EstadoActual is EstadoCpe.Generado or EstadoCpe.EnProceso && ventas.EsDelResumenDiario(r))
+        {
+            return; // boleta o nota B (ModoEnvioBoletas = ResumenDiario): la informa su RC y se actualiza al consultarlo
+        }
+
+        ResultadoEnvio resultado = (r.TipoDocumento, h.EstadoActual) switch
+        {
+            (TipoDocumentoSunat.GuiaDeRemisionRemitente, EstadoCpe.EnProceso) => await gre.ConsultarTicketAsync(emisor, r, ct: ct),
+            (TipoDocumentoSunat.GuiaDeRemisionRemitente, _) => await gre.EnviarAsync(emisor, r, ct),
+            (_, EstadoCpe.EnProceso) when conTicket => await cpe.ConsultarTicketAsync(emisor, r, ct: ct),   // RC o RA: nunca se reenvía
+            // Comprobantes: tras una respuesta incierta, EnviarAsync consulta primero el CDR (getStatusCdr) y solo
+            // reenvía si SUNAT no lo tiene; un documento ya aceptado o rechazado no vuelve a enviarse.
+            _ => await cpe.EnviarAsync(emisor, r, ct),
+        };
+
+        if (resultado.Codigo == "PCPE-4006")
+        {
+            // Plazo vencido: ya no se envía. Avisar al administrador (factura → nota o baja según el caso).
+        }
+
+        await ventas.GuardarResultadoAsync(r, resultado, ct);   // Estado, Codigo, Descripcion, Ticket, ResultadoJson (§4)
     }
 }
 ```
+
+```csharp
+builder.Services.AddHostedService<ReenvioCpe>();
+```
+
+- Varios procesos pueden reenviar a la vez sin duplicar un `sendBill`: la librería serializa los envíos del mismo documento.
+- Si el sistema ya guarda los pendientes en su BD, puede recorrer su tabla en lugar del historial. Las llamadas son las mismas.
+- `EnviarAsync` revisa el plazo antes de enviar y nunca reenvía a ciegas. Donde no se puede consultar el CDR (beta, boletas, series B, un OSE sin `ConsultaCdr`), reenvía **el mismo ZIP**.
 
 ## 6. Boletas
 
@@ -339,3 +387,8 @@ Sin DI: `using var pashe = PasheCpePdf.Crear(opciones, opcionesPdf);` y `pashe.P
 - Historial de cada documento: `D:\CPE\LOG\yyyy\MM\{nombre}.json` o `IHistorialCpe.ObtenerAsync`.
 - Logs: categoría `PasheCPE` en el proveedor que use el sistema (Serilog, archivo, consola).
 - Conectividad: `IVerificadorConectividad.VerificarAsync(emisor.Canal)` para mostrar en pantalla si SUNAT está disponible.
+- Trazas y métricas con el nombre `PasheCPE`. Con OpenTelemetry se registran con `.WithTracing(t => t.AddSource("PasheCPE"))` y `.WithMetrics(m => m.AddMeter("PasheCPE"))`.
+  - Actividades: `generar` (con `validar` y `firmar` dentro), `sendBill`, `getStatusCdr`, `sendSummary`, `getStatus` y las de la GRE. Llevan el nombre del archivo en `pashecpe.documento`.
+  - Métricas: `pashecpe.envios` (por operación y estado), `pashecpe.envio.duracion` (ms) y `pashecpe.validacion.errores` (por tipo de documento y origen: `Modelo`, `Esquema`, `XslSunat`, `ReglasComplementarias`).
+  - Ni los logs ni las trazas llevan credenciales. En `Debug` se ven los sobres SOAP y el JSON de la GRE con la clave, el token y el Base64 enmascarados.
+- El resultado del PDF se guarda como JSON con `PasheCpePdfJson.Default.ResultadoPdf`.

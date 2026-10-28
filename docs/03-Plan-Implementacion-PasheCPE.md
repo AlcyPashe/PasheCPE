@@ -314,6 +314,32 @@ Otros resultados:
 
 **Aceptación:** suite completa en verde; metas de rendimiento cumplidas o desviación documentada; checklist 100 %.
 
+**Estado:** implementada el 27/10/2026, a la espera de la revisión del desarrollador. 983 pruebas en verde (890 + 62 + 31). El detalle y las evidencias están en `docs/06-Checklist-Fase12.md`.
+- Concurrencia (`ConcurrenciaTests`):
+  - 50 facturas en paralelo, cada una con sus archivos e historial;
+  - 50 envíos del mismo documento → un `sendBill`;
+  - 20 RC y 20 RA sin correlativos repetidos;
+  - 20 GRE con un token;
+  - 20 emisiones con PDF automático.
+
+  Revisión de cachés y estado compartido de los singleton: sin hallazgos. `ConfigureAwait(false)` ya era obligatorio (CA2007).
+- Rendimiento: BenchmarkDotNet 0.15.8 en `benchmarks\PasheCPE.Benchmarks` (aprobado por el desarrollador; no se distribuye).
+  - Generar + firmar + ZIP: 18.3 ms (meta 150);
+  - validación con XSL: 4.1 ms (meta 300);
+  - generación completa: 23.5 ms;
+  - PDF: 21.9 ms.
+- Telemetría (TRD §21):
+  - actividades `generar`, `validar` y `firmar`;
+  - métrica `pashecpe.validacion.errores`.
+- Auditoría de credenciales: todos los logs (Trace incluido) y todo el almacén salvo `CERT`, con SUNAT, OSE y GRE (`AuditoriaCredencialesTests`).
+- RNF-11:
+  - `GuiaRemisionCpe` en `PasheCpeJson`;
+  - `PasheCpePdfJson` para `ResultadoPdf`;
+  - ida y vuelta de todos los modelos y resultados.
+- Guía §5: `BackgroundService` de reenvío completo. La tabla de estados se corrigió: tras `RespuestaIncierta` se reintenta con `EnviarAsync`, que consulta antes de reenviar. Guía §11: telemetría.
+- README: sin la 31, con `AddPasheCpePdf` desde la configuración, el PDF automático y los benchmarks.
+- **[verificar]** Tasa MYPE de 2027 (15 % en `tasas.json`) frente a la regla 3504 del resumen diario, que solo admite 10.5 y 18 en boletas (checklist §4).
+
 ---
 
 ## Fase 13 — Publicación NuGet e integración piloto

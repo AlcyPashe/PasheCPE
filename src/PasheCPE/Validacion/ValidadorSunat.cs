@@ -1,6 +1,7 @@
 using System.Xml;
 using Microsoft.Extensions.Options;
 using PasheCPE.Catalogos;
+using PasheCPE.Diagnostico;
 using PasheCPE.Tiempo;
 using PasheCPE.Validacion.Reglas;
 
@@ -27,6 +28,7 @@ internal sealed class ValidadorSunat(
     {
         ArgumentNullException.ThrowIfNull(xml);
         ArgumentNullException.ThrowIfNull(referencia);
+        using var actividad = Telemetria.Iniciar(Telemetria.Validar, referencia);
         var validacion = opciones.Value.Validacion;
         var hoy = reloj.HoyLima();
         var encontrados = new List<ErrorCpe>();
@@ -56,6 +58,7 @@ internal sealed class ValidadorSunat(
             EvaluarReglas(xml, referencia, hoy, Agregar);
         }
 
+        Telemetria.Concluir(actividad, encontrados.Count);
         return new ResultadoValidacionSunat(encontrados, observaciones);
 
         void Agregar(string codigo, bool esError, string? ruta, string detalle, OrigenError origen, string? mensajeExcel)

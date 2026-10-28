@@ -27,6 +27,7 @@
 | Pruebas | `xunit.v3.mtp-off`, `xunit.runner.visualstudio`, `Microsoft.NET.Test.Sdk`, `Microsoft.Extensions.TimeProvider.Testing`, `coverlet.collector` | tests | VSTest; `xunit.v3.mtp-off` es xUnit v3 sin Microsoft Testing Platform (con el SDK 10, `xunit.v3` 4.x no corre bajo VSTest) |
 | Generación de código (solo desarrollo) | `dotnet-xscgen` | herramienta | No se distribuye |
 | Lectura del Excel de SUNAT (solo desarrollo) | `DocumentFormat.OpenXml` | `tools\GeneradorRecursos` | Microsoft; no se distribuye |
+| Benchmarks (solo desarrollo) | `BenchmarkDotNet` | `benchmarks\PasheCPE.Benchmarks` | MIT; aprobado el 27/10/2026; no se distribuye ni corre en CI (CI solo lo compila) |
 
 - Versiones centralizadas en `Directory.Packages.props` (Central Package Management). En la Fase 0 se fija la última estable de cada paquete.
 - **Prohibido** como dependencia: GasperSoft, OpenInvoicePeru, Greenter, cualquier SDK de facturación de terceros, WCF (`System.ServiceModel.*`), Newtonsoft.Json. Cualquier paquete no listado se consulta antes.
@@ -101,7 +102,7 @@ D:\Sistemas\PasheCPE\                     (raíz git → github.com/AlcyPashe/Pa
 │   └── Datos\                             XML dorados, CDR reales, respuestas SOAP/REST grabadas
 ├── samples\
 │   └── PasheCPE.Demo\                     consola para envíos reales a beta/producción (manual)
-└── benchmarks\PasheCPE.Benchmarks\        (opcional, Fase 12)
+└── benchmarks\PasheCPE.Benchmarks\        BenchmarkDotNet contra las metas del §20 (manual)
 ```
 
 Decisión: **un solo ensamblado principal** con carpetas por responsabilidad y tipos `internal` (solo la fachada, modelos, resultados, opciones e interfaces son `public`). Menos ensamblados = arranque más rápido, un solo paquete que versionar y cero dependencias circulares. `PasheCPE.Pdf` va aparte porque arrastra QuestPDF. `InternalsVisibleTo` solo para los proyectos de prueba y, como excepción decidida con el desarrollador el 27/10/2026, para `PasheCPE.Pdf`: usa el almacén, los catálogos y el lector del CDR sin agrandar la API pública. Por eso el paquete `PasheCPE.Pdf` depende de la versión exacta `[x.y.z]` de `PasheCPE` y ambos se publican juntos.
@@ -636,12 +637,14 @@ Fuente: manual «Servicios web – Plataforma nueva GRE» (`recursos\GRE\Manual_
 - Precalentamiento opcional (`OpcionesPasheCpe.PrecalentarAlIniciar`): compila XSL, esquemas y serializadores en segundo plano.
 - Streams y `ArrayPool` para ZIP y Base64; `XmlReader` para respuestas.
 - `ConfigureAwait(false)` en toda la librería.
-- Benchmarks (Fase 12): generación+firma+ZIP de factura de 20 líneas < 150 ms en caliente; validación XSL < 300 ms.
+- Benchmarks (Fase 12): generación+firma+ZIP de factura de 20 líneas < 150 ms en caliente; validación XSL < 300 ms. Medido el 27/10/2026 (i7-8700, Release): 18.3 ms y 4.1 ms; generación completa 23.5 ms; PDF A4 21.9 ms (`docs\06-Checklist-Fase12.md` §5).
 
 ## 21. Observabilidad y seguridad
 
 - `ILogger<T>`: `Information` hitos con nombre de archivo; `Warning` observaciones, certificado por vencer, reintentos; `Error` faults, rechazos y fallas técnicas; `Debug` sobres SOAP y JSON completos **con credenciales y Base64 truncados/enmascarados** (`Enmascarador`).
-- `ActivitySource("PasheCPE")` por operación (generar, validar, firmar, enviar, consultar) y `Meter("PasheCPE")`: `pashecpe.envios` (por estado), `pashecpe.envio.duracion`, `pashecpe.validacion.errores`.
+- `ActivitySource("PasheCPE")` por operación y `Meter("PasheCPE")`:
+  - actividades: `generar` (con `validar` y `firmar` anidadas), `sendBill`, `getStatusCdr`, `sendSummary`, `getStatus` y las de la GRE. Llevan el nombre del archivo en `pashecpe.documento` y la cantidad de errores en `pashecpe.errores`; con errores quedan en estado `Error`;
+  - métricas: `pashecpe.envios` (por operación y estado), `pashecpe.envio.duracion` (ms) y `pashecpe.validacion.errores` (por `tipoDocumento` y `origen`: modelo, XSD, XSL o reglas complementarias; los errores del certificado no cuentan).
 - Claves solo en memoria, nunca en disco ni en logs. TLS 1.2+ del sistema operativo.
 
 ## 22. PDF (PasheCPE.Pdf)
@@ -738,7 +741,13 @@ var r = await pashe.Cpe.EmitirAsync(emisor, factura, ct);   // pashe.Gre, pashe.
 - **Firma**: certificado autofirmado generado en la prueba; `CheckSignature`; firma en la ubicación exacta; alteración posterior detectada.
 - **Transporte**: `HttpMessageHandler` falso con respuestas grabadas (CDR aceptado/observado/rechazado, faults 0111/1033/0100, HTTP 503, timeout de conexión y de lectura, ticket 98→0, 99, GRE 401/422).
 - **Conectividad**: simulada con dobles de prueba.
-- **Concurrencia**: 50 emisiones paralelas sin colisión de archivos ni de historial.
+- **Concurrencia** (`ConcurrenciaTests`):
+  - 50 emisiones paralelas sin colisión de archivos ni de historial;
+  - 50 envíos simultáneos del mismo documento → un solo `sendBill`;
+  - 20 RC y 20 RA en paralelo sin repetir correlativos;
+  - 20 GRE con un solo token.
+- **Auditoría de credenciales** (`AuditoriaCredencialesTests`): logs de todas las categorías y niveles, y archivos del almacén salvo `CERT`.
+- **JSON** (`SerializacionJsonTests`): ida y vuelta sin pérdida de cada modelo y resultado.
 - **PDF** (`PasheCPE.Pdf.Tests`):
   - lectura de los dorados: factura exonerada con gratuitas, factura exonerada, boleta, NC, ND y GRE 09 (las tres de beta están en `tests/Datos/Dorados/Beta-20493400364`);
   - formatos y QR igual al de la generación;

@@ -5,6 +5,31 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- 27/10/2026 — Fase 12 (endurecimiento). Checklist con evidencias en `docs/06-Checklist-Fase12.md`.
+  - Telemetría (TRD §21):
+    - actividades `generar` (comprobantes, guías, RC y RA), `validar` (XSL y reglas) y `firmar`, con el nombre del archivo y la cantidad de errores; quedan en estado de error si hubo errores;
+    - métrica `pashecpe.validacion.errores` por tipo de documento y origen.
+  - JSON (RNF-11):
+    - `GuiaRemisionCpe` en `PasheCpeJson`;
+    - nuevo `PasheCpePdfJson` con `ResultadoPdf`.
+  - `benchmarks\PasheCPE.Benchmarks` con BenchmarkDotNet 0.15.8, solo para desarrollo. Mide generar + firmar + ZIP, la validación con XSL, la generación completa y el PDF de una factura de 20 líneas. Resultados: 18.3 ms (meta 150), 4.1 ms (meta 300), 23.5 ms y 21.9 ms.
+  - Pruebas nuevas (12):
+    - `ConcurrenciaTests`:
+      - 50 facturas en paralelo;
+      - 50 envíos del mismo documento → un `sendBill`;
+      - 20 RC y 20 RA sin repetir correlativos;
+      - 20 GRE con un token;
+    - `AuditoriaCredencialesTests`: ninguna clave ni token en los logs de todos los niveles ni en el almacén;
+    - `TelemetriaTests`;
+    - `SerializacionJsonTests`;
+    - en `PasheCPE.Pdf.Tests`: 20 emisiones paralelas con PDF automático e ida y vuelta de `ResultadoPdf`.
+  - Documentación:
+    - Guía §5: `BackgroundService` de reenvío completo (mes actual y anterior, guías, plazo vencido, BD scoped);
+    - Guía §11: telemetría con OpenTelemetry;
+    - corregida la acción ante `RespuestaIncierta` (reintentar con `EnviarAsync`, que consulta el CDR antes de reenviar);
+    - README sin la 31, con `AddPasheCpePdf` desde la configuración;
+    - TRD §1, §2, §20, §21 y §24.
+  - **[verificar]** Tasa MYPE de 2027 frente a la regla 3504 del resumen diario (checklist §4).
 - 27/10/2026 — Cierre de la Fase 11: el desarrollador aprobó el diseño del PDF tras la revisión visual. Desde la demo (caso 21) se generó el PDF de F001-1, aceptada en beta. La emisión en beta con el PDF automático queda para la próxima ejecución de la demo.
 - 27/10/2026 — Fase 11 (PDF A4, paquete `PasheCPE.Pdf`):
   - API pública:

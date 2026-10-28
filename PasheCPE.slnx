@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/PasheCPE.Benchmarks/PasheCPE.Benchmarks.csproj" />
+  </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/PasheCPE.Demo/PasheCPE.Demo.csproj" />
   </Folder>

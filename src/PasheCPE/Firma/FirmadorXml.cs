@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Options;
 using PasheCPE.Catalogos;
+using PasheCPE.Diagnostico;
 using PasheCPE.Ubl;
 
 namespace PasheCPE.Firma;
@@ -27,7 +28,16 @@ internal sealed class FirmadorXml(IOptions<OpcionesPasheCpe> opciones, CatalogoE
 {
     private static readonly UTF8Encoding _utf8SinBom = new(encoderShouldEmitUTF8Identifier: false);
 
+    /// <summary>Firma dentro de la actividad <c>firmar</c>, hija de la de generación (que lleva el nombre del documento).</summary>
     public XmlFirmado Firmar(byte[] xml, X509Certificate2 certificado, string archivoCertificado)
+    {
+        using var actividad = Telemetria.Actividades.StartActivity(Telemetria.Firmar);
+        var firmado = FirmarXml(xml, certificado, archivoCertificado);
+        Telemetria.Concluir(actividad, firmado.Exito ? 0 : 1);
+        return firmado;
+    }
+
+    private XmlFirmado FirmarXml(byte[] xml, X509Certificate2 certificado, string archivoCertificado)
     {
         ArgumentNullException.ThrowIfNull(xml);
         ArgumentNullException.ThrowIfNull(certificado);

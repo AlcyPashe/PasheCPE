@@ -42,9 +42,11 @@ internal sealed class GeneracionResumenes(
         var fechaGeneracion = resumen.FechaGeneracion ?? reloj.HoyLima();
         using var bloqueo = await bloqueos.AdquirirAsync(AsignadorCorrelativos.ClaveBloqueo(emisor.Ruc, ReferenciaCpe.TipoResumenDiario, fechaGeneracion), ct).ConfigureAwait(false);
         var primero = correlativos.Siguiente(emisor.Ruc, ReferenciaCpe.TipoResumenDiario, fechaGeneracion);
+        using var actividad = Telemetria.Iniciar(Telemetria.Generar, ReferenciaCpe.Resumen(emisor.Ruc, fechaGeneracion, primero));
         var (encontrados, advertencias) = await generador.ValidarAsync(emisor, resumen, fechaGeneracion, ct).ConfigureAwait(false);
         if (encontrados.Count > 0)
         {
+            Telemetria.Concluir(actividad, encontrados.Count);
             return [Resultado(ReferenciaCpe.Resumen(emisor.Ruc, fechaGeneracion, primero), resumen.FechaReferencia, encontrados, advertencias, RutasCpe.Vacio)];
         }
 
@@ -66,6 +68,7 @@ internal sealed class GeneracionResumenes(
             resultados.Add(await EscribirAsync(emisor, lote.FechaReferencia, generado, documentos, certificado, advertencias, inicio, ct).ConfigureAwait(false));
         }
 
+        Telemetria.Concluir(actividad, resultados.Sum(r => r.Errores.Count));
         return resultados;
     }
 
@@ -116,9 +119,11 @@ internal sealed class GeneracionResumenes(
         var fechaGeneracion = baja.FechaGeneracion ?? reloj.HoyLima();
         using var bloqueo = await bloqueos.AdquirirAsync(AsignadorCorrelativos.ClaveBloqueo(emisor.Ruc, ReferenciaCpe.TipoComunicacionBaja, fechaGeneracion), ct).ConfigureAwait(false);
         var referencia = ReferenciaCpe.Baja(emisor.Ruc, fechaGeneracion, correlativos.Siguiente(emisor.Ruc, ReferenciaCpe.TipoComunicacionBaja, fechaGeneracion));
+        using var actividad = Telemetria.Iniciar(Telemetria.Generar, referencia);
         var (encontrados, advertencias) = await generadorBajas.ValidarAsync(emisor, baja, fechaGeneracion, ct).ConfigureAwait(false);
         if (encontrados.Count > 0)
         {
+            Telemetria.Concluir(actividad, encontrados.Count);
             return Resultado(referencia, baja.FechaReferencia, encontrados, advertencias, RutasCpe.Vacio);
         }
 
@@ -143,6 +148,7 @@ internal sealed class GeneracionResumenes(
             }
         }
 
+        Telemetria.Concluir(actividad, resultado.Errores.Count);
         return resultado;
     }
 
@@ -196,15 +202,19 @@ internal sealed class GeneracionResumenes(
     private ErrorCpe Error(string codigo, params object?[] argumentos) => errores.Local(codigo, OrigenError.Modelo, null, null, argumentos);
 
     /// <summary>El plazo del RC y de la RA se cuenta desde la emisión de sus documentos (la fecha de referencia).</summary>
-    private ResultadoGeneracion Resultado(ReferenciaCpe referencia, DateOnly fechaReferencia, IReadOnlyList<ErrorCpe> encontrados, IReadOnlyList<ObservacionCpe> advertencias, RutasCpe rutas) => new()
+    private ResultadoGeneracion Resultado(ReferenciaCpe referencia, DateOnly fechaReferencia, IReadOnlyList<ErrorCpe> encontrados, IReadOnlyList<ObservacionCpe> advertencias, RutasCpe rutas)
     {
-        Referencia = referencia,
-        Errores = encontrados,
-        Advertencias = advertencias,
-        Rutas = rutas,
-        FechaLimiteEnvio = plazos.FechaLimite(referencia.TipoDocumento, null, fechaReferencia),
-        FechaProceso = reloj.AhoraLima(),
-    };
+        Telemetria.RegistrarErroresValidacion(referencia.TipoDocumento, encontrados);
+        return new()
+        {
+            Referencia = referencia,
+            Errores = encontrados,
+            Advertencias = advertencias,
+            Rutas = rutas,
+            FechaLimiteEnvio = plazos.FechaLimite(referencia.TipoDocumento, null, fechaReferencia),
+            FechaProceso = reloj.AhoraLima(),
+        };
+    }
 
     private static string Texto(DateOnly fecha) => fecha.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
 }

@@ -55,6 +55,14 @@ internal sealed class ServicioCpe(
 
     private async Task<ResultadoGeneracion> GenerarAsync(EmisorCpe emisor, ReferenciaCpe referencia, Func<Task<XmlGenerado>> generar, CancellationToken ct)
     {
+        using var actividad = Telemetria.Iniciar(Telemetria.Generar, referencia);
+        var resultado = await GenerarDocumentoAsync(emisor, referencia, generar, ct).ConfigureAwait(false);
+        Telemetria.Concluir(actividad, resultado.Errores.Count);
+        return resultado;
+    }
+
+    private async Task<ResultadoGeneracion> GenerarDocumentoAsync(EmisorCpe emisor, ReferenciaCpe referencia, Func<Task<XmlGenerado>> generar, CancellationToken ct)
+    {
         var inicio = Stopwatch.GetTimestamp();
 
         // Regenerar lo ya enviado cambiaría el valor resumen y dejaría archivos distintos de los que tiene SUNAT.
@@ -200,23 +208,34 @@ internal sealed class ServicioCpe(
     {
         ct.ThrowIfCancellationRequested();
         var generado = generador.Construir(emisor, cpe);
-        return Task.FromResult(new ResultadoValidacion { Errores = generado.Errores, Advertencias = generado.Advertencias });
+        return Task.FromResult(Validacion(generado));
     }
 
     public async Task<ResultadoValidacion> ValidarAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
         var generado = await generadorNotas.ConstruirAsync(emisor, nota, ct).ConfigureAwait(false);
+        return Validacion(generado);
+    }
+
+    /// <summary>Resultado de la validación de nivel 1; sus errores cuentan en <c>pashecpe.validacion.errores</c>.</summary>
+    internal static ResultadoValidacion Validacion(XmlGenerado generado)
+    {
+        Telemetria.RegistrarErroresValidacion(generado.Referencia.TipoDocumento, generado.Errores);
         return new ResultadoValidacion { Errores = generado.Errores, Advertencias = generado.Advertencias };
     }
 
-    private ResultadoGeneracion Resultado(ReferenciaCpe referencia, IReadOnlyList<ErrorCpe> encontrados, IReadOnlyList<ObservacionCpe> advertencias, RutasCpe rutas) => new()
+    private ResultadoGeneracion Resultado(ReferenciaCpe referencia, IReadOnlyList<ErrorCpe> encontrados, IReadOnlyList<ObservacionCpe> advertencias, RutasCpe rutas)
     {
-        Referencia = referencia,
-        Errores = encontrados,
-        Advertencias = advertencias,
-        Rutas = rutas,
-        FechaLimiteEnvio = plazos.FechaLimite(referencia),
-        FechaProceso = reloj.AhoraLima(),
-    };
+        Telemetria.RegistrarErroresValidacion(referencia.TipoDocumento, encontrados);
+        return new()
+        {
+            Referencia = referencia,
+            Errores = encontrados,
+            Advertencias = advertencias,
+            Rutas = rutas,
+            FechaLimiteEnvio = plazos.FechaLimite(referencia),
+            FechaProceso = reloj.AhoraLima(),
+        };
+    }
 }

@@ -14,6 +14,7 @@ namespace PasheCPE;
 [JsonSerializable(typeof(NotaCpe))]
 [JsonSerializable(typeof(ResumenDiarioCpe))]
 [JsonSerializable(typeof(ComunicacionBajaCpe))]
+[JsonSerializable(typeof(GuiaRemisionCpe))]
 [JsonSerializable(typeof(ReferenciaCpe))]
 [JsonSerializable(typeof(ResultadoGeneracion))]
 [JsonSerializable(typeof(ResultadoEnvio))]

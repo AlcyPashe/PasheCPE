@@ -41,4 +41,9 @@
   <ItemGroup Label="Herramientas (no se distribuyen)">
     <PackageVersion Include="DocumentFormat.OpenXml" Version="3.5.1" />
   </ItemGroup>
+
+  <!-- Solo benchmarks\PasheCPE.Benchmarks (Fase 12, aprobado el 27/10/2026): mediciones contra las metas del TRD §20 -->
+  <ItemGroup Label="Benchmarks (no se distribuyen)">
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
+  </ItemGroup>
 </Project>

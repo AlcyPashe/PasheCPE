@@ -86,6 +86,20 @@ public sealed class GeneradorPdfTests : IDisposable
     }
 
     [Fact]
+    public async Task ResultadoPdf_IdaYVueltaJson_SinPerdida()
+    {
+        var referencia = DoradosPdf.Colocar(_servicios.Almacen, DoradosPdf.FacturaExonerada);
+        var resultado = await Generador.GenerarAsync(referencia, _marca with { Logo = "no es una imagen"u8.ToArray() }, Ct);
+
+        var json = System.Text.Json.JsonSerializer.Serialize(resultado, PasheCpePdfJson.Default.ResultadoPdf);
+        var leido = System.Text.Json.JsonSerializer.Deserialize(json, PasheCpePdfJson.Default.ResultadoPdf);
+
+        Assert.Equal(json, System.Text.Json.JsonSerializer.Serialize(leido!, PasheCpePdfJson.Default.ResultadoPdf));
+        Assert.Contains("\"codigo\":\"PCPE-5007\"", json, StringComparison.Ordinal);
+        Assert.Equal(resultado.Ruta, leido!.Ruta);
+    }
+
+    [Fact]
     public async Task GenerarAsync_RutaDeLogoInexistente_Advertencia()
     {
         var referencia = DoradosPdf.Colocar(_servicios.Almacen, DoradosPdf.FacturaExonerada);

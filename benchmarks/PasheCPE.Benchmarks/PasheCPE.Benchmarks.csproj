@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Mediciones contra las metas del TRD §20. Solo desarrollo: no se publica ni corre en CI (CI solo lo compila).
+       Ejecutar en Release desde la raíz con el comando del README; resultados en docs\06-Checklist-Fase12.md §5. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Sin .exe propio, como la demo; los benchmarks corren en el mismo proceso (InProcessEmitToolchain). -->
+    <UseAppHost>false</UseAppHost>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PasheCPE\PasheCPE.csproj" />
+    <ProjectReference Include="..\..\src\PasheCPE.Pdf\PasheCPE.Pdf.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+
+</Project>

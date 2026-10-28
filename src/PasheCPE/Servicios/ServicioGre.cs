@@ -34,8 +34,16 @@ internal sealed class ServicioGre(
     {
         ArgumentNullException.ThrowIfNull(emisor);
         ArgumentNullException.ThrowIfNull(guia);
-        var inicio = Stopwatch.GetTimestamp();
         var referencia = generador.Referencia(emisor, guia);
+        using var actividad = Telemetria.Iniciar(Telemetria.Generar, referencia);
+        var resultado = await GenerarDocumentoAsync(emisor, guia, referencia, ct).ConfigureAwait(false);
+        Telemetria.Concluir(actividad, resultado.Errores.Count);
+        return resultado;
+    }
+
+    private async Task<ResultadoGeneracion> GenerarDocumentoAsync(EmisorCpe emisor, GuiaRemisionCpe guia, ReferenciaCpe referencia, CancellationToken ct)
+    {
+        var inicio = Stopwatch.GetTimestamp();
 
         // Regenerar lo ya enviado dejaría archivos distintos de los que tiene SUNAT.
         if (await historial.ObtenerAsync(referencia, ct).ConfigureAwait(false) is { EstadoActual: not (EstadoCpe.Generado or EstadoCpe.ErrorValidacionLocal) } previo)
@@ -91,7 +99,7 @@ internal sealed class ServicioGre(
     {
         ct.ThrowIfCancellationRequested();
         var generado = generador.Construir(emisor, guia);
-        return Task.FromResult(new ResultadoValidacion { Errores = generado.Errores, Advertencias = generado.Advertencias });
+        return Task.FromResult(ServicioCpe.Validacion(generado));
     }
 
     public Task<ResultadoEnvio> EnviarAsync(EmisorCpe emisor, ReferenciaCpe referencia, CancellationToken ct = default) =>
@@ -135,13 +143,17 @@ internal sealed class ServicioGre(
         return await pdf.AplicarAsync(emisor, emision, ct).ConfigureAwait(false);
     }
 
-    private ResultadoGeneracion Resultado(ReferenciaCpe referencia, IReadOnlyList<ErrorCpe> encontrados, IReadOnlyList<ObservacionCpe> advertencias, RutasCpe rutas) => new()
+    private ResultadoGeneracion Resultado(ReferenciaCpe referencia, IReadOnlyList<ErrorCpe> encontrados, IReadOnlyList<ObservacionCpe> advertencias, RutasCpe rutas)
     {
-        Referencia = referencia,
-        Errores = encontrados,
-        Advertencias = advertencias,
-        Rutas = rutas,
-        FechaLimiteEnvio = plazos.FechaLimite(referencia),
-        FechaProceso = reloj.AhoraLima(),
-    };
+        Telemetria.RegistrarErroresValidacion(referencia.TipoDocumento, encontrados);
+        return new()
+        {
+            Referencia = referencia,
+            Errores = encontrados,
+            Advertencias = advertencias,
+            Rutas = rutas,
+            FechaLimiteEnvio = plazos.FechaLimite(referencia),
+            FechaProceso = reloj.AhoraLima(),
+        };
+    }
 }

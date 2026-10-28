@@ -34,6 +34,25 @@ public sealed class GeneracionAutomaticaTests
     }
 
     [Fact]
+    public async Task EmitirAsync_20EnParalelo_CadaUnaConSuPdf()
+    {
+        const int cantidad = 20;
+        using var servicios = Servicios();
+        var emisor = CertificadoPrueba.Emisor(servicios.Almacen);
+        for (var n = 1; n <= cantidad; n++)
+        {
+            servicios.Sunat.Responder(SendBill, ConCdr(Cdr($"F001-{n}", "0", $"La Factura numero F001-{n}, ha sido aceptada")));
+        }
+
+        var emisiones = await Task.WhenAll(Enumerable.Range(1, cantidad).Select(n =>
+            Task.Run(() => servicios.Obtener<IServicioCpe>().EmitirAsync(emisor, Ejemplos.Factura() with { Numero = n }, Ct), Ct)));
+
+        Assert.All(emisiones, e => Assert.Equal(EstadoCpe.Aceptado, e.Envio.Estado));
+        Assert.All(emisiones, e => Assert.DoesNotContain(e.Generacion.Advertencias, a => a.Codigo == "PCPE-5001"));
+        Assert.Equal(cantidad, emisiones.Select(e => e.Envio.Rutas.Pdf).Distinct(StringComparer.Ordinal).Count(p => File.Exists(p)));
+    }
+
+    [Fact]
     public async Task EmitirAsync_Rechazado_SinPdf()
     {
         using var servicios = Servicios();
