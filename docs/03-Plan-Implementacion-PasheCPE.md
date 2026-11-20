@@ -119,7 +119,7 @@
 4. Reconciliación `RespuestaIncierta` / 1033 vía `getStatusCdr`. Faults transitorios según TRD §14:
    - `sendBill` sin reintentos internos (`ServicioNoDisponible` con `EsReintentable = true`).
    - `sendSummary` solo reintenta los faults de disponibilidad.
-   - Hasta 3 reintentos en `getStatus`, `getStatusCdr` y el token GRE.
+   - Hasta 2 reintentos en `getStatus`, `getStatusCdr` y el token GRE.
    - El siguiente `EnviarAsync` consulta primero `getStatusCdr` si el último intento fue `RespuestaIncierta` o un fault de constancia o ticket; con un fault de disponibilidad reenvía directamente.
    - 0140: `EnProceso` con `RequiereConsultaEstado = true`, sin reenvío.
 5. `EnviarAsync`, `EmitirAsync`, `ConsultarCdrAsync` en `ServicioCpe`; telemetría y enmascarado.

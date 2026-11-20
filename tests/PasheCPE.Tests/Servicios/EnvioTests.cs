@@ -330,7 +330,7 @@ public sealed class EnvioTests : IDisposable
     }
 
     [Fact]
-    public async Task ConsultarCdrAsync_FallaPersistente_MaximoTresReintentos()
+    public async Task ConsultarCdrAsync_FallaPersistente_MaximoDosReintentos()
     {
         using var servicios = new ServiciosPrueba(o => o.Ambiente = Ambiente.Produccion);
         var (emisor, referencia) = await GenerarAsync(servicios);
@@ -342,7 +342,7 @@ public sealed class EnvioTests : IDisposable
         var resultado = await Servicio(servicios).ConsultarCdrAsync(emisor, referencia, Ct);
 
         Assert.Equal((EstadoCpe.ServicioNoDisponible, true), (resultado.Estado, resultado.EsReintentable));
-        Assert.Equal(4, servicios.Sunat.Llamadas(GetStatusCdr));
+        Assert.Equal(3, servicios.Sunat.Llamadas(GetStatusCdr));
         Assert.Equal(EstadoCpe.Generado, (await servicios.Obtener<IHistorialCpe>().ObtenerAsync(referencia, Ct))!.EstadoActual);
     }
 

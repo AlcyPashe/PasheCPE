@@ -21,7 +21,7 @@ namespace PasheCPE.Servicios;
 /// consultar (beta, boletas o series B) se reenvía el mismo ZIP (decisión del 23/10/2026);</item>
 /// <item>fault de disponibilidad o error de servicio → se reenvía directamente.</item>
 /// </list>
-/// <c>sendBill</c> nunca se reintenta dentro de la llamada; <c>getStatusCdr</c>, hasta 3 veces. Un bloqueo por documento
+/// <c>sendBill</c> nunca se reintenta dentro de la llamada; <c>getStatusCdr</c>, hasta 2 veces. Un bloqueo por documento
 /// impide envíos simultáneos. Ninguna respuesta de negocio o de red lanza excepción.
 /// </summary>
 internal sealed class EnvioComprobantes(
@@ -217,7 +217,7 @@ internal sealed class EnvioComprobantes(
     }
 
     /// <summary>
-    /// getStatusCdr con hasta 3 reintentos ante fallas de red o faults transitorios. Devuelve el resultado y si SUNAT
+    /// getStatusCdr con hasta 2 reintentos ante fallas de red o faults transitorios. Devuelve el resultado y si SUNAT
     /// respondió que no tiene el comprobante («no existe»): en ese caso el estado del historial no cambia.
     /// </summary>
     private async Task<(ResultadoEnvio Resultado, bool NoExiste)> ConsultarConReintentosAsync(EmisorCpe emisor, ContextoEnvio contexto, EndpointCpe consulta, EstadoCpe? estadoPrevio, CancellationToken ct)

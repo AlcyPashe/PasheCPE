@@ -25,7 +25,7 @@ internal sealed class ServiciosPrueba : IDisposable
         servicios.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         servicios.AddSingleton(new FabricaManejadorHttp(() => Sunat));
         servicios.AddSingleton<ISondaRed>(Red);
-        servicios.AddSingleton(new EsperasReintento([TimeSpan.Zero, TimeSpan.Zero, TimeSpan.Zero]));
+        servicios.AddSingleton(new EsperasReintento([.. EsperasReintento.PorDefecto.Esperas.Select(_ => TimeSpan.Zero)]));
         registrar?.Invoke(servicios);
         servicios.AddPasheCpe(o =>
         {

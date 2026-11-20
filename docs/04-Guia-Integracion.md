@@ -24,13 +24,13 @@ Los paquetes están en GitHub Packages. `nuget.config` del sistema consumidor:
 `PASHE_NUGET_PAT` es una variable de entorno del equipo de desarrollo y del servidor de compilación, con un token de GitHub de solo lectura (`read:packages`). El token nunca va en el repositorio del sistema consumidor. Luego:
 
 ```powershell
-dotnet add package PasheCPE --version 1.0.0-rc.1
-dotnet add package PasheCPE.Pdf --version 1.0.0-rc.1   # opcional
+dotnet add package PasheCPE --version 1.0.0-rc.2
+dotnet add package PasheCPE.Pdf --version 1.0.0-rc.2   # opcional
 ```
 
 - **Versión fija.** Use siempre una versión exacta, nunca rangos flotantes (`1.0.*`). Las versiones `-rc.N` son preliminares: un sistema en producción pasa de una a otra a propósito, revisando el `CHANGELOG.md`.
 - **`PasheCPE.Pdf` y `PasheCPE` van con la misma versión.** `PasheCPE.Pdf` exige la versión exacta de `PasheCPE` con la que se publicó; si no coinciden, la restauración falla.
-- **Comprobar un paquete** antes de actualizar un sistema: `pwsh tools/verificar-paquete.ps1 -Version 1.0.0-rc.1 -Origen GitHub`, desde el repositorio de PasheCPE. Crea un proyecto de consola limpio, restaura los dos paquetes con el `nuget.config` de arriba y genera y firma una factura y su PDF sin llamar a SUNAT.
+- **Comprobar un paquete** antes de actualizar un sistema: `pwsh tools/verificar-paquete.ps1 -Version 1.0.0-rc.2 -Origen GitHub`, desde el repositorio de PasheCPE. Crea un proyecto de consola limpio, restaura los dos paquetes con el `nuget.config` de arriba y genera y firma una factura y su PDF sin llamar a SUNAT.
 
 ## 2. Configuración y registro
 

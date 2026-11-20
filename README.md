@@ -14,8 +14,8 @@ Librería .NET 10 de **Pashe Soluciones** para la emisión electrónica ante SUN
 Desde GitHub Packages, con versión fija y el `nuget.config` de la [guía §1](docs/04-Guia-Integracion.md#1-referenciar-el-paquete):
 
 ```powershell
-dotnet add package PasheCPE --version 1.0.0-rc.1
-dotnet add package PasheCPE.Pdf --version 1.0.0-rc.1   # opcional, misma versión que PasheCPE
+dotnet add package PasheCPE --version 1.0.0-rc.2
+dotnet add package PasheCPE.Pdf --version 1.0.0-rc.2   # opcional, misma versión que PasheCPE
 ```
 
 ## Uso rápido

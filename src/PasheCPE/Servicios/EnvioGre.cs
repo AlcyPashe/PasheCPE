@@ -24,7 +24,7 @@ namespace PasheCPE.Servicios;
 /// <item>sin ticket (respuesta incierta, servicio no disponible) → se reenvía el mismo ZIP: la API no tiene una
 /// consulta por número.</item>
 /// </list>
-/// Un 401 descarta el token, pide otro y repite la llamada una vez. La consulta del ticket se reintenta hasta 3 veces;
+/// Un 401 descarta el token, pide otro y repite la llamada una vez. La consulta del ticket se reintenta hasta 2 veces;
 /// el envío, nunca. Al aceptarse la guía se guarda el CDR y se genera el QR con el enlace que trae. Nunca lanza.
 /// </summary>
 internal sealed class EnvioGre(
@@ -219,7 +219,7 @@ internal sealed class EnvioGre(
     }
 
     /// <summary>
-    /// Consulta del ticket con hasta 3 reintentos ante fallas de red o HTTP 5xx. El estado de la guía solo cambia con
+    /// Consulta del ticket con hasta 2 reintentos ante fallas de red o HTTP 5xx. El estado de la guía solo cambia con
     /// una respuesta concluyente (en proceso, aceptada, observada, rechazada).
     /// </summary>
     private async Task<ResultadoEnvio> ConsultarConReintentosAsync(EmisorCpe emisor, ContextoEnvio contexto, EndpointCpe urlToken, EndpointCpe api, string ticket, HistorialCpe? previo, CancellationToken ct)

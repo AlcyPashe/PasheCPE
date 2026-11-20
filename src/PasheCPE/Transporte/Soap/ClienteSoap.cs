@@ -70,9 +70,9 @@ internal sealed class FabricaManejadorHttp(Func<HttpMessageHandler> crear)
 /// <summary>Esperas entre reintentos de las operaciones idempotentes (getStatusCdr; luego getStatus y token GRE).</summary>
 internal sealed class EsperasReintento(IReadOnlyList<TimeSpan> esperas)
 {
-    public static EsperasReintento PorDefecto { get; } = new([TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(4)]);
+    public static EsperasReintento PorDefecto { get; } = new([TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2)]);
 
-    /// <summary>Una espera por reintento: su cantidad es el máximo de reintentos (3).</summary>
+    /// <summary>Una espera por reintento: su cantidad es el máximo de reintentos (2): con el intento inicial, 3 llamadas como máximo.</summary>
     public IReadOnlyList<TimeSpan> Esperas { get; } = esperas;
 }
 

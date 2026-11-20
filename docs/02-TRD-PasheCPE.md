@@ -288,7 +288,7 @@ public sealed record ResultadoEnvio
 | Sin interfaz de red / sin Internet | `SinConexionInternet` | sí | no |
 | DNS o TCP del destino falla con Internet disponible | `ServicioNoDisponible` | sí | no |
 | HTTP 502/503/504, timeout de **conexión**, error TLS | `ServicioNoDisponible` | sí | no |
-| Fault con código `transitorio = true` (falla interna de SUNAT, p. ej. 0100 "El sistema no puede responder su solicitud") | `ServicioNoDisponible` con `EsReintentable = true`; los reintentos dentro de la llamada dependen de la operación (§14): `sendBill` nunca, `sendSummary` solo faults de disponibilidad, `getStatus`/`getStatusCdr`/token GRE hasta 3. Nunca reintentos infinitos; el reenvío lo decide el sistema de ventas | sí | según el último fault (§14) |
+| Fault con código `transitorio = true` (falla interna de SUNAT, p. ej. 0100 "El sistema no puede responder su solicitud") | `ServicioNoDisponible` con `EsReintentable = true`; los reintentos dentro de la llamada dependen de la operación (§14): `sendBill` nunca, `sendSummary` solo faults de disponibilidad, `getStatus`/`getStatusCdr`/token GRE hasta 2 (3 llamadas con la inicial). Nunca reintentos infinitos; el reenvío lo decide el sistema de ventas | sí | según el último fault (§14) |
 | Fault con código `enProceso = true` (0140 "Existe un documento igual en proceso") | `EnProceso` con `RequiereConsultaEstado = true`: **nunca se reenvía**; se consulta el CDR después de una espera | — | **sí** |
 | Fault que apunta al archivo enviado (0250 error al descomprimir, 0252 ZIP sin archivos…) | `ErrorServicio`: reenviar el mismo archivo no lo arregla | no | no |
 | Fault 0100–1999 no transitorio (credenciales, perfil, nombre/estructura de archivo) | `ErrorServicio` | no | no |
@@ -559,8 +559,8 @@ No usa ping (ICMP suele estar bloqueado). Se puede desactivar por opción.
   | Operación | Reintentos dentro de la llamada | Resultado si persiste |
   |---|---|---|
   | `sendBill` | **Ninguno** (principio 4) | `ServicioNoDisponible` con `EsReintentable = true` de inmediato; el sistema de ventas decide cuándo reenviar (su `BackgroundService`) |
-  | `sendSummary` | Solo faults de *disponibilidad*, como máximo 3, con espera progresiva | `ServicioNoDisponible` con `EsReintentable = true` |
-  | `getStatus`, `getStatusCdr`, token GRE | Hasta 3, con espera progresiva | `ServicioNoDisponible` con `EsReintentable = true` |
+  | `sendSummary` | Solo faults de *disponibilidad*, como máximo 2 (3 envíos con el inicial), con espera progresiva de 1 y 2 s | `ServicioNoDisponible` con `EsReintentable = true` |
+  | `getStatus`, `getStatusCdr`, token GRE | Hasta 2 (3 llamadas con la inicial), con espera progresiva de 1 y 2 s | `ServicioNoDisponible` con `EsReintentable = true` |
 
 - **Siguiente `EnviarAsync` del mismo documento**: antes de reenviar se lee el último intento del historial (`LOG`).
   - Si fue `RespuestaIncierta` o un fault de *constancia o ticket* (o del resto de transitorios), primero se consulta con `getStatusCdr`. Si SUNAT ya lo tiene, se devuelve ese estado y no se reenvía.
@@ -592,7 +592,7 @@ Notas: `endpoints.json` trae solo eFact; otro OSE se declara en `PasheCPE:Endpoi
 
 ## 16. Tickets
 
-Espera progresiva configurable (por defecto 2, 4, 8, 15, 30 s; máximo 5 consultas por llamada a `EsperarTicketAsync`, con `TimeProvider`); `98` → `EnProceso` con ticket; `0` → CDR; `99` → rechazado (con o sin CDR). Los estados son datos (`estados-ticket.json`). Cada consulta (`ConsultarTicketAsync`) reintenta hasta 3 veces ante faults transitorios o fallas de red; si se agotan las esperas se devuelve `EnProceso` con el ticket. El ticket siempre queda en el historial y `ConsultarTicketAsync` sin ticket lo toma de ahí, así se consulta desde otro proceso u otro día. En la Fase 6 lo implementa `EnvioResumenes` (SOAP); en la Fase 10 se evalúa extraerlo para la GRE.
+Espera progresiva configurable (por defecto 2, 4, 8, 15, 30 s; máximo 5 consultas por llamada a `EsperarTicketAsync`, con `TimeProvider`); `98` → `EnProceso` con ticket; `0` → CDR; `99` → rechazado (con o sin CDR). Los estados son datos (`estados-ticket.json`). Cada consulta (`ConsultarTicketAsync`) reintenta hasta 2 veces ante faults transitorios o fallas de red; si se agotan las esperas se devuelve `EnProceso` con el ticket. El ticket siempre queda en el historial y `ConsultarTicketAsync` sin ticket lo toma de ahí, así se consulta desde otro proceso u otro día. En la Fase 6 lo implementa `EnvioResumenes` (SOAP); en la Fase 10 se evalúa extraerlo para la GRE.
 
 **Resumen diario (Fase 6, decidido con el desarrollador el 23/10/2026)**:
 - Generación: bloqueo del día por RUC (`RUC-RC-yyyyMMdd`); correlativo = mayor `n` de ENVIO y LOG del periodo + 1; lotes de 500 con `LineID` 1…n. Un error del modelo detiene todo; un lote con errores no se escribe ni impide los demás.

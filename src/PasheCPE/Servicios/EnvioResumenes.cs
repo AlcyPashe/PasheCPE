@@ -21,7 +21,7 @@ namespace PasheCPE.Servicios;
 /// <item>ya hay ticket → se consulta el ticket, no se reenvía (salvo que SUNAT responda que no existe, 0127);</item>
 /// <item>sin ticket (respuesta incierta, servicio no disponible) → se reenvía el mismo ZIP.</item>
 /// </list>
-/// <c>sendSummary</c> solo se reintenta ante faults de disponibilidad; <c>getStatus</c>, hasta 3 veces. El resultado del
+/// <c>sendSummary</c> solo se reintenta ante faults de disponibilidad; <c>getStatus</c>, hasta 2 veces. El resultado del
 /// ticket se registra también en el historial de cada documento informado: en el RC, en proceso al recibir el ticket,
 /// aceptado al recibir el CDR y, si el resumen se rechaza, las boletas adicionadas vuelven a <c>Generado</c> para otro
 /// resumen; en la RA, los documentos pasan a <see cref="EstadoCpe.DeBaja"/> cuando SUNAT la acepta.
@@ -208,7 +208,7 @@ internal sealed class EnvioResumenes(
     }
 
     /// <summary>
-    /// getStatus con hasta 3 reintentos ante fallas de red o faults transitorios. El estado del resumen solo cambia con
+    /// getStatus con hasta 2 reintentos ante fallas de red o faults transitorios. El estado del resumen solo cambia con
     /// una respuesta concluyente (en proceso, aceptado, observado, rechazado); con un estado final se propaga a los
     /// documentos informados.
     /// </summary>

@@ -12,7 +12,7 @@ internal sealed record ResultadoTokenGre(string? Token, RespuestaSoap? Falla);
 /// Token OAuth2 de la API de guías (TRD §17, manual GRE §1.2): dura lo que indica <c>expires_in</c> (hoy 1 hora) y sirve
 /// para todos los envíos y consultas de ese periodo. Se guarda en memoria por <c>client_id</c> y RUC + usuario SOL hasta
 /// <c>expires_in − 60 s</c>; vencido, el siguiente envío pide otro. Un solo pedido a la vez por credencial: los envíos
-/// simultáneos esperan y reutilizan el mismo token. Ante fallas de red o HTTP 5xx se reintenta hasta 3 veces; las
+/// simultáneos esperan y reutilizan el mismo token. Ante fallas de red o HTTP 5xx se reintenta hasta 2 veces; las
 /// credenciales rechazadas no se reintentan. Nunca lanza.
 /// </summary>
 internal sealed class ProveedorTokenGre(ClienteGre cliente, EsperasReintento esperas, TimeProvider tiempo, ILogger<ProveedorTokenGre> registro)

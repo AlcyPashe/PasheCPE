@@ -4,6 +4,13 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 
 ## [Sin publicar]
 
+## [1.0.0-rc.2] — 20/11/2026
+
+Corrección para el piloto en Palestra v2: menos reintentos y esperas más cortas cuando SUNAT no responde. Sin cambios en el contrato público.
+
+### Cambiado
+- 20/11/2026 — Reintentos dentro de la llamada: de 3 a 2 (`EsperasReintento.PorDefecto`: 1 y 2 s). Con el intento inicial son como máximo 3 llamadas, y la espera ante una caída de SUNAT baja de 7 a 3 s. Aplica a `sendSummary` (solo faults de disponibilidad), `getStatus`, `getStatusCdr` y el token GRE; `sendBill` sigue sin reintentos internos. TRD §5.1 y §14 actualizados.
+
 ## [1.0.0-rc.1] — 27/10/2026
 
 Primera versión publicada en GitHub Packages (`PasheCPE`, `PasheCPE.Pdf`), preliminar para el piloto en Palestra v2. Incluye las fases 0 a 13A.

@@ -73,7 +73,7 @@ public interface IServicioCpe
     Task<ResultadoEmision> EmitirAsync(EmisorCpe emisor, NotaCpe nota, CancellationToken ct = default);
 
     /// <summary>
-    /// Consulta una vez (con hasta 3 reintentos ante fallas transitorias) el ticket del resumen (RC) o de la baja (RA)
+    /// Consulta una vez (con hasta 2 reintentos ante fallas transitorias) el ticket del resumen (RC) o de la baja (RA)
     /// con getStatus: 98 en proceso, 0 con el CDR (aceptado u observado), 99 rechazado. Guarda el CDR en RPTA y registra
     /// el resultado en el historial del RC o la RA y en el de cada documento informado. Sin <paramref name="ticket"/> usa
     /// el último ticket del historial, así se puede consultar desde otro proceso u otro día.
